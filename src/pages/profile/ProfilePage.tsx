@@ -749,20 +749,46 @@ export default function ProfilePage() {
                 <article className="single-microlog-note">
                   <div className="single-microlog-author">
                     <div className="profile-avatar small">
-                      {profile.avatar_url ? (
-                        <img
+                      <img
+                          className={
+                            !profile.avatar_url
+                              ? "ul-avatar-fallback-image"
+                              : undefined
+                          }
                           src={
-                            profile.avatar_url
+                            profile.avatar_url ??
+                            "/ul-avatar-fallback.png"
                           }
                           alt=""
+                          onError={
+                            (
+                              event
+                            ) => {
+                              const image =
+                                event.currentTarget;
+
+                              if (
+                                image.dataset
+                                  .ulFallback ===
+                                "true"
+                              ) {
+                                return;
+                              }
+
+                              image.dataset
+                                .ulFallback =
+                                "true";
+
+                              image.classList
+                                .add(
+                                  "ul-avatar-fallback-image"
+                                );
+
+                              image.src =
+                                "/ul-avatar-fallback.png";
+                            }
+                          }
                         />
-                      ) : (
-                        <span>
-                          {avatarLetters(
-                            profile
-                          )}
-                        </span>
-                      )}
                     </div>
 
                     <div>
@@ -825,20 +851,46 @@ export default function ProfilePage() {
           <div className="public-profile-layout">
             <section className="public-profile-card">
               <div className="profile-avatar">
-                {profile.avatar_url ? (
-                  <img
+                <img
+                    className={
+                      !profile.avatar_url
+                        ? "ul-avatar-fallback-image"
+                        : undefined
+                    }
                     src={
-                      profile.avatar_url
+                      profile.avatar_url ??
+                      "/ul-avatar-fallback.png"
                     }
                     alt=""
+                    onError={
+                      (
+                        event
+                      ) => {
+                        const image =
+                          event.currentTarget;
+
+                        if (
+                          image.dataset
+                            .ulFallback ===
+                          "true"
+                        ) {
+                          return;
+                        }
+
+                        image.dataset
+                          .ulFallback =
+                          "true";
+
+                        image.classList
+                          .add(
+                            "ul-avatar-fallback-image"
+                          );
+
+                        image.src =
+                          "/ul-avatar-fallback.png";
+                      }
+                    }
                   />
-                ) : (
-                  <span>
-                    {avatarLetters(
-                      profile
-                    )}
-                  </span>
-                )}
               </div>
 
               <div className="public-profile-copy">
@@ -928,20 +980,46 @@ export default function ProfilePage() {
                         }
                       >
                         <div className="profile-avatar tiny">
-                          {profile.avatar_url ? (
-                            <img
+                          <img
+                              className={
+                                !profile.avatar_url
+                                  ? "ul-avatar-fallback-image"
+                                  : undefined
+                              }
                               src={
-                                profile.avatar_url
+                                profile.avatar_url ??
+                                "/ul-avatar-fallback.png"
                               }
                               alt=""
+                              onError={
+                                (
+                                  event
+                                ) => {
+                                  const image =
+                                    event.currentTarget;
+
+                                  if (
+                                    image.dataset
+                                      .ulFallback ===
+                                    "true"
+                                  ) {
+                                    return;
+                                  }
+
+                                  image.dataset
+                                    .ulFallback =
+                                    "true";
+
+                                  image.classList
+                                    .add(
+                                      "ul-avatar-fallback-image"
+                                    );
+
+                                  image.src =
+                                    "/ul-avatar-fallback.png";
+                                }
+                              }
                             />
-                          ) : (
-                            <span>
-                              {avatarLetters(
-                                profile
-                              )}
-                            </span>
-                          )}
                         </div>
 
                         <div>
@@ -1037,21 +1115,48 @@ export default function ProfilePage() {
                                 : "#"
                             }
                           >
-                            {message.author
-                              ?.avatar_url ? (
-                              <img
-                                src={
-                                  message.author.avatar_url
+                            <img
+                              className={
+                                !message.author
+                                  ?.avatar_url
+                                  ? "ul-avatar-fallback-image"
+                                  : undefined
+                              }
+                              src={
+                                message.author
+                                  ?.avatar_url ??
+                                "/ul-avatar-fallback.png"
+                              }
+                              alt=""
+                              onError={
+                                (
+                                  event
+                                ) => {
+                                  const image =
+                                    event.currentTarget;
+
+                                  if (
+                                    image.dataset
+                                      .ulFallback ===
+                                    "true"
+                                  ) {
+                                    return;
+                                  }
+
+                                  image.dataset
+                                    .ulFallback =
+                                    "true";
+
+                                  image.classList
+                                    .add(
+                                      "ul-avatar-fallback-image"
+                                    );
+
+                                  image.src =
+                                    "/ul-avatar-fallback.png";
                                 }
-                                alt=""
-                              />
-                            ) : (
-                              <span>
-                                {shoutboxAuthorLetters(
-                                  message.author
-                                )}
-                              </span>
-                            )}
+                              }
+                            />
                           </a>
 
                           <div>

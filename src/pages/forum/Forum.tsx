@@ -107,7 +107,7 @@ function authorLabel(
       ?.username ||
     item.author
       ?.display_name ||
-    "UNFILTERED LOG User"
+    "UNFILTERED LOGS User"
   );
 }
 
@@ -382,7 +382,7 @@ function ForumHome({
               nextError
                 instanceof Error
                 ? nextError.message
-                : "UNFILTERED LOG Forums could not load."
+                : "UNFILTERED LOGS Forums could not load."
             );
           }
         }
@@ -431,7 +431,7 @@ function ForumHome({
       <section className="forum-hero">
         <div>
           <span className="forum-kicker">
-            UNFILTERED LOG FORUMS
+            UNFILTERED LOGS FORUMS
           </span>
 
           <h1>
@@ -986,7 +986,7 @@ function NewThreadPage({
         </h1>
 
         <p>
-          Reading is public. Posting requires a UNFILTERED LOG account.
+          Reading is public. Posting requires a UNFILTERED LOGS account.
         </p>
 
         <a
@@ -1057,7 +1057,7 @@ function NewThreadPage({
           nextError
             instanceof Error
             ? nextError.message
-            : "UNFILTERED LOG could not create the thread."
+            : "UNFILTERED LOGS could not create the thread."
         );
 
         setSaving(
@@ -1883,71 +1883,145 @@ function ThreadPage({
         )}
       </section>
 
-      <section className="forum-reply-box">
+      <section className="forum-response-console">
         {!session ? (
-          <div className="forum-reply-gate">
-            <Lock
-              size={15}
-            />
+          <div className="forum-response-gate">
+            <div className="forum-response-gate-icon">
+              <Lock
+                size={18}
+              />
+            </div>
 
-            <span>
-              Create an account to reply.
-            </span>
+            <div>
+              <strong>
+                SIGN IN TO RESPOND
+              </strong>
 
-            <a href="/login">
-              Create account
+              <span>
+                Reading is public. Responding requires an account.
+              </span>
+            </div>
+
+            <a
+              className="forum-response-gate-action"
+              href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`}
+            >
+              Sign in »
             </a>
           </div>
         ) : thread.is_locked &&
           !isStaff ? (
-          <div className="forum-reply-gate">
-            <Lock
-              size={15}
-            />
+          <div className="forum-response-gate locked">
+            <div className="forum-response-gate-icon">
+              <Lock
+                size={18}
+              />
+            </div>
 
-            <span>
-              This thread is locked.
-            </span>
+            <div>
+              <strong>
+                THREAD LOCKED
+              </strong>
+
+              <span>
+                New responses are closed for this thread.
+              </span>
+            </div>
           </div>
         ) : (
           <>
-            <header>
-              <strong>
-                Reply
-              </strong>
-
-              {thread.is_locked &&
-                isStaff && (
-                <span>
-                  Staff reply to locked thread
+            <header className="forum-response-header">
+              <div>
+                <span className="forum-response-kicker">
+                  FORUM RESPONSE
                 </span>
-              )}
+
+                <strong>
+                  ADD A RESPONSE
+                </strong>
+              </div>
+
+              <span className="forum-response-limit">
+                5,000 CHAR MAX
+              </span>
             </header>
 
-            <textarea
-              value={
-                replyBody
-              }
-              maxLength={5000}
-              onChange={
-                (
-                  event
-                ) => {
-                  setReplyBody(
-                    event.target
-                      .value
-                  );
-                }
-              }
-              placeholder="Add to the damage..."
-            />
+            {thread.is_locked &&
+              isStaff && (
+              <div className="forum-response-staff-note">
+                <Lock
+                  size={11}
+                />
 
-            <div className="forum-reply-tools">
+                Staff response to a locked thread
+              </div>
+            )}
+
+            <div className="forum-response-editor">
+              <label>
+                <span>
+                  RESPONSE
+                </span>
+
+                <textarea
+                  value={
+                    replyBody
+                  }
+                  maxLength={5000}
+                  onChange={
+                    (
+                      event
+                    ) => {
+                      setReplyBody(
+                        event.target
+                          .value
+                      );
+                    }
+                  }
+                  placeholder="Add your response..."
+                />
+              </label>
+            </div>
+
+            {selectedReplyGif && (
+              <div className="forum-response-gif-preview">
+                <div className="forum-response-gif-preview-copy">
+                  <span>
+                    ATTACHED GIF
+                  </span>
+
+                  <strong>
+                    {selectedReplyGif.title ||
+                      "Selected GIPHY image"}
+                  </strong>
+                </div>
+
+                <img
+                  src={
+                    selectedReplyGif.previewUrl
+                  }
+                  alt="Selected GIF"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedReplyGif(
+                      null
+                    );
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+
+            <div className="forum-response-toolbar">
               <button
                 className={
                   giphyOpen
-                    ? "active"
-                    : ""
+                    ? "forum-response-tool active"
+                    : "forum-response-tool"
                 }
                 type="button"
                 onClick={() => {
@@ -1960,37 +2034,23 @@ function ThreadPage({
                 }}
               >
                 <ImageIcon
-                  size={13}
+                  size={14}
                 />
 
-                GIPHY
+                <span>
+                  {giphyOpen
+                    ? "CLOSE GIPHY"
+                    : "ADD GIF / GIPHY"}
+                </span>
               </button>
 
-              {selectedReplyGif && (
-                <div className="forum-selected-gif">
-                  <img
-                    src={
-                      selectedReplyGif.previewUrl
-                    }
-                    alt="Selected GIF"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedReplyGif(
-                        null
-                      );
-                    }}
-                  >
-                    Remove GIF
-                  </button>
-                </div>
-              )}
+              <span className="forum-response-toolbar-note">
+                GIF optional
+              </span>
             </div>
 
             {giphyOpen && (
-              <div className="forum-giphy-picker">
+              <div className="forum-response-giphy">
                 <GiphyPicker
                   selected={
                     selectedReplyGif
@@ -2012,13 +2072,13 @@ function ThreadPage({
               </div>
             )}
 
-            <footer>
-              <span>
+            <footer className="forum-response-footer">
+              <span className="forum-response-counter">
                 {replyBody.length}/5000
               </span>
 
               <button
-                className="forum-primary-button"
+                className="forum-response-submit"
                 type="button"
                 disabled={
                   saving ||
@@ -2032,12 +2092,12 @@ function ThreadPage({
                 }}
               >
                 <Send
-                  size={13}
+                  size={14}
                 />
 
                 {saving
-                  ? "Posting..."
-                  : "Post reply"}
+                  ? "POSTING..."
+                  : "POST RESPONSE"}
               </button>
             </footer>
           </>
@@ -2240,7 +2300,7 @@ export default function Forum() {
 
         <main className="forum-shell">
           <div className="forum-loading">
-            Loading UNFILTERED LOG Forums...
+            Loading UNFILTERED LOGS Forums...
           </div>
         </main>
       </div>

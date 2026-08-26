@@ -936,3 +936,32 @@ time {
       31px;
   }
 }
+
+
+/* ==========================================================
+   PRODUCTION FIX 44A
+   LATEST MEMBER PROFILE LINK
+   ========================================================== */
+
+
+.status-inner
+a.latest-member-name {
+  color:
+    inherit;
+
+  font-weight:
+    900;
+
+  text-decoration:
+    none;
+}
+
+
+.status-inner
+a.latest-member-name:hover {
+  color:
+    #2f5f9f;
+
+  text-decoration:
+    underline;
+}

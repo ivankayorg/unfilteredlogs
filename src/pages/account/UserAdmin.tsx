@@ -800,23 +800,48 @@ export default function UserAdmin() {
               <div className="profile-settings-layout">
                 <div className="profile-logo-editor">
                   <div className="profile-logo-preview">
-                    {selectedLogoPreview ||
-                    profile.avatar_url ? (
-                      <img
-                        src={
-                          selectedLogoPreview ??
-                          profile.avatar_url ??
-                          ""
+                    <img
+                    className={
+                      !selectedLogoPreview &&
+                      !profile.avatar_url
+                        ? "ul-avatar-fallback-image"
+                        : undefined
+                    }
+                    src={
+                      selectedLogoPreview ??
+                      profile.avatar_url ??
+                      "/ul-avatar-fallback.png"
+                    }
+                    alt=""
+                    onError={
+                      (
+                        event
+                      ) => {
+                        const image =
+                          event.currentTarget;
+
+                        if (
+                          image.dataset
+                            .ulFallback ===
+                          "true"
+                        ) {
+                          return;
                         }
-                        alt=""
-                      />
-                    ) : (
-                      <span>
-                        {initials(
-                          profile
-                        )}
-                      </span>
-                    )}
+
+                        image.dataset
+                          .ulFallback =
+                          "true";
+
+                        image.classList
+                          .add(
+                            "ul-avatar-fallback-image"
+                          );
+
+                        image.src =
+                          "/ul-avatar-fallback.png";
+                      }
+                    }
+                  />
                   </div>
 
                   <label className="profile-logo-upload">
@@ -853,7 +878,11 @@ export default function UserAdmin() {
                       USERNAME
                     </span>
 
-                    <div className="username-input-shell">
+                    <div
+                      className={
+                        `username-input-shell${usernameLocked ? " locked" : ""}`
+                      }
+                    >
                       <b>
                         @
                       </b>

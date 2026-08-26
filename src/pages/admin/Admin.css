@@ -2043,3 +2043,553 @@
 
   white-space: nowrap;
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 42
+   DASHBOARD FRONT PAGE CONTROLS
+   ========================================================== */
+
+
+.admin-dashboard-frontpage {
+  margin:
+    10px 0 12px;
+
+  overflow:
+    hidden;
+
+  border:
+    1px solid
+    #a7b2c0;
+
+  background:
+    #fff;
+}
+
+
+.admin-dashboard-frontpage-heading {
+  min-height:
+    48px;
+
+  padding:
+    7px 10px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    10px;
+
+  border-bottom:
+    1px solid
+    #c8d0da;
+
+  background:
+    linear-gradient(
+      #eaf0f7,
+      #d8e1ed
+    );
+}
+
+
+.admin-dashboard-frontpage-heading h2 {
+  margin:
+    0;
+
+  color:
+    #283b58;
+
+  font-size:
+    14px;
+
+  font-weight:
+    900;
+}
+
+
+.admin-dashboard-frontpage-heading button {
+  min-height:
+    29px;
+
+  padding:
+    0 8px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    5px;
+
+  border:
+    1px solid
+    #a8b3c1;
+
+  border-radius:
+    0;
+
+  background:
+    #fff;
+
+  color:
+    #4e5b6e;
+
+  font:
+    800 8px
+    Verdana,
+    Tahoma,
+    Arial,
+    sans-serif;
+
+  cursor:
+    pointer;
+}
+
+
+.admin-dashboard-frontpage-heading button:hover {
+  background:
+    #eef3f8;
+}
+
+
+.admin-frontpage-control-grid {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:
+    0;
+}
+
+
+.admin-frontpage-control {
+  min-width:
+    0;
+
+  min-height:
+    112px;
+
+  padding:
+    12px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    34px
+    minmax(
+      0,
+      1fr
+    );
+
+  grid-template-rows:
+    auto
+    auto;
+
+  gap:
+    7px 9px;
+
+  align-content:
+    start;
+
+  border:
+    0;
+
+  border-right:
+    1px solid
+    #d9e0e8;
+
+  border-radius:
+    0;
+
+  background:
+    #fff;
+
+  color:
+    #435066;
+
+  font-family:
+    Verdana,
+    Tahoma,
+    Arial,
+    sans-serif;
+
+  text-align:
+    left;
+
+  cursor:
+    pointer;
+}
+
+
+.admin-frontpage-control:last-child {
+  border-right:
+    0;
+}
+
+
+.admin-frontpage-control:hover {
+  background:
+    #f2f6fa;
+}
+
+
+.admin-frontpage-control-icon {
+  width:
+    33px;
+
+  height:
+    33px;
+
+  grid-column:
+    1;
+
+  grid-row:
+    1;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  border:
+    1px solid
+    #a5b4c6;
+
+  background:
+    linear-gradient(
+      #edf3f8,
+      #d9e5f1
+    );
+
+  color:
+    #476b99;
+}
+
+
+.admin-frontpage-control-copy {
+  min-width:
+    0;
+
+  grid-column:
+    2;
+
+  grid-row:
+    1;
+}
+
+
+.admin-frontpage-control-copy strong,
+.admin-frontpage-control-copy small {
+  display:
+    block;
+}
+
+
+.admin-frontpage-control-copy strong {
+  color:
+    #314e78;
+
+  font-size:
+    10px;
+
+  font-weight:
+    900;
+}
+
+
+.admin-frontpage-control-copy small {
+  margin-top:
+    4px;
+
+  color:
+    #6d7888;
+
+  font-size:
+    8px;
+
+  line-height:
+    1.5;
+}
+
+
+.admin-frontpage-control-open {
+  grid-column:
+    2;
+
+  grid-row:
+    2;
+
+  color:
+    #315f9c;
+
+  font-size:
+    8px;
+
+  font-weight:
+    900;
+}
+
+
+@media (max-width: 900px) {
+  .admin-frontpage-control-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .admin-frontpage-control {
+    min-height:
+      82px;
+
+    border-right:
+      0;
+
+    border-bottom:
+      1px solid
+      #d9e0e8;
+  }
+
+
+  .admin-frontpage-control:last-child {
+    border-bottom:
+      0;
+  }
+}
+
+
+@media (max-width: 520px) {
+  .admin-dashboard-frontpage-heading {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+}
+
+
+/* ==========================================================
+   PRODUCTION PASS 43
+   DASHBOARD SUBPAGES
+   ========================================================== */
+
+
+.admin-nav-item {
+  width:
+    100%;
+}
+
+
+.admin-nav-dashboard-group {
+  border-bottom:
+    1px solid
+    #e0e5eb;
+}
+
+
+.admin-nav-dashboard-group >
+button {
+  border-bottom:
+    0;
+}
+
+
+.admin-nav-chevron {
+  margin-left:
+    auto;
+
+  flex:
+    0 0 auto;
+
+  transition:
+    transform
+    120ms
+    ease;
+}
+
+
+.admin-nav-chevron.open {
+  transform:
+    rotate(
+      180deg
+    );
+}
+
+
+.admin-nav-submenu {
+  border-top:
+    1px solid
+    #d7dfe8;
+
+  background:
+    #f2f6fa;
+}
+
+
+.admin-nav
+.admin-nav-submenu
+button {
+  min-height:
+    31px;
+
+  padding:
+    0 9px
+    0 30px;
+
+  gap:
+    7px;
+
+  border:
+    0;
+
+  border-bottom:
+    1px solid
+    #e0e6ed;
+
+  background:
+    #f7f9fc;
+
+  color:
+    #657287;
+
+  font-size:
+    8px;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+}
+
+
+.admin-nav
+.admin-nav-submenu
+button:last-child {
+  border-bottom:
+    0;
+}
+
+
+.admin-nav
+.admin-nav-submenu
+button:hover {
+  background:
+    #eaf1f8;
+
+  color:
+    #315f9c;
+}
+
+
+.admin-nav
+.admin-nav-submenu
+button.active {
+  padding-left:
+    27px;
+
+  border-left:
+    3px solid
+    #4776b8;
+
+  background:
+    #e5edf7;
+
+  color:
+    #234f88;
+
+  font-weight:
+    900;
+}
+
+
+.admin-nav
+.admin-nav-submenu
+button svg {
+  flex:
+    0 0 auto;
+
+  color:
+    #57759b;
+}
+
+
+.admin-nav
+.admin-nav-submenu
+button.active svg {
+  color:
+    #315f9c;
+}
+
+
+/* Pass 42 dashboard shortcut cards are no longer rendered.
+   These rules neutralize any stale cached markup during HMR. */
+.admin-dashboard-frontpage {
+  display:
+    none;
+}
+
+
+@media (max-width: 820px) {
+  .admin-nav-dashboard-group {
+    grid-column:
+      1 / -1;
+  }
+
+
+  .admin-nav-submenu {
+    display:
+      grid;
+
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+
+  .admin-nav
+  .admin-nav-submenu
+  button {
+    padding-left:
+      12px;
+  }
+
+
+  .admin-nav
+  .admin-nav-submenu
+  button.active {
+    padding-left:
+      9px;
+  }
+}
+
+
+@media (max-width: 520px) {
+  .admin-nav-submenu {
+    grid-template-columns:
+      1fr;
+  }
+}

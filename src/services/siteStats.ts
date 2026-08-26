@@ -2,15 +2,21 @@ import { supabase } from "../lib/supabase";
 
 
 /* ==========================================================
-   UNFILTERED LOG
+   UNFILTERED LOGS
    PUBLIC SITE STATS
    ========================================================== */
 
 
 export type PublicSiteStats = {
   totalUsers: number;
+
   totalPosts: number;
-  latestMember: string | null;
+
+  latestMember:
+    string | null;
+
+  latestMemberUsername:
+    string | null;
 };
 
 
@@ -55,6 +61,15 @@ Promise<PublicSiteStats> {
         .select(
           "username, display_name, created_at"
         )
+        .not(
+          "username",
+          "is",
+          null
+        )
+        .neq(
+          "username",
+          ""
+        )
         .order(
           "created_at",
           {
@@ -79,13 +94,18 @@ Promise<PublicSiteStats> {
   }
 
 
-  const latestMember =
+  const latestMemberUsername =
     latestMemberResult.data
       ?.username
       ?.trim() ||
+    null;
+
+
+  const latestMember =
     latestMemberResult.data
       ?.display_name
       ?.trim() ||
+    latestMemberUsername ||
     null;
 
 
@@ -99,5 +119,7 @@ Promise<PublicSiteStats> {
       0,
 
     latestMember,
+
+    latestMemberUsername,
   };
 }

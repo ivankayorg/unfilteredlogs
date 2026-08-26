@@ -3074,18 +3074,46 @@ function App() {
                       href={`/u/${promotedMember.username}`}
                       aria-label={`Open @${promotedMember.username}'s member page`}
                     >
-                      {promotedMember.avatarUrl ? (
-                        <img
-                          src={promotedMember.avatarUrl}
-                          alt=""
-                        />
-                      ) : (
-                        <span>
-                          {promotedMember.username
-                            .slice(0, 2)
-                            .toUpperCase()}
-                        </span>
-                      )}
+                      <img
+                        className={
+                          !promotedMember.avatarUrl
+                            ? "ul-avatar-fallback-image"
+                            : undefined
+                        }
+                        src={
+                          promotedMember.avatarUrl ??
+                          "/ul-avatar-fallback.png"
+                        }
+                        alt=""
+                        onError={
+                          (
+                            event
+                          ) => {
+                            const image =
+                              event.currentTarget;
+
+                            if (
+                              image.dataset
+                                .ulFallback ===
+                              "true"
+                            ) {
+                              return;
+                            }
+
+                            image.dataset
+                              .ulFallback =
+                              "true";
+
+                            image.classList
+                              .add(
+                                "ul-avatar-fallback-image"
+                              );
+
+                            image.src =
+                              "/ul-avatar-fallback.png";
+                          }
+                        }
+                      />
                     </a>
 
                     <div className="featured-member-copy">

@@ -4779,3 +4779,126 @@ a.featured-member-username {
       13px;
   }
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 39D
+   CENTER @USERNAME UNDER MEATSPACE PICK
+   ========================================================== */
+
+
+.right-rail
+.rail-body
+.featured-member-copy {
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  text-align:
+    center;
+}
+
+
+.right-rail
+.rail-body
+.featured-member-kicker {
+  align-self:
+    center;
+
+  margin:
+    0 auto
+    7px;
+
+  text-align:
+    center;
+}
+
+
+.right-rail
+.rail-body
+a.featured-member-username {
+  width:
+    100%;
+
+  margin:
+    0 auto;
+
+  text-align:
+    center;
+}
+
+
+/* ==========================================================
+   PRODUCTION PASS 41C
+   UL FALLBACK AVATAR
+   ========================================================== */
+
+
+.featured-member-avatar
+img.ul-avatar-fallback-image {
+  padding:
+    7px;
+
+  box-sizing:
+    border-box;
+
+  object-fit:
+    contain;
+
+  background:
+    linear-gradient(
+      #e8eef6,
+      #cad8e8
+    );
+}
+
+
+/* ==========================================================
+   PRODUCTION FIX 44B
+   HEADER OVERVIEW — LATEST MEMBER PROFILE LINK
+
+   Exact strip:
+     4 users | 6 posts | Last new member: Ivan Kay
+   ========================================================== */
+
+
+.status-inner
+a.latest-member-profile-link {
+  color:
+    #2f5f9f;
+
+  font-weight:
+    900;
+
+  text-decoration:
+    none;
+
+  cursor:
+    pointer;
+}
+
+
+.status-inner
+a.latest-member-profile-link:hover {
+  color:
+    #1f4f8e;
+
+  background:
+    #dce7f4;
+
+  text-decoration:
+    none;
+}
+
+
+.status-inner
+a.latest-member-profile-link:focus-visible {
+  outline:
+    1px dotted
+    #315f9c;
+
+  outline-offset:
+    2px;
+}

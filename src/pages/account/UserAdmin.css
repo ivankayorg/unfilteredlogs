@@ -587,15 +587,42 @@
 }
 
 
-.username-input-shell input:disabled {
-  color:
-    #657184;
+.username-input-shell.locked {
+  border-color:
+    #aab4c1;
 
   background:
     #eef2f6;
 
   cursor:
     not-allowed;
+}
+
+
+.username-input-shell.locked b {
+  color:
+    #657184;
+}
+
+
+.username-input-shell input:disabled {
+  color:
+    #657184;
+
+  background:
+    transparent;
+
+  cursor:
+    not-allowed;
+}
+
+
+.username-input-shell.locked:focus-within {
+  border-color:
+    #aab4c1;
+
+  box-shadow:
+    none;
 }
 
 
@@ -1356,4 +1383,29 @@
     padding:
       7px 10px;
   }
+}
+
+
+/* ==========================================================
+   PRODUCTION PASS 41C
+   UL FALLBACK AVATAR
+   ========================================================== */
+
+
+.profile-logo-preview
+img.ul-avatar-fallback-image {
+  padding:
+    10px;
+
+  box-sizing:
+    border-box;
+
+  object-fit:
+    contain;
+
+  background:
+    linear-gradient(
+      #e8eef6,
+      #cad8e8
+    );
 }

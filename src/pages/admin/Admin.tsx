@@ -9,12 +9,16 @@ import type {
 
 import {
   ArchiveX,
+  ChevronDown,
   FileClock,
   GripVertical,
+  ListOrdered,
+  PanelRight,
   ShieldCheck,
   Tag,
+  TextQuote,
+  UserRound,
   Users,
-  PanelRight,
 } from "lucide-react";
 
 import AdminUsers from "../../components/admin/AdminUsers";
@@ -23,7 +27,10 @@ import FlaggedComments from "../../components/admin/FlaggedComments";
 import ModerationQueue from "../../components/admin/ModerationQueue";
 import RejectedPosts from "../../components/admin/RejectedPosts";
 import TaxonomyManager from "../../components/admin/TaxonomyManager";
-import SidebarManager from "../../components/admin/SidebarManager";
+import AllFrontPageSettingsAdminPage from "./AllFrontPageSettingsAdminPage";
+import MemberSpotlightAdminPage from "./MemberSpotlightAdminPage";
+import RightRailOrderAdminPage from "./RightRailOrderAdminPage";
+import WelcomeCopyAdminPage from "./WelcomeCopyAdminPage";
 import QuickPostDialog from "../../components/posts/QuickPostDialog";
 import SiteHeader from "../../components/layout/SiteHeader";
 
@@ -52,19 +59,23 @@ import "./Admin.css";
 
 type Tab =
   | "dashboard"
+  | "member_spotlight"
+  | "welcome_copy"
+  | "right_rail_order"
+  | "front_page_all"
   | "moderation"
   | "rejected"
   | "taxonomy"
   | "blog"
-  | "sidebar"
   | "users";
 
 
 type AdminNavKey =
-  Exclude<
-    Tab,
-    "blog"
-  >;
+  | "dashboard"
+  | "moderation"
+  | "rejected"
+  | "taxonomy"
+  | "users";
 
 
 const ADMIN_NAV_STORAGE_KEY =
@@ -77,7 +88,6 @@ const DEFAULT_ADMIN_NAV_ORDER:
     "moderation",
     "rejected",
     "taxonomy",
-    "sidebar",
     "users",
   ];
 
@@ -208,6 +218,12 @@ export default function Admin() {
     useState<AdminNavKey | null>(
       null
     );
+
+  const [
+    dashboardMenuOpen,
+    setDashboardMenuOpen,
+  ] =
+    useState(false);
 
   const [
     loading,
@@ -365,6 +381,29 @@ export default function Admin() {
     },
     [
       adminNavOrder,
+    ]
+  );
+
+
+  useEffect(
+    () => {
+      if (
+        tab ===
+          "member_spotlight" ||
+        tab ===
+          "welcome_copy" ||
+        tab ===
+          "right_rail_order" ||
+        tab ===
+          "front_page_all"
+      ) {
+        setDashboardMenuOpen(
+          true
+        );
+      }
+    },
+    [
+      tab,
     ]
   );
 
@@ -533,8 +572,6 @@ export default function Admin() {
                   "admin" &&
                 (
                   navKey ===
-                    "sidebar" ||
-                  navKey ===
                     "users"
                 )
               ) {
@@ -554,10 +591,7 @@ export default function Admin() {
                       : navKey ===
                           "taxonomy"
                         ? "Categories & Tags"
-                        : navKey ===
-                            "sidebar"
-                          ? "Right Sidebar"
-                          : "Users";
+                        : "Users";
 
               const icon =
                 navKey ===
@@ -588,27 +622,35 @@ export default function Admin() {
                             size={15}
                           />
                         )
-                        : navKey ===
-                            "sidebar"
-                          ? (
-                            <PanelRight
-                              size={15}
-                            />
-                          )
-                          : (
-                            <Users
-                              size={15}
-                            />
-                          );
+                        : (
+                          <Users
+                            size={15}
+                          />
+                        );
 
-              return (
+              const isDashboardFamily =
+                tab ===
+                  "dashboard" ||
+                tab ===
+                  "member_spotlight" ||
+                tab ===
+                  "welcome_copy" ||
+                tab ===
+                  "right_rail_order" ||
+                tab ===
+                  "front_page_all";
+
+
+              const mainButton = (
                 <button
-                  key={
-                    navKey
-                  }
                   className={
-                    `${tab ===
-                      navKey
+                    `${(
+                      navKey ===
+                        "dashboard"
+                        ? isDashboardFamily
+                        : tab ===
+                            navKey
+                    )
                       ? "active "
                       : ""}${draggingNavKey ===
                         navKey
@@ -682,6 +724,20 @@ export default function Admin() {
                     setTab(
                       navKey
                     );
+
+                    if (
+                      navKey ===
+                        "dashboard" &&
+                      access.role ===
+                        "admin"
+                    ) {
+                      setDashboardMenuOpen(
+                        (
+                          current
+                        ) =>
+                          !current
+                      );
+                    }
                   }}
                 >
                   <GripVertical
@@ -695,6 +751,21 @@ export default function Admin() {
                   <span className="admin-nav-label">
                     {label}
                   </span>
+
+                  {navKey ===
+                    "dashboard" &&
+                    access.role ===
+                      "admin" && (
+                    <ChevronDown
+                      className={
+                        dashboardMenuOpen
+                          ? "admin-nav-chevron open"
+                          : "admin-nav-chevron"
+                      }
+                      size={13}
+                      aria-hidden="true"
+                    />
+                  )}
 
                   {navKey ===
                     "moderation" &&
@@ -716,6 +787,133 @@ export default function Admin() {
                     </span>
                   )}
                 </button>
+              );
+
+
+              if (
+                navKey !==
+                  "dashboard" ||
+                access.role !==
+                  "admin"
+              ) {
+                return (
+                  <div
+                    className="admin-nav-item"
+                    key={
+                      navKey
+                    }
+                  >
+                    {mainButton}
+                  </div>
+                );
+              }
+
+
+              return (
+                <div
+                  className="admin-nav-item admin-nav-dashboard-group"
+                  key={
+                    navKey
+                  }
+                >
+                  {mainButton}
+
+                  {dashboardMenuOpen && (
+                    <div className="admin-nav-submenu">
+                      <button
+                        className={
+                          tab ===
+                            "member_spotlight"
+                            ? "active"
+                            : ""
+                        }
+                        type="button"
+                        onClick={() => {
+                          setTab(
+                            "member_spotlight"
+                          );
+                        }}
+                      >
+                        <UserRound
+                          size={12}
+                        />
+
+                        <span>
+                          Member Spotlight
+                        </span>
+                      </button>
+
+                      <button
+                        className={
+                          tab ===
+                            "welcome_copy"
+                            ? "active"
+                            : ""
+                        }
+                        type="button"
+                        onClick={() => {
+                          setTab(
+                            "welcome_copy"
+                          );
+                        }}
+                      >
+                        <TextQuote
+                          size={12}
+                        />
+
+                        <span>
+                          Welcome Copy
+                        </span>
+                      </button>
+
+                      <button
+                        className={
+                          tab ===
+                            "right_rail_order"
+                            ? "active"
+                            : ""
+                        }
+                        type="button"
+                        onClick={() => {
+                          setTab(
+                            "right_rail_order"
+                          );
+                        }}
+                      >
+                        <ListOrdered
+                          size={12}
+                        />
+
+                        <span>
+                          Right Rail Order
+                        </span>
+                      </button>
+
+                      <button
+                        className={
+                          tab ===
+                            "front_page_all"
+                            ? "active"
+                            : ""
+                        }
+                        type="button"
+                        onClick={() => {
+                          setTab(
+                            "front_page_all"
+                          );
+                        }}
+                      >
+                        <PanelRight
+                          size={12}
+                        />
+
+                        <span>
+                          Open All Settings
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               );
             }
           )}
@@ -836,10 +1034,31 @@ export default function Admin() {
           )}
 
           {tab ===
-            "sidebar" &&
+            "member_spotlight" &&
             access.role ===
               "admin" && (
-            <SidebarManager />
+            <MemberSpotlightAdminPage />
+          )}
+
+          {tab ===
+            "welcome_copy" &&
+            access.role ===
+              "admin" && (
+            <WelcomeCopyAdminPage />
+          )}
+
+          {tab ===
+            "right_rail_order" &&
+            access.role ===
+              "admin" && (
+            <RightRailOrderAdminPage />
+          )}
+
+          {tab ===
+            "front_page_all" &&
+            access.role ===
+              "admin" && (
+            <AllFrontPageSettingsAdminPage />
           )}
 
           {tab ===

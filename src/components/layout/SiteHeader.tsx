@@ -1027,11 +1027,24 @@ export default function SiteHeader({
 
           <span>
             Last new member:{" "}
-            <strong className="latest-member-name">
-              {siteStats
-                ?.latestMember ??
-                "—"}
-            </strong>
+            {siteStats
+              ?.latestMemberUsername &&
+            siteStats
+              ?.latestMember ? (
+              <a
+                className="latest-member-name latest-member-profile-link"
+                href={`/u/${encodeURIComponent(siteStats.latestMemberUsername)}`}
+                title={`View @${siteStats.latestMemberUsername}'s profile`}
+              >
+                {siteStats.latestMember}
+              </a>
+            ) : (
+              <strong className="latest-member-name">
+                {siteStats
+                  ?.latestMember ??
+                  "—"}
+              </strong>
+            )}
           </span>
         </div>
       </div>

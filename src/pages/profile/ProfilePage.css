@@ -2665,3 +2665,39 @@ footer time {
       0;
   }
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 41C
+   UL FALLBACK AVATAR
+   ========================================================== */
+
+
+.profile-avatar
+img.ul-avatar-fallback-image,
+.profile-shoutbox-avatar
+img.ul-avatar-fallback-image {
+  padding:
+    5px;
+
+  box-sizing:
+    border-box;
+
+  object-fit:
+    contain;
+
+  background:
+    linear-gradient(
+      #e8eef6,
+      #cad8e8
+    );
+}
+
+
+.profile-avatar.tiny
+img.ul-avatar-fallback-image,
+.profile-avatar.small
+img.ul-avatar-fallback-image {
+  padding:
+    3px;
+}

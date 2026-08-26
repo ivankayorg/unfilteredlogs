@@ -373,3 +373,86 @@ span {
   margin-top:
     12px;
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 41C
+   UL FALLBACK AVATAR
+   ========================================================== */
+
+
+.sidebar-promoted-user-avatar
+img.ul-avatar-fallback-image {
+  padding:
+    5px;
+
+  box-sizing:
+    border-box;
+
+  object-fit:
+    contain;
+
+  background:
+    linear-gradient(
+      #e8eef6,
+      #cad8e8
+    );
+}
+
+
+/* ==========================================================
+   PRODUCTION PASS 42
+   DASHBOARD DEEP-LINK TARGETS
+   ========================================================== */
+
+
+#sidebar-member-spotlight,
+#sidebar-welcome-copy,
+#sidebar-module-order {
+  scroll-margin-top:
+    84px;
+}
+
+
+/* ==========================================================
+   PRODUCTION PASS 43
+   FRONT PAGE SETTINGS AS SEPARATE ADMIN PAGES
+   ========================================================== */
+
+
+.sidebar-manager-spotlight
+.sidebar-promoted-user-panel,
+.sidebar-manager-welcome
+.sidebar-copy-panel,
+.sidebar-manager-order
+.sidebar-order-panel {
+  margin-top:
+    0;
+}
+
+
+.sidebar-manager-spotlight
+.sidebar-promoted-user-fields,
+.sidebar-manager-welcome
+.sidebar-copy-fields {
+  padding:
+    16px;
+}
+
+
+.sidebar-manager-order
+.sidebar-sort-list {
+  padding:
+    10px;
+}
+
+
+.sidebar-manager-spotlight
+.sidebar-manager-actions,
+.sidebar-manager-welcome
+.sidebar-manager-actions,
+.sidebar-manager-order
+.sidebar-manager-actions {
+  margin-top:
+    10px;
+}
