@@ -1,6 +1,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -228,6 +229,12 @@ export default function QuickPostDialog({
     );
 
 
+  const youtubeDescriptionAutoRef =
+    useRef(
+      true
+    );
+
+
   const parsedYouTube =
     useMemo(
       () =>
@@ -329,9 +336,7 @@ export default function QuickPostDialog({
       !open ||
       postType !==
         "youtube" ||
-      !parsedYouTube ||
-      youtubeTitleMode !==
-        "auto"
+      !parsedYouTube
     ) {
       setYoutubeTitleLoading(
         false
@@ -370,13 +375,33 @@ export default function QuickPostDialog({
                   return;
                 }
 
-                setTitle(
-                  metadata.title
-                    .slice(
+                if (
+                  youtubeTitleMode ===
+                  "auto"
+                ) {
+                  setTitle(
+                    metadata.title
+                      .slice(
+                        0,
+                        180
+                      )
+                  );
+                }
+
+                if (
+                  youtubeDescriptionAutoRef
+                    .current
+                ) {
+                  setBody(
+                    (
+                      metadata.description ??
+                      ""
+                    ).slice(
                       0,
-                      180
+                      500
                     )
-                );
+                  );
+                }
               }
             )
             .catch(
@@ -396,7 +421,7 @@ export default function QuickPostDialog({
                 );
 
                 setYoutubeTitleError(
-                  "Could not fetch the YouTube title. You can type one manually."
+                  "Could not fetch YouTube metadata. You can enter the title and description manually."
                 );
               }
             )
@@ -519,6 +544,10 @@ export default function QuickPostDialog({
     setYoutubeTitleError(
       null
     );
+
+    youtubeDescriptionAutoRef
+      .current =
+        true;
 
     setSelectedCategoryId(
       categories.find(
@@ -898,12 +927,7 @@ export default function QuickPostDialog({
       if (
         !tagId ||
         selectedTagIds.length >=
-          5
-      ) {
-        return;
-      }
-
-      if (
+          5 ||
         selectedTagIds.includes(
           tagId
         )
@@ -924,7 +948,7 @@ export default function QuickPostDialog({
 
   return (
     <div
-      className="quick-post-backdrop"
+      className="quick-compose-backdrop"
       role="presentation"
       onMouseDown={
         (
@@ -940,118 +964,101 @@ export default function QuickPostDialog({
       }
     >
       <section
-        className="quick-post-dialog"
+        className="quick-compose-window"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="quick-post-title"
+        aria-labelledby="quick-compose-title"
       >
-        <header className="quick-post-header">
-          <div>
-            <span className="quick-post-eyebrow">
-              QUICK POST
+        <header className="quick-compose-titlebar">
+          <div className="quick-compose-titleblock">
+            <span>
+              NEW POST
             </span>
 
-            <h2 id="quick-post-title">
-              New post
-            </h2>
+            <strong id="quick-compose-title">
+              Say something.
+            </strong>
           </div>
 
+          <nav
+            className="quick-compose-modebar"
+            aria-label="Post type"
+          >
+            <button
+              type="button"
+              className={
+                postType ===
+                "text"
+                  ? "active"
+                  : ""
+              }
+              onClick={() => {
+                changePostType(
+                  "text"
+                );
+              }}
+            >
+              <Type size={12} />
+              TEXT
+            </button>
+
+            <button
+              type="button"
+              className={
+                postType ===
+                "youtube"
+                  ? "active"
+                  : ""
+              }
+              onClick={() => {
+                changePostType(
+                  "youtube"
+                );
+              }}
+            >
+              <Video size={12} />
+              YOUTUBE
+            </button>
+
+            <button
+              type="button"
+              className={
+                postType ===
+                "image"
+                  ? "active"
+                  : ""
+              }
+              onClick={() => {
+                changePostType(
+                  "image"
+                );
+              }}
+            >
+              <ImageIcon size={12} />
+              IMAGE / GIF
+            </button>
+          </nav>
+
           <button
-            className="quick-post-close"
+            className="quick-compose-close"
             type="button"
             onClick={
               closeDialog
             }
             aria-label="Close"
           >
-            <X size={15} />
+            <X size={14} />
           </button>
         </header>
 
-        <nav
-          className="quick-post-tabs"
-          aria-label="Post type"
-        >
-          <button
-            type="button"
-            className={
-              postType ===
-              "text"
-                ? "active"
-                : ""
-            }
-            onClick={() => {
-              changePostType(
-                "text"
-              );
-            }}
-          >
-            <Type size={13} />
-            Text
-          </button>
-
-          <button
-            type="button"
-            className={
-              postType ===
-              "youtube"
-                ? "active"
-                : ""
-            }
-            onClick={() => {
-              changePostType(
-                "youtube"
-              );
-            }}
-          >
-            <Video size={13} />
-            YouTube
-          </button>
-
-          <button
-            type="button"
-            className={
-              postType ===
-              "image"
-                ? "active"
-                : ""
-            }
-            onClick={() => {
-              changePostType(
-                "image"
-              );
-            }}
-          >
-            <ImageIcon size={13} />
-            Image / GIF
-          </button>
-        </nav>
-
-        <div className="quick-post-body">
-          <section className="quick-post-section quick-post-content">
-            <div className="quick-post-section-title">
-              <strong>
-                Content
-              </strong>
-
-              <span>
-                {postType ===
-                  "text"
-                  ? "Write something worth reading."
-                  : postType ===
-                      "youtube"
-                    ? "Share a video and add context."
-                    : "Upload an image or use a GIF."}
-              </span>
-            </div>
-
+        <div className="quick-compose-scroll">
+          <main className="quick-compose-canvas">
             {postType ===
               "text" && (
-              <div className="quick-post-content-fields text-layout">
-                <label className="quick-post-field">
+              <>
+                <label className="quick-compose-title-field">
                   <span>
-                    Title
-
+                    TITLE
                     <small>
                       {title.length}/180
                     </small>
@@ -1072,22 +1079,20 @@ export default function QuickPostDialog({
                         );
                       }
                     }
-                    placeholder="Post title"
+                    placeholder="Give the post a title..."
                     autoFocus
                   />
                 </label>
 
-                <label className="quick-post-field">
+                <label className="quick-compose-body-field">
                   <span>
-                    Post
-
+                    POST
                     <small>
                       {body.length}/500
                     </small>
                   </span>
 
                   <textarea
-                    className="quick-post-main-textarea"
                     value={
                       body
                     }
@@ -1096,23 +1101,27 @@ export default function QuickPostDialog({
                       (
                         event
                       ) => {
+                        youtubeDescriptionAutoRef
+                          .current =
+                            false;
+
                         setBody(
                           event.target.value
                         );
                       }
                     }
-                    placeholder="Write the post..."
+                    placeholder="Write the thing..."
                   />
                 </label>
-              </div>
+              </>
             )}
 
             {postType ===
               "youtube" && (
-              <div className="quick-post-content-fields youtube-layout">
-                <label className="quick-post-field youtube-url-field">
+              <>
+                <label className="quick-compose-line-field">
                   <span>
-                    YouTube URL
+                    YOUTUBE URL
                   </span>
 
                   <input
@@ -1137,118 +1146,28 @@ export default function QuickPostDialog({
                           );
                         }
 
+                        if (
+                          youtubeDescriptionAutoRef
+                            .current
+                        ) {
+                          setBody(
+                            ""
+                          );
+                        }
+
                         setYoutubeTitleError(
                           null
                         );
                       }
                     }
-                    placeholder="Paste a YouTube video or Shorts URL"
+                    placeholder="Paste a YouTube or Shorts URL..."
                     autoFocus
                   />
                 </label>
 
-                <label className="quick-post-field youtube-title-field">
-                  <span>
-                    Title
-
-                    <small>
-                      {youtubeTitleLoading
-                        ? "fetching..."
-                        : `${title.length}/180`}
-                    </small>
-                  </span>
-
-                  <input
-                    type="text"
-                    value={
-                      title
-                    }
-                    maxLength={180}
-                    onChange={
-                      (
-                        event
-                      ) => {
-                        setTitle(
-                          event.target.value
-                        );
-
-                        setYoutubeTitleMode(
-                          "user"
-                        );
-                      }
-                    }
-                    placeholder={
-                      youtubeTitleLoading
-                        ? "Getting title from YouTube..."
-                        : "Video title"
-                    }
-                  />
-
-                  <div className="quick-post-youtube-title-tools">
-                    {youtubeTitleMode ===
-                      "user" &&
-                      parsedYouTube && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setYoutubeTitleMode(
-                            "auto"
-                          );
-
-                          setTitle(
-                            ""
-                          );
-                        }}
-                      >
-                        Use YouTube title
-                      </button>
-                    )}
-
-                    {youtubeTitleError && (
-                      <span>
-                        {youtubeTitleError}
-                      </span>
-                    )}
-                  </div>
-                </label>
-
-                <label className="quick-post-field youtube-commentary-field">
-                  <span>
-                    Commentary
-
-                    <small>
-                      optional · {body.length}/500
-                    </small>
-                  </span>
-
-                  <textarea
-                    value={
-                      body
-                    }
-                    maxLength={500}
-                    onChange={
-                      (
-                        event
-                      ) => {
-                        setBody(
-                          event.target.value
-                        );
-                      }
-                    }
-                    placeholder="Why is this worth watching?"
-                  />
-                </label>
-
-                <div className="quick-post-youtube-preview-slot">
-                  {youtubeUrl &&
-                    !parsedYouTube && (
-                    <div className="quick-post-inline-error">
-                      That does not look like a valid YouTube URL.
-                    </div>
-                  )}
-
-                  {parsedYouTube && (
-                    <div className="quick-post-youtube-preview">
+                <div className="quick-compose-youtube-row">
+                  <div className="quick-compose-video-stage">
+                    {parsedYouTube ? (
                       <iframe
                         src={
                           parsedYouTube.embedUrl
@@ -1257,29 +1176,119 @@ export default function QuickPostDialog({
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen
                       />
-
-                      <div>
-                        <strong>
-                          {parsedYouTube.videoType ===
-                          "short"
-                            ? "YouTube Short"
-                            : "YouTube video"}
-                        </strong>
-
+                    ) : (
+                      <div className="quick-compose-empty-stage">
+                        <Video size={22} />
                         <span>
-                          Ready to post.
+                          Video preview
                         </span>
                       </div>
+                    )}
+                  </div>
+
+                  <div className="quick-compose-video-copy">
+                    <label className="quick-compose-line-field">
+                      <span>
+                        TITLE
+
+                        <small>
+                          {youtubeTitleLoading
+                            ? "fetching..."
+                            : `${title.length}/180`}
+                        </small>
+                      </span>
+
+                      <input
+                        type="text"
+                        value={
+                          title
+                        }
+                        maxLength={180}
+                        onChange={
+                          (
+                            event
+                          ) => {
+                            setTitle(
+                              event.target.value
+                            );
+
+                            setYoutubeTitleMode(
+                              "user"
+                            );
+                          }
+                        }
+                        placeholder="Video title..."
+                      />
+                    </label>
+
+                    <div className="quick-compose-title-helper">
+                      {youtubeTitleMode ===
+                        "user" &&
+                        parsedYouTube && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setYoutubeTitleMode(
+                              "auto"
+                            );
+
+                            setTitle(
+                              ""
+                            );
+                          }}
+                        >
+                          Use YouTube title
+                        </button>
+                      )}
+
+                      {youtubeTitleError && (
+                        <span>
+                          {youtubeTitleError}
+                        </span>
+                      )}
                     </div>
-                  )}
+
+                    <label className="quick-compose-commentary-field">
+                      <span>
+                        DESCRIPTION / COMMENTARY
+                        <small>
+                          YouTube auto-fill · editable · {body.length}/500
+                        </small>
+                      </span>
+
+                      <textarea
+                        value={
+                          body
+                        }
+                        maxLength={500}
+                        onChange={
+                          (
+                            event
+                          ) => {
+                            setBody(
+                              event.target.value
+                            );
+                          }
+                        }
+                        placeholder="YouTube description will appear here. Edit it however you want."
+                      />
+                    </label>
+                  </div>
                 </div>
-              </div>
+
+                {youtubeUrl &&
+                  !parsedYouTube && (
+                  <div className="quick-compose-error-inline">
+                    That does not look like a valid YouTube URL.
+                  </div>
+                )}
+              </>
             )}
 
             {postType ===
               "image" && (
-              <div className="quick-post-content-fields image-layout">
-                <label className="quick-post-upload">
+              <div className="quick-compose-image-row">
+                <label className="quick-compose-image-stage">
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
@@ -1304,23 +1313,21 @@ export default function QuickPostDialog({
                     />
                   ) : (
                     <div>
-                      <UploadCloud size={22} />
-
+                      <UploadCloud size={24} />
                       <strong>
-                        Choose image
+                        DROP / CHOOSE IMAGE
                       </strong>
-
                       <span>
-                        JPG, PNG, WEBP, or GIF · 10 MB max
+                        JPG · PNG · WEBP · GIF
                       </span>
                     </div>
                   )}
                 </label>
 
-                <div className="image-copy-fields">
-                  <label className="quick-post-field">
+                <div className="quick-compose-image-copy">
+                  <label className="quick-compose-line-field">
                     <span>
-                      Title
+                      TITLE
 
                       <small>
                         optional · {title.length}/180
@@ -1346,9 +1353,9 @@ export default function QuickPostDialog({
                     />
                   </label>
 
-                  <label className="quick-post-field">
+                  <label className="quick-compose-commentary-field">
                     <span>
-                      Caption
+                      CAPTION
 
                       <small>
                         optional · {body.length}/500
@@ -1369,277 +1376,236 @@ export default function QuickPostDialog({
                           );
                         }
                       }
-                      placeholder="Add some context."
+                      placeholder="Context, explanation, nonsense..."
                     />
                   </label>
                 </div>
               </div>
             )}
-          </section>
+          </main>
 
-          <section className="quick-post-section quick-post-details">
-            <div className="quick-post-section-title">
+          <div className="quick-compose-meta-ribbon">
+            <label className="quick-compose-meta-control">
+              <span>
+                CATEGORY
+              </span>
+
+              {taxonomyLoading ? (
+                <div className="quick-compose-taxonomy-status">
+                  Loading...
+                </div>
+              ) : taxonomyError ? (
+                <div className="quick-compose-taxonomy-status error">
+                  {taxonomyError}
+                </div>
+              ) : (
+                <div className="quick-compose-select">
+                  <select
+                    value={
+                      selectedCategoryId
+                    }
+                    onChange={
+                      (
+                        event
+                      ) => {
+                        setSelectedCategoryId(
+                          event.target.value
+                        );
+                      }
+                    }
+                  >
+                    {categories.map(
+                      (
+                        category
+                      ) => (
+                        <option
+                          key={
+                            category.id
+                          }
+                          value={
+                            category.id
+                          }
+                        >
+                          {category.name}
+                        </option>
+                      )
+                    )}
+                  </select>
+
+                  <ChevronDown size={11} />
+                </div>
+              )}
+            </label>
+
+            <div className="quick-compose-meta-control quick-compose-width-control">
+              <span>
+                FEED WIDTH
+              </span>
+
+              <div className="quick-compose-width-buttons">
+                {(
+                  [
+                    {
+                      value:
+                        "small",
+                      label:
+                        "S",
+                    },
+                    {
+                      value:
+                        "large",
+                      label:
+                        "L",
+                    },
+                    {
+                      value:
+                        "wide",
+                      label:
+                        "WIDE",
+                    },
+                  ] as Array<{
+                    value:
+                      PostDisplaySize;
+                    label:
+                      string;
+                  }>
+                ).map(
+                  (
+                    option
+                  ) => (
+                    <button
+                      type="button"
+                      key={
+                        option.value
+                      }
+                      className={
+                        displaySize ===
+                          option.value
+                          ? "active"
+                          : ""
+                      }
+                      onClick={() => {
+                        setDisplaySize(
+                          option.value
+                        );
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <small>
+                Container width only. Your text, image, GIF, or video keeps its own proportions.
+              </small>
+            </div>
+          </div>
+
+          <div className="quick-compose-tags-ribbon">
+            <div className="quick-compose-tags-label">
               <strong>
-                Post details
+                TAGS
               </strong>
 
               <span>
-                Organize how the post appears in the feed.
+                {selectedTagIds.length}/5
               </span>
             </div>
 
-            <div className="quick-post-details-grid">
-              <label className="quick-post-meta-field category-field">
-                <span>
-                  Category
-                </span>
-
-                {taxonomyLoading ? (
-                  <div className="quick-post-taxonomy-message">
-                    Loading...
-                  </div>
-                ) : taxonomyError ? (
-                  <div className="quick-post-inline-error">
-                    {taxonomyError}
-                  </div>
-                ) : (
-                  <div className="quick-post-select-wrap">
-                    <select
-                      value={
-                        selectedCategoryId
-                      }
-                      onChange={
-                        (
-                          event
-                        ) => {
-                          setSelectedCategoryId(
-                            event.target.value
-                          );
-                        }
-                      }
-                    >
-                      {categories.map(
-                        (
-                          category
-                        ) => (
-                          <option
-                            key={
-                              category.id
-                            }
-                            value={
-                              category.id
-                            }
-                          >
-                            {category.name}
-                          </option>
-                        )
-                      )}
-                    </select>
-
-                    <ChevronDown
-                      size={13}
-                    />
-                  </div>
-                )}
-              </label>
-
-              <div className="quick-post-meta-field size-field">
-                <span>
-                  Post size
-                </span>
-
-                <div className="quick-post-size-options">
-                  {(
-                    [
-                      {
-                        value:
-                          "small",
-                        label:
-                          "Small",
-                      },
-                      {
-                        value:
-                          "large",
-                        label:
-                          "Large",
-                      },
-                      {
-                        value:
-                          "wide",
-                        label:
-                          "Wide",
-                      },
-                    ] as Array<{
-                      value:
-                        PostDisplaySize;
-                      label:
-                        string;
-                    }>
-                  ).map(
-                    (
-                      option
-                    ) => (
-                      <button
-                        type="button"
-                        key={
-                          option.value
-                        }
-                        className={
-                          displaySize ===
-                            option.value
-                            ? "selected"
-                            : ""
-                        }
-                        onClick={() => {
-                          setDisplaySize(
-                            option.value
-                          );
-                        }}
-                      >
-                        {option.label}
-                      </button>
-                    )
-                  )}
-                </div>
-
-                <small className="quick-post-size-help">
-                  Changes only the width of the post container in the main feed.
-                  It does not resize, crop, or alter the actual text, image, GIF, or video.
-                </small>
-              </div>
-            </div>
-          </section>
-
-          <section className="quick-post-section quick-post-tags-section">
-            <div className="quick-post-section-title compact">
-              <div>
-                <strong>
-                  Article tags
-                </strong>
-
-                <span>
-                  Optional · choose up to five
-                </span>
-              </div>
-
-              <em>
-                {selectedTagIds.length}/5 selected
-              </em>
-            </div>
-
-            {!taxonomyLoading &&
-              !taxonomyError && (
-              <div className="quick-post-tags-row">
-                {primaryTags.map(
-                  (
-                    tag
-                  ) => {
-                    const selected =
-                      selectedTagIds.includes(
-                        tag.id
-                      );
-
-                    return (
-                      <button
-                        key={
-                          tag.id
-                        }
-                        type="button"
-                        className={
-                          selected
-                            ? "selected"
-                            : ""
-                        }
-                        disabled={
-                          !selected &&
-                          selectedTagIds.length >=
-                            5
-                        }
-                        onClick={() => {
-                          toggleTag(
-                            tag.id
-                          );
-                        }}
-                      >
-                        #
-                        {tag.name}
-                      </button>
+            <div className="quick-compose-tag-list">
+              {primaryTags.map(
+                (
+                  tag
+                ) => {
+                  const selected =
+                    selectedTagIds.includes(
+                      tag.id
                     );
-                  }
-                )}
 
-                {availableTags.length >
-                  8 && (
-                  <div className="quick-post-more-tags-select">
-                    <select
-                      aria-label="More article tags"
-                      value=""
+                  return (
+                    <button
+                      key={
+                        tag.id
+                      }
+                      type="button"
+                      className={
+                        selected
+                          ? "selected"
+                          : ""
+                      }
                       disabled={
+                        !selected &&
                         selectedTagIds.length >=
-                        5 ||
-                        additionalTags.length ===
-                        0
+                          5
                       }
-                      onChange={
-                        (
-                          event
-                        ) => {
-                          addTagFromMore(
-                            event.target.value
-                          );
-                        }
-                      }
+                      onClick={() => {
+                        toggleTag(
+                          tag.id
+                        );
+                      }}
                     >
-                      <option value="">
-                        MORE &gt;&gt;
-                      </option>
+                      #{tag.name}
+                    </button>
+                  );
+                }
+              )}
 
-                      {additionalTags.map(
-                        (
-                          tag
-                        ) => (
-                          <option
-                            key={
-                              tag.id
-                            }
-                            value={
-                              tag.id
-                            }
-                          >
-                            #{tag.name}
-                          </option>
-                        )
-                      )}
-                    </select>
+              {availableTags.length >
+                8 && (
+                <div className="quick-compose-more-select">
+                  <select
+                    aria-label="More article tags"
+                    value=""
+                    disabled={
+                      selectedTagIds.length >=
+                        5 ||
+                      additionalTags.length ===
+                        0
+                    }
+                    onChange={
+                      (
+                        event
+                      ) => {
+                        addTagFromMore(
+                          event.target.value
+                        );
+                      }
+                    }
+                  >
+                    <option value="">
+                      MORE &gt;&gt;
+                    </option>
 
-                    <ChevronDown
-                      size={12}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
+                    {additionalTags.map(
+                      (
+                        tag
+                      ) => (
+                        <option
+                          key={
+                            tag.id
+                          }
+                          value={
+                            tag.id
+                          }
+                        >
+                          #{tag.name}
+                        </option>
+                      )
+                    )}
+                  </select>
 
-          <section className="quick-post-section quick-post-attachments">
-            <div className="quick-post-attachment-bar">
-              <div>
-                <Images
-                  size={13}
-                />
+                  <ChevronDown size={10} />
+                </div>
+              )}
+            </div>
+          </div>
 
-                <span>
-                  GIF attachment
-                </span>
-
-                <small>
-                  optional
-                </small>
-              </div>
-
+          <div className="quick-compose-utility-ribbon">
+            <div className="quick-compose-gif-tools">
               <button
-                className="quick-post-gif-toggle"
                 type="button"
+                className="quick-compose-gif-button"
                 onClick={() => {
                   setGifOpen(
                     (
@@ -1649,85 +1615,97 @@ export default function QuickPostDialog({
                   );
                 }}
               >
+                <Images size={12} />
+
                 {gifOpen
-                  ? "Close GIPHY"
+                  ? "CLOSE GIPHY"
                   : selectedGif
-                    ? "Change GIF"
-                    : "Choose GIF"}
+                    ? "CHANGE GIF"
+                    : "ADD GIF"}
               </button>
+
+              {selectedGif && (
+                <div className="quick-compose-gif-chip">
+                  <img
+                    src={
+                      selectedGif.previewUrl
+                    }
+                    alt=""
+                  />
+
+                  <span>
+                    GIF attached
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedGif(
+                        null
+                      );
+                    }}
+                    aria-label="Remove GIF"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              )}
             </div>
 
-            {selectedGif && (
-              <div className="quick-post-selected-gif">
-                <img
-                  src={
-                    selectedGif.url
-                  }
-                  alt={
-                    selectedGif.title
-                  }
-                />
+            <span className="quick-compose-utility-note">
+              {postType ===
+                "image" &&
+              !image
+                ? "No upload? A chosen GIF can be the main image."
+                : "Optional attachment."}
+            </span>
+          </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
+          {gifOpen && (
+            <div className="quick-compose-giphy-drawer">
+              <GiphyPicker
+                selected={
+                  selectedGif
+                }
+                onSelect={
+                  (
+                    gif
+                  ) => {
                     setSelectedGif(
-                      null
-                    );
-                  }}
-                >
-                  <X size={11} />
-                  Remove
-                </button>
-              </div>
-            )}
-
-            {gifOpen && (
-              <div className="quick-post-giphy-drawer">
-                <GiphyPicker
-                  selected={
-                    selectedGif
-                  }
-                  onSelect={
-                    (
                       gif
-                    ) => {
-                      setSelectedGif(
-                        gif
-                      );
+                    );
 
-                      setGifOpen(
-                        false
-                      );
-                    }
+                    setGifOpen(
+                      false
+                    );
                   }
-                />
-              </div>
-            )}
-          </section>
+                }
+              />
+            </div>
+          )}
 
           {error && (
-            <div className="quick-post-error">
+            <div className="quick-compose-message error">
               {error}
             </div>
           )}
 
           {postedMessage && (
-            <div className="quick-post-success">
-              <CheckCircle2 size={13} />
+            <div className="quick-compose-message success">
+              <CheckCircle2 size={12} />
               {postedMessage}
             </div>
           )}
         </div>
 
-        <footer className="quick-post-footer">
+        <footer className="quick-compose-footer">
           <span>
-            One category · up to five article tags
+            One category · up to five tags
           </span>
 
           <div>
             <button
-              className="quick-post-cancel"
+              className="quick-compose-cancel"
               type="button"
               onClick={
                 closeDialog
@@ -1740,7 +1718,7 @@ export default function QuickPostDialog({
             </button>
 
             <button
-              className="quick-post-submit"
+              className="quick-compose-submit"
               type="button"
               onClick={() => {
                 void submit();

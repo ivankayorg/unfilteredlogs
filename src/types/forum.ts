@@ -1,6 +1,6 @@
 /* ==========================================================
    FORUM 001
-   UNFILTERED LOGS FORUM TYPES
+   UNFILTERED LOG FORUM TYPES
    Separate from main-feed posts/comments
    ========================================================== */
 

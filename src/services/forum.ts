@@ -82,7 +82,7 @@ async function getAuthors(
 
         display_name:
           row.display_name ??
-          "UNFILTERED LOGS User",
+          "UNFILTERED LOG User",
       }
     );
   }
@@ -826,7 +826,7 @@ export async function incrementForumThreadView(
 
   if (error) {
     console.warn(
-      "UNFILTERED LOGS FORUM VIEW COUNT ERROR:",
+      "UNFILTERED LOG FORUM VIEW COUNT ERROR:",
       error
     );
   }

@@ -3175,3 +3175,31 @@ span:not(.featured-video-teaser-play) {
       2;
   }
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 21
+   PINNED YOUTUBE IS NAVIGATION-ONLY
+   ========================================================== */
+
+/* Every YouTube item in the pinned strip is a teaser.
+   The pinned area never creates an iframe player. */
+.featured-video-teaser {
+  cursor: pointer;
+}
+
+.featured-video-teaser-play {
+  display: grid !important;
+  place-items: center !important;
+}
+
+.featured-video-teaser-play svg {
+  display: block;
+  transform: translateX(-2px);
+}
+
+/* Make the play target feel clickable without becoming a player. */
+.featured-video-teaser:hover
+.featured-video-teaser-play {
+  background: rgba(28, 49, 79, .96);
+}

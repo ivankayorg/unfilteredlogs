@@ -1958,3 +1958,88 @@
       28px !important;
   }
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 22
+   DRAGGABLE ADMIN LEFT MENU
+   ========================================================== */
+
+
+.admin-nav-heading {
+  min-height: 31px;
+
+  margin-bottom: 4px;
+
+  padding: 0 7px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 6px;
+
+  border-bottom: 1px solid #c4cad1;
+}
+
+
+.admin-nav-heading strong {
+  color: #455a76;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing: .055em;
+}
+
+
+.admin-nav-heading span {
+  color: #9299a1;
+
+  font-size: 6px;
+}
+
+
+.admin-nav button {
+  position: relative;
+
+  cursor: pointer;
+
+  user-select: none;
+}
+
+
+.admin-nav button.dragging {
+  opacity: .38;
+}
+
+
+.admin-nav-grip {
+  flex: 0 0 auto;
+
+  color: #a0a6ad;
+
+  cursor: grab;
+}
+
+
+.admin-nav button:active .admin-nav-grip {
+  cursor: grabbing;
+}
+
+
+.admin-nav button:hover .admin-nav-grip,
+.admin-nav button.active .admin-nav-grip {
+  color: #60728a;
+}
+
+
+.admin-nav-label {
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}

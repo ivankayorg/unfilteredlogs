@@ -21,7 +21,7 @@ import "./PasswordAuthForm.css";
 
 
 /* ==========================================================
-   UNFILTERED LOGS
+   UNFILTERED LOG
    EMAIL / PASSWORD AUTH
    ========================================================== */
 
@@ -227,7 +227,7 @@ export default function PasswordAuthForm() {
           nextError
             instanceof Error
             ? nextError.message
-            : "UNFILTERED LOGS could not complete the request.";
+            : "UNFILTERED LOG could not complete the request.";
 
         setError(
           message

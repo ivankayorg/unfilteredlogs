@@ -2,7 +2,7 @@ import { supabase } from "../lib/supabase";
 
 
 /* ==========================================================
-   UNFILTERED LOGS
+   UNFILTERED LOG
    SHOUTBOX SERVICE
    ========================================================== */
 
@@ -59,7 +59,7 @@ async function attachProfiles(
 
     if (error) {
       console.warn(
-        "UNFILTERED LOGS SHOUTBOX PROFILE ERROR:",
+        "UNFILTERED LOG SHOUTBOX PROFILE ERROR:",
         error
       );
     } else {

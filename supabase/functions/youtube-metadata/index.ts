@@ -1,71 +1,62 @@
 // ==========================================================
-// ROFFLE
-// YOUTUBE METADATA EDGE FUNCTION
-// Server-side YouTube oEmbed lookup.
-// No YouTube API key required.
+// UNFILTERED LOGS
+// SUPABASE EDGE FUNCTION: youtube-metadata
+//
+// Title/channel/thumbnail:
+//   YouTube oEmbed fallback, no API key required.
+//
+// Description:
+//   YouTube Data API v3 when YOUTUBE_API_KEY is configured.
 // ==========================================================
 
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin":
-    "*",
-
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
-
   "Access-Control-Allow-Methods":
     "POST, OPTIONS",
-
-  "Content-Type":
-    "application/json",
 };
 
 
-function jsonResponse(
-  payload:
-    Record<string, unknown>,
+type MetadataPayload = {
+  title: string;
+  description: string | null;
+  authorName: string | null;
+  thumbnailUrl: string | null;
+};
+
+
+function json(
+  body: unknown,
   status = 200,
 ) {
   return new Response(
     JSON.stringify(
-      payload
+      body
     ),
     {
       status,
-      headers:
-        CORS_HEADERS,
+
+      headers: {
+        ...corsHeaders,
+        "Content-Type":
+          "application/json; charset=utf-8",
+      },
     }
   );
 }
 
 
-function normalizeYouTubeUrl(
-  rawValue:
-    unknown,
+function parseYouTubeId(
+  rawValue: string,
 ) {
-  if (
-    typeof rawValue !==
-    "string"
-  ) {
-    return null;
-  }
-
-  const value =
-    rawValue.trim();
-
-  if (!value) {
-    return null;
-  }
-
-  let url:
-    URL;
+  let url: URL;
 
   try {
     url =
       new URL(
-        value
+        rawValue
       );
   } catch {
     return null;
@@ -79,21 +70,241 @@ function normalizeYouTubeUrl(
       )
       .toLowerCase();
 
-  const allowed =
+  let id = "";
+
+  if (
+    host ===
+    "youtu.be"
+  ) {
+    id =
+      url.pathname
+        .split("/")
+        .filter(Boolean)[0] ??
+      "";
+  } else if (
     host ===
       "youtube.com" ||
     host ===
       "m.youtube.com" ||
     host ===
-      "music.youtube.com" ||
-    host ===
-      "youtu.be";
+      "music.youtube.com"
+  ) {
+    const parts =
+      url.pathname
+        .split("/")
+        .filter(Boolean);
 
-  if (!allowed) {
-    return null;
+    if (
+      parts[0] ===
+        "shorts" ||
+      parts[0] ===
+        "embed" ||
+      parts[0] ===
+        "live"
+    ) {
+      id =
+        parts[1] ??
+        "";
+    } else {
+      id =
+        url.searchParams
+          .get(
+            "v"
+          ) ??
+        "";
+    }
   }
 
-  return url.toString();
+  id =
+    id.split(
+      /[?&#/]/
+    )[0];
+
+  return /^[A-Za-z0-9_-]{6,20}$/
+    .test(
+      id
+    )
+      ? id
+      : null;
+}
+
+
+async function fetchOEmbed(
+  canonicalUrl: string,
+): Promise<
+  Partial<MetadataPayload>
+> {
+  const endpoint =
+    new URL(
+      "https://www.youtube.com/oembed"
+    );
+
+  endpoint.searchParams.set(
+    "url",
+    canonicalUrl
+  );
+
+  endpoint.searchParams.set(
+    "format",
+    "json"
+  );
+
+  const response =
+    await fetch(
+      endpoint,
+      {
+        headers: {
+          Accept:
+            "application/json",
+        },
+      }
+    );
+
+  if (
+    !response.ok
+  ) {
+    return {};
+  }
+
+  const payload =
+    await response.json() as {
+      title?: string;
+      author_name?: string;
+      thumbnail_url?: string;
+    };
+
+  return {
+    title:
+      payload.title ??
+      "",
+
+    authorName:
+      payload.author_name ??
+      null,
+
+    thumbnailUrl:
+      payload.thumbnail_url ??
+      null,
+  };
+}
+
+
+async function fetchDataApi(
+  videoId: string,
+  apiKey: string,
+): Promise<
+  Partial<MetadataPayload>
+> {
+  const endpoint =
+    new URL(
+      "https://www.googleapis.com/youtube/v3/videos"
+    );
+
+  endpoint.searchParams.set(
+    "part",
+    "snippet"
+  );
+
+  endpoint.searchParams.set(
+    "id",
+    videoId
+  );
+
+  endpoint.searchParams.set(
+    "key",
+    apiKey
+  );
+
+  const response =
+    await fetch(
+      endpoint,
+      {
+        headers: {
+          Accept:
+            "application/json",
+        },
+      }
+    );
+
+  if (
+    !response.ok
+  ) {
+    const detail =
+      await response.text();
+
+    console.warn(
+      "youtube-metadata Data API error:",
+      response.status,
+      detail
+    );
+
+    return {};
+  }
+
+  const payload =
+    await response.json() as {
+      items?: Array<{
+        snippet?: {
+          title?: string;
+          description?: string;
+          channelTitle?: string;
+          thumbnails?: {
+            maxres?: {
+              url?: string;
+            };
+            standard?: {
+              url?: string;
+            };
+            high?: {
+              url?: string;
+            };
+            medium?: {
+              url?: string;
+            };
+            default?: {
+              url?: string;
+            };
+          };
+        };
+      }>;
+    };
+
+  const snippet =
+    payload.items?.[0]
+      ?.snippet;
+
+  if (
+    !snippet
+  ) {
+    return {};
+  }
+
+  return {
+    title:
+      snippet.title ??
+      "",
+
+    description:
+      snippet.description ??
+      null,
+
+    authorName:
+      snippet.channelTitle ??
+      null,
+
+    thumbnailUrl:
+      snippet.thumbnails
+        ?.maxres?.url ??
+      snippet.thumbnails
+        ?.standard?.url ??
+      snippet.thumbnails
+        ?.high?.url ??
+      snippet.thumbnails
+        ?.medium?.url ??
+      snippet.thumbnails
+        ?.default?.url ??
+      null,
+  };
 }
 
 
@@ -109,7 +320,7 @@ Deno.serve(
         "ok",
         {
           headers:
-            CORS_HEADERS,
+            corsHeaders,
         }
       );
     }
@@ -118,7 +329,7 @@ Deno.serve(
       request.method !==
       "POST"
     ) {
-      return jsonResponse(
+      return json(
         {
           error:
             "Method not allowed.",
@@ -128,28 +339,38 @@ Deno.serve(
     }
 
     let body:
-      Record<string, unknown>;
+      {
+        url?: unknown;
+      };
 
     try {
       body =
         await request.json();
     } catch {
-      return jsonResponse(
+      return json(
         {
           error:
-            "Invalid request body.",
+            "Invalid JSON body.",
         },
         400
       );
     }
 
-    const youtubeUrl =
-      normalizeYouTubeUrl(
-        body.url
+    const rawUrl =
+      typeof body.url ===
+        "string"
+        ? body.url.trim()
+        : "";
+
+    const videoId =
+      parseYouTubeId(
+        rawUrl
       );
 
-    if (!youtubeUrl) {
-      return jsonResponse(
+    if (
+      !videoId
+    ) {
+      return json(
         {
           error:
             "Invalid YouTube URL.",
@@ -158,89 +379,75 @@ Deno.serve(
       );
     }
 
-    const endpoint =
-      new URL(
-        "https://www.youtube.com/oembed"
+    const canonicalUrl =
+      `https://www.youtube.com/watch?v=${videoId}`;
+
+    const oembed =
+      await fetchOEmbed(
+        canonicalUrl
       );
 
-    endpoint.searchParams.set(
-      "url",
-      youtubeUrl
-    );
+    const apiKey =
+      Deno.env.get(
+        "YOUTUBE_API_KEY"
+      )?.trim();
 
-    endpoint.searchParams.set(
-      "format",
-      "json"
-    );
+    let official:
+      Partial<MetadataPayload> =
+        {};
 
-
-    try {
-      const response =
-        await fetch(
-          endpoint
-        );
-
-      if (!response.ok) {
-        return jsonResponse(
-          {
-            error:
-              "YouTube metadata lookup failed.",
-          },
-          response.status
-        );
-      }
-
-      const payload =
-        await response.json() as {
-          title?: string;
-          author_name?: string;
-          thumbnail_url?: string;
-        };
-
-      const title =
-        payload.title
-          ?.trim();
-
-      if (!title) {
-        return jsonResponse(
-          {
-            error:
-              "YouTube did not return a title.",
-          },
-          502
-        );
-      }
-
-      return jsonResponse(
-        {
-          title,
-
-          authorName:
-            payload.author_name
-              ?.trim() ??
-            null,
-
-          thumbnailUrl:
-            payload.thumbnail_url
-              ?.trim() ??
-            null,
-        }
-      );
-    } catch (
-      error
+    if (
+      apiKey
     ) {
-      console.error(
-        "ROFFLE YOUTUBE METADATA ERROR:",
-        error
-      );
+      official =
+        await fetchDataApi(
+          videoId,
+          apiKey
+        );
+    }
 
-      return jsonResponse(
+    const title =
+      official.title
+        ?.trim() ||
+      oembed.title
+        ?.trim() ||
+      "";
+
+    if (
+      !title
+    ) {
+      return json(
         {
           error:
-            "Could not contact YouTube.",
+            "YouTube did not return metadata for this video.",
         },
-        502
+        404
       );
     }
+
+    return json(
+      {
+        title,
+
+        description:
+          official.description
+            ?.trim() ||
+          null,
+
+        authorName:
+          official.authorName
+            ?.trim() ||
+          oembed.authorName
+            ?.trim() ||
+          null,
+
+        thumbnailUrl:
+          official.thumbnailUrl
+            ?.trim() ||
+          oembed.thumbnailUrl
+            ?.trim() ||
+          `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+      } satisfies MetadataPayload
+    );
   }
 );

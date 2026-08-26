@@ -11,7 +11,7 @@ const posts = [
 export default function App(){
  const [sort,setSort]=useState("Hot");
  return <div className="community-site">
-  <header><div className="brand"><span>UL</span><strong>UNFILTERED LOGS</strong></div><nav><button className="active">Logs</button><button>Editorial</button><button>Forum</button></nav><div className="header-actions"><input placeholder="Search..."/><button className="new">+ New Log</button><button className="avatar">IK</button></div></header>
+  <header><div className="brand"><span>UL</span><strong>UNFILTERED LOG</strong></div><nav><button className="active">Logs</button><button>Editorial</button><button>Forum</button></nav><div className="header-actions"><input placeholder="Search..."/><button className="new">+ New Log</button><button className="avatar">IK</button></div></header>
   <div className="subnav"><div><button className="active">Home</button><button>Following</button><button>Videos</button><button>GIFs</button><button>Text</button></div><span>46 people online</span></div>
   <main>
    <aside className="leftbar">

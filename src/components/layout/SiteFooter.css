@@ -237,3 +237,97 @@
       none;
   }
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 26
+   SITE-MATCHED FOOTER LOGO
+   ========================================================== */
+
+
+.unfiltered-site-footer
+.unfiltered-logo-image {
+  width: 228px;
+  height: auto;
+
+  display: block;
+
+  object-fit: contain;
+
+  filter: none;
+}
+
+
+.unfiltered-site-footer
+.site-title {
+  display: inline-flex;
+  align-items: center;
+
+  width: fit-content;
+
+  text-decoration: none;
+}
+
+
+@media (max-width: 620px) {
+  .unfiltered-site-footer
+  .unfiltered-logo-image {
+    width: 194px;
+  }
+}
+
+
+/* ==========================================================
+   PRODUCTION PASS 27
+   FULL-WIDTH FOOTER
+   ========================================================== */
+
+
+/* Footer chrome spans the full viewport instead of inheriting
+   the normal 1080px content width. */
+.unfiltered-site-footer
+.unfiltered-site-footer-inner.site-width {
+  width: 100%;
+  max-width: none;
+
+  margin: 0;
+
+  padding-left: 14px;
+  padding-right: 14px;
+
+  box-sizing: border-box;
+}
+
+
+/* Push brand to the far left and footer navigation to far right. */
+.unfiltered-site-footer-inner {
+  justify-content: space-between;
+}
+
+
+.unfiltered-site-footer-brand {
+  flex: 0 0 auto;
+}
+
+
+.unfiltered-site-footer nav {
+  flex: 0 0 auto;
+
+  margin-left: auto;
+}
+
+
+@media (max-width: 620px) {
+  .unfiltered-site-footer
+  .unfiltered-site-footer-inner.site-width {
+    width: 100%;
+
+    padding:
+      9px 8px;
+  }
+
+
+  .unfiltered-site-footer nav {
+    margin-left: 0;
+  }
+}

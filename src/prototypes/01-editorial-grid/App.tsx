@@ -19,7 +19,7 @@ export default function App() {
   return (
     <div className="editorial-site">
       <header className="topbar">
-        <div className="brand"><span>UL</span><strong>UNFILTERED LOGS</strong></div>
+        <div className="brand"><span>UL</span><strong>UNFILTERED LOG</strong></div>
         <nav><button className="active">Logs</button><button>Editorial</button><button>Forum</button></nav>
         <div className="actions"><button>Search</button><button className="primary">+ New Log</button><button className="avatar">IK</button></div>
       </header>
@@ -68,7 +68,7 @@ export default function App() {
         </section>
       </main>
 
-      <footer><strong>UNFILTERED LOGS</strong><span>Built for humans, not engagement funnels.</span><div><button>About</button><button>Rules</button><button>Contact</button></div></footer>
+      <footer><strong>UNFILTERED LOG</strong><span>Built for humans, not engagement funnels.</span><div><button>About</button><button>Rules</button><button>Contact</button></div></footer>
     </div>
   );
 }

@@ -187,7 +187,7 @@ function EditorialSidebar({
         <div className="editorial-side-copy">
           <p>
             Longer-form writing from
-            UNFILTERED LOGS.
+            UNFILTERED LOG.
           </p>
 
           <p>
@@ -325,7 +325,7 @@ function BlogIndex() {
               nextError
                 instanceof Error
                 ? nextError.message
-                : "UNFILTERED LOGS Editorial could not load."
+                : "UNFILTERED LOG Editorial could not load."
             );
           }
         }
@@ -351,7 +351,7 @@ function BlogIndex() {
       <section className="blog-page-heading">
         <div>
           <span>
-            UNFILTERED LOGS
+            UNFILTERED LOG
           </span>
 
           <h1>
@@ -647,7 +647,7 @@ function BlogArticle({
               <span>
                 {post.is_highlighted
                   ? "FEATURED EDITORIAL"
-                  : "UNFILTERED LOGS EDITORIAL"}
+                  : "UNFILTERED LOG EDITORIAL"}
               </span>
 
               <h1>

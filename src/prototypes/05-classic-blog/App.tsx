@@ -332,7 +332,7 @@ export default function App() {
           <a className="site-title" href="#top">
             <span className="site-logo">UL</span>
             <span className="site-wordmark">
-              <strong>UNFILTERED LOGS</strong>
+              <strong>UNFILTERED LOG</strong>
               <small>people posting things worth seeing since right now</small>
             </span>
           </a>
@@ -488,7 +488,7 @@ export default function App() {
 
           <aside className="sidebar">
             <section className="side-box welcome-box">
-              <div className="side-title">WELCOME TO UNFILTERED LOGS</div>
+              <div className="side-title">WELCOME TO UNFILTERED LOG</div>
               <div className="side-content">
                 <p>
                   A community blog for videos, GIFs, stories, images, links, and whatever else somebody thought was worth sharing.
@@ -618,7 +618,7 @@ export default function App() {
       <footer className="classic-footer">
         <div className="site-width footer-inner">
           <div>
-            <strong>UNFILTERED LOGS</strong>
+            <strong>UNFILTERED LOG</strong>
             <span>Built like the old web. Behaves like the new one.</span>
           </div>
           <nav>

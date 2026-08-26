@@ -14,7 +14,7 @@ const cards = [
 export default function App(){
  const [mode,setMode]=useState("Board");
  return <div className="mag-site">
-  <header><div className="brand"><span>UL</span><strong>UNFILTERED LOGS</strong></div><nav><button className="active">Logs</button><button>Editorial</button><button>Forum</button></nav><div className="actions"><button>⌕</button><button className="new">+ New Log</button><button className="avatar">IK</button></div></header>
+  <header><div className="brand"><span>UL</span><strong>UNFILTERED LOG</strong></div><nav><button className="active">Logs</button><button>Editorial</button><button>Forum</button></nav><div className="actions"><button>⌕</button><button className="new">+ New Log</button><button className="avatar">IK</button></div></header>
   <main>
    <section className="masthead"><div><span className="kicker">A LIVE BOARD OF INTERNET DETRITUS</span><h1>Unfiltered.</h1></div><p>Videos, GIFs, thoughts, oddities, and things people thought were worth sharing.</p><div className="view-toggle">{["Board","Latest","Popular"].map(x=><button className={mode===x?"active":""} onClick={()=>setMode(x)} key={x}>{x}</button>)}</div></section>
 
@@ -36,6 +36,6 @@ export default function App(){
     </div>
    </section>
   </main>
-  <footer><strong>UNFILTERED LOGS</strong><span>No infinite corporate beige.</span><div><button>About</button><button>Rules</button><button>Contact</button></div></footer>
+  <footer><strong>UNFILTERED LOG</strong><span>No infinite corporate beige.</span><div><button>About</button><button>Rules</button><button>Contact</button></div></footer>
  </div>
 }

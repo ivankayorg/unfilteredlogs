@@ -3,7 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 
 
 /* ==========================================================
-   UNFILTERED LOGS
+   UNFILTERED LOG
    COMMUNITY SIDEBAR DATA
    ========================================================== */
 
@@ -131,14 +131,14 @@ export async function getRecentComments(
 
   if (profileResult.error) {
     console.warn(
-      "UNFILTERED LOGS RECENT COMMENT PROFILE ERROR:",
+      "UNFILTERED LOG RECENT COMMENT PROFILE ERROR:",
       profileResult.error
     );
   }
 
   if (postResult.error) {
     console.warn(
-      "UNFILTERED LOGS RECENT COMMENT POST ERROR:",
+      "UNFILTERED LOG RECENT COMMENT POST ERROR:",
       postResult.error
     );
   }
@@ -289,7 +289,7 @@ export async function subscribeToOnlineUsers(
 
     if (error) {
       console.warn(
-        "UNFILTERED LOGS PRESENCE PROFILE ERROR:",
+        "UNFILTERED LOG PRESENCE PROFILE ERROR:",
         error
       );
     }

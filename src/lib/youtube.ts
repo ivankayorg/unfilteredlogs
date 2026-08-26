@@ -86,6 +86,9 @@ export function parseYouTubeUrl(rawValue: string): ParsedYouTubeUrl | null {
 export type YouTubeMetadata = {
   title: string;
 
+  description:
+    string | null;
+
   authorName:
     string | null;
 
@@ -96,6 +99,7 @@ export type YouTubeMetadata = {
 
 type YouTubeMetadataFunctionResponse = {
   title?: string;
+  description?: string | null;
   authorName?: string | null;
   thumbnailUrl?: string | null;
 };
@@ -176,6 +180,11 @@ export async function fetchYouTubeMetadata(
 
   return {
     title,
+
+    description:
+      payload?.description
+        ?.trim() ??
+      null,
 
     authorName:
       payload?.authorName

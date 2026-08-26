@@ -1,6 +1,6 @@
-# Unfiltered Logs
+# UNFILTERED LOG
 
-React + TypeScript + Vite frontend for **Unfiltered Logs**.
+React + TypeScript + Vite frontend for **UNFILTERED LOG**.
 
 ## Local setup
 

@@ -11,7 +11,7 @@ import type {
 
 
 /* ==========================================================
-   UNFILTERED LOGS
+   UNFILTERED LOG
    COMMENTS SERVICE
    ========================================================== */
 
@@ -98,7 +98,7 @@ async function attachCommentProfiles(
 
     if (error) {
       console.warn(
-        "UNFILTERED LOGS COMMENT PROFILE ERROR:",
+        "UNFILTERED LOG COMMENT PROFILE ERROR:",
         error
       );
     } else {

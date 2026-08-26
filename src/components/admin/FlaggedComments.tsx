@@ -23,7 +23,7 @@ import type {
 
 
 /* ==========================================================
-   UNFILTERED LOGS ADMIN
+   UNFILTERED LOG ADMIN
    FLAGGED COMMENTS
    ========================================================== */
 

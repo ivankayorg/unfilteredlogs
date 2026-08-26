@@ -549,7 +549,7 @@ export default function EditPostDialog({
     };
 
 
-  const useYouTubeTitle =
+  const useYouTubeMetadata =
     async () => {
       if (!parsedYouTube) {
         return;
@@ -576,6 +576,16 @@ export default function EditPostDialog({
             180
           )
         );
+
+        setBody(
+          (
+            metadata.description ??
+            ""
+          ).slice(
+            0,
+            500
+          )
+        );
       } catch (
         nextError
       ) {
@@ -583,7 +593,7 @@ export default function EditPostDialog({
           nextError
             instanceof Error
             ? nextError.message
-            : "Could not get the YouTube title."
+            : "Could not get YouTube metadata."
         );
       } finally {
         setYoutubeTitleLoading(
@@ -774,9 +784,19 @@ export default function EditPostDialog({
     };
 
 
+  const postTypeLabel =
+    post.post_type ===
+      "youtube"
+      ? "YOUTUBE"
+      : post.post_type ===
+          "image"
+        ? "IMAGE / GIF"
+        : "TEXT";
+
+
   return (
     <div
-      className="edit-post-backdrop"
+      className="edit-compose-backdrop"
       role="presentation"
       onMouseDown={
         (
@@ -792,67 +812,46 @@ export default function EditPostDialog({
       }
     >
       <section
-        className="edit-post-dialog"
+        className="edit-compose-window"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="edit-post-title"
+        aria-labelledby="edit-compose-title"
       >
-        <header className="edit-post-header">
-          <div>
-            <span className="edit-post-eyebrow">
-              EDIT RECENT POST
+        <header className="edit-compose-titlebar">
+          <div className="edit-compose-titleblock">
+            <span>
+              EDIT POST
             </span>
 
-            <h2 id="edit-post-title">
-              Edit post
-            </h2>
+            <strong id="edit-compose-title">
+              Make your corrections.
+            </strong>
           </div>
 
-          <div className="edit-post-header-right">
-            <span className="edit-post-type-badge">
-              {post.post_type ===
-                "youtube"
-                ? "YOUTUBE"
-                : post.post_type ===
-                    "image"
-                  ? "IMAGE / GIF"
-                  : "TEXT"}
-            </span>
-
-            <button
-              className="edit-post-close"
-              type="button"
-              onClick={
-                onClose
-              }
-              aria-label="Close"
-            >
-              <X
-                size={14}
-              />
-            </button>
+          <div className="edit-compose-type-readout">
+            {postTypeLabel}
           </div>
+
+          <button
+            className="edit-compose-close"
+            type="button"
+            onClick={
+              onClose
+            }
+            aria-label="Close"
+          >
+            <X size={14} />
+          </button>
         </header>
 
-        <div className="edit-post-body">
-          <section className="edit-post-section">
-            <div className="edit-post-section-heading">
-              <strong>
-                Content
-              </strong>
-
-              <span>
-                Edit the post itself.
-              </span>
-            </div>
-
+        <div className="edit-compose-scroll">
+          <main className="edit-compose-canvas">
             {post.post_type ===
               "text" && (
-              <div className="edit-post-content-fields">
-                <label className="edit-post-field">
+              <>
+                <label className="edit-compose-title-field">
                   <span>
-                    Title
-
+                    TITLE
                     <small>
                       {title.length}/180
                     </small>
@@ -876,17 +875,15 @@ export default function EditPostDialog({
                   />
                 </label>
 
-                <label className="edit-post-field">
+                <label className="edit-compose-body-field">
                   <span>
-                    Post
-
+                    POST
                     <small>
                       {body.length}/500
                     </small>
                   </span>
 
                   <textarea
-                    className="edit-post-main-textarea"
                     value={
                       body
                     }
@@ -902,109 +899,37 @@ export default function EditPostDialog({
                     }
                   />
                 </label>
-              </div>
+              </>
             )}
 
             {post.post_type ===
               "youtube" && (
-              <div className="edit-post-youtube-layout">
-                <div className="edit-post-youtube-fields">
-                  <label className="edit-post-field">
-                    <span>
-                      YouTube URL
-                    </span>
+              <>
+                <label className="edit-compose-line-field">
+                  <span>
+                    YOUTUBE URL
+                  </span>
 
-                    <input
-                      type="url"
-                      value={
-                        youtubeUrl
+                  <input
+                    type="url"
+                    value={
+                      youtubeUrl
+                    }
+                    onChange={
+                      (
+                        event
+                      ) => {
+                        setYoutubeUrl(
+                          event.target.value
+                        );
                       }
-                      onChange={
-                        (
-                          event
-                        ) => {
-                          setYoutubeUrl(
-                            event.target.value
-                          );
-                        }
-                      }
-                    />
-                  </label>
+                    }
+                  />
+                </label>
 
-                  <label className="edit-post-field">
-                    <span>
-                      Title
-
-                      <small>
-                        {title.length}/180
-                      </small>
-                    </span>
-
-                    <input
-                      type="text"
-                      value={
-                        title
-                      }
-                      maxLength={180}
-                      onChange={
-                        (
-                          event
-                        ) => {
-                          setTitle(
-                            event.target.value
-                          );
-                        }
-                      }
-                    />
-
-                    <div className="edit-post-title-tools">
-                      <button
-                        type="button"
-                        disabled={
-                          !parsedYouTube ||
-                          youtubeTitleLoading
-                        }
-                        onClick={() => {
-                          void useYouTubeTitle();
-                        }}
-                      >
-                        {youtubeTitleLoading
-                          ? "Getting title..."
-                          : "Use YouTube title"}
-                      </button>
-                    </div>
-                  </label>
-
-                  <label className="edit-post-field">
-                    <span>
-                      Commentary
-
-                      <small>
-                        {body.length}/500
-                      </small>
-                    </span>
-
-                    <textarea
-                      value={
-                        body
-                      }
-                      maxLength={500}
-                      onChange={
-                        (
-                          event
-                        ) => {
-                          setBody(
-                            event.target.value
-                          );
-                        }
-                      }
-                    />
-                  </label>
-                </div>
-
-                <div className="edit-post-youtube-preview">
-                  {parsedYouTube ? (
-                    <>
+                <div className="edit-compose-youtube-row">
+                  <div className="edit-compose-video-stage">
+                    {parsedYouTube ? (
                       <iframe
                         src={
                           parsedYouTube.embedUrl
@@ -1013,24 +938,91 @@ export default function EditPostDialog({
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen
                       />
+                    ) : (
+                      <div className="edit-compose-empty-stage">
+                        <span>
+                          Invalid YouTube URL
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
+                  <div className="edit-compose-video-copy">
+                    <label className="edit-compose-line-field">
                       <span>
-                        Current video preview
+                        TITLE
+                        <small>
+                          {title.length}/180
+                        </small>
                       </span>
-                    </>
-                  ) : (
-                    <div className="edit-post-preview-empty">
-                      Enter a valid YouTube URL to preview it.
-                    </div>
-                  )}
+
+                      <input
+                        type="text"
+                        value={
+                          title
+                        }
+                        maxLength={180}
+                        onChange={
+                          (
+                            event
+                          ) => {
+                            setTitle(
+                              event.target.value
+                            );
+                          }
+                        }
+                      />
+                    </label>
+
+                    <button
+                      className="edit-compose-youtube-title"
+                      type="button"
+                      disabled={
+                        !parsedYouTube ||
+                        youtubeTitleLoading
+                      }
+                      onClick={() => {
+                        void useYouTubeMetadata();
+                      }}
+                    >
+                      {youtubeTitleLoading
+                        ? "Getting title..."
+                        : "Use YouTube metadata"}
+                    </button>
+
+                    <label className="edit-compose-commentary-field">
+                      <span>
+                        DESCRIPTION / COMMENTARY
+                        <small>
+                          {body.length}/500
+                        </small>
+                      </span>
+
+                      <textarea
+                        value={
+                          body
+                        }
+                        maxLength={500}
+                        onChange={
+                          (
+                            event
+                          ) => {
+                            setBody(
+                              event.target.value
+                            );
+                          }
+                        }
+                      />
+                    </label>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
 
             {post.post_type ===
               "image" && (
-              <div className="edit-post-image-layout">
-                <div className="edit-post-image-preview">
+              <div className="edit-compose-image-row">
+                <div className="edit-compose-current-image">
                   <img
                     src={
                       replacementPreview ??
@@ -1039,10 +1031,8 @@ export default function EditPostDialog({
                     }
                     alt=""
                   />
-                </div>
 
-                <div className="edit-post-image-fields">
-                  <label className="edit-post-replace-image">
+                  <label>
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp,image/gif"
@@ -1058,25 +1048,18 @@ export default function EditPostDialog({
                       }
                     />
 
-                    <UploadCloud
-                      size={17}
-                    />
+                    <UploadCloud size={12} />
 
-                    <span>
-                      <strong>
-                        Replace image
-                      </strong>
-
-                      <small>
-                        Optional
-                      </small>
-                    </span>
+                    {replacementImage
+                      ? "CHANGE REPLACEMENT"
+                      : "REPLACE IMAGE"}
                   </label>
+                </div>
 
-                  <label className="edit-post-field">
+                <div className="edit-compose-image-copy">
+                  <label className="edit-compose-line-field">
                     <span>
-                      Title
-
+                      TITLE
                       <small>
                         {title.length}/180
                       </small>
@@ -1100,10 +1083,9 @@ export default function EditPostDialog({
                     />
                   </label>
 
-                  <label className="edit-post-field">
+                  <label className="edit-compose-commentary-field">
                     <span>
-                      Caption / commentary
-
+                      CAPTION / COMMENTARY
                       <small>
                         {body.length}/500
                       </small>
@@ -1128,149 +1110,128 @@ export default function EditPostDialog({
                 </div>
               </div>
             )}
-          </section>
+          </main>
 
-          <section className="edit-post-section">
-            <div className="edit-post-section-heading">
+          <div className="edit-compose-meta-ribbon">
+            <label className="edit-compose-meta-control">
+              <span>
+                CATEGORY
+              </span>
+
+              <div className="edit-compose-select">
+                <select
+                  value={
+                    categoryId
+                  }
+                  onChange={
+                    (
+                      event
+                    ) => {
+                      setCategoryId(
+                        event.target.value
+                      );
+                    }
+                  }
+                >
+                  {categories.map(
+                    (
+                      category
+                    ) => (
+                      <option
+                        key={
+                          category.id
+                        }
+                        value={
+                          category.id
+                        }
+                      >
+                        {category.name}
+                      </option>
+                    )
+                  )}
+                </select>
+
+                <ChevronDown size={11} />
+              </div>
+            </label>
+
+            <div className="edit-compose-meta-control edit-compose-width-control">
+              <span>
+                FEED WIDTH
+              </span>
+
+              <div className="edit-compose-width-buttons">
+                {(
+                  [
+                    {
+                      value:
+                        "small",
+                      label:
+                        "S",
+                    },
+                    {
+                      value:
+                        "large",
+                      label:
+                        "L",
+                    },
+                    {
+                      value:
+                        "wide",
+                      label:
+                        "WIDE",
+                    },
+                  ] as Array<{
+                    value:
+                      PostDisplaySize;
+                    label:
+                      string;
+                  }>
+                ).map(
+                  (
+                    option
+                  ) => (
+                    <button
+                      type="button"
+                      key={
+                        option.value
+                      }
+                      className={
+                        displaySize ===
+                          option.value
+                          ? "active"
+                          : ""
+                      }
+                      onClick={() => {
+                        setDisplaySize(
+                          option.value
+                        );
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <small>
+                Container width only. The post content itself is not resized or cropped.
+              </small>
+            </div>
+          </div>
+
+          <div className="edit-compose-tags-ribbon">
+            <div className="edit-compose-tags-label">
               <strong>
-                Post details
+                TAGS
               </strong>
 
               <span>
-                Feed placement and organization.
+                {tagIds.length}/5
               </span>
             </div>
 
-            <div className="edit-post-details-grid">
-              <label className="edit-post-meta-field">
-                <span>
-                  Category
-                </span>
-
-                <div className="edit-post-select-wrap">
-                  <select
-                    value={
-                      categoryId
-                    }
-                    onChange={
-                      (
-                        event
-                      ) => {
-                        setCategoryId(
-                          event.target.value
-                        );
-                      }
-                    }
-                  >
-                    {categories.map(
-                      (
-                        category
-                      ) => (
-                        <option
-                          key={
-                            category.id
-                          }
-                          value={
-                            category.id
-                          }
-                        >
-                          {category.name}
-                        </option>
-                      )
-                    )}
-                  </select>
-
-                  <ChevronDown
-                    size={12}
-                  />
-                </div>
-              </label>
-
-              <div className="edit-post-meta-field">
-                <span>
-                  Post size
-                </span>
-
-                <div className="edit-post-size-options">
-                  {(
-                    [
-                      {
-                        value:
-                          "small",
-                        label:
-                          "Small",
-                      },
-                      {
-                        value:
-                          "large",
-                        label:
-                          "Large",
-                      },
-                      {
-                        value:
-                          "wide",
-                        label:
-                          "Wide",
-                      },
-                    ] as Array<{
-                      value:
-                        PostDisplaySize;
-                      label:
-                        string;
-                    }>
-                  ).map(
-                    (
-                      option
-                    ) => (
-                      <button
-                        type="button"
-                        key={
-                          option.value
-                        }
-                        className={
-                          displaySize ===
-                            option.value
-                            ? "selected"
-                            : ""
-                        }
-                        onClick={() => {
-                          setDisplaySize(
-                            option.value
-                          );
-                        }}
-                      >
-                        {option.label}
-                      </button>
-                    )
-                  )}
-                </div>
-
-                <small className="edit-post-size-help">
-                  Changes only the width of the post container in the feed.
-                  It does not resize or crop the actual post content.
-                </small>
-              </div>
-            </div>
-          </section>
-
-          <section className="edit-post-section">
-            <div className="edit-post-section-heading edit-post-tags-heading">
-              <div>
-                <strong>
-                  Article tags
-                </strong>
-
-                <span>
-                  Optional · choose up to five
-                </span>
-              </div>
-
-              <em>
-                {tagIds.length}/5 selected
-              </em>
-            </div>
-
-            <div className="edit-post-tags-row">
+            <div className="edit-compose-tag-list">
               {primaryTags.map(
                 (
                   tag
@@ -1302,8 +1263,7 @@ export default function EditPostDialog({
                         );
                       }}
                     >
-                      #
-                      {tag.name}
+                      #{tag.name}
                     </button>
                   );
                 }
@@ -1311,10 +1271,10 @@ export default function EditPostDialog({
 
               {tags.length >
                 8 && (
-                <div className="edit-post-more-tags">
+                <div className="edit-compose-more-select">
                   <select
-                    value=""
                     aria-label="More article tags"
+                    value=""
                     disabled={
                       tagIds.length >=
                         5 ||
@@ -1353,32 +1313,17 @@ export default function EditPostDialog({
                     )}
                   </select>
 
-                  <ChevronDown
-                    size={11}
-                  />
+                  <ChevronDown size={10} />
                 </div>
               )}
             </div>
-          </section>
+          </div>
 
-          <section className="edit-post-section edit-post-gif-section">
-            <div className="edit-post-gif-bar">
-              <div>
-                <Images
-                  size={13}
-                />
-
-                <span>
-                  GIF attachment
-                </span>
-
-                <small>
-                  Keep, replace, or remove
-                </small>
-              </div>
-
+          <div className="edit-compose-utility-ribbon">
+            <div className="edit-compose-gif-tools">
               <button
                 type="button"
+                className="edit-compose-gif-button"
                 onClick={() => {
                   setGifOpen(
                     (
@@ -1388,91 +1333,93 @@ export default function EditPostDialog({
                   );
                 }}
               >
+                <Images size={12} />
+
                 {gifOpen
-                  ? "Close GIPHY"
+                  ? "CLOSE GIPHY"
                   : selectedGif
-                    ? "Change GIF"
-                    : "Add GIF"}
+                    ? "CHANGE GIF"
+                    : "ADD GIF"}
               </button>
-            </div>
 
-            {selectedGif && (
-              <div className="edit-post-selected-gif">
-                <img
-                  src={
-                    selectedGif.url
-                  }
-                  alt={
-                    selectedGif.title
-                  }
-                />
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedGif(
-                      null
-                    );
-                  }}
-                >
-                  <X
-                    size={10}
+              {selectedGif && (
+                <div className="edit-compose-gif-chip">
+                  <img
+                    src={
+                      selectedGif.previewUrl
+                    }
+                    alt=""
                   />
 
-                  Remove
-                </button>
-              </div>
-            )}
+                  <span>
+                    GIF attached
+                  </span>
 
-            {gifOpen && (
-              <div className="edit-post-giphy-drawer">
-                <GiphyPicker
-                  selected={
-                    selectedGif
-                  }
-                  onSelect={
-                    (
-                      gif
-                    ) => {
+                  <button
+                    type="button"
+                    onClick={() => {
                       setSelectedGif(
-                        gif
+                        null
                       );
+                    }}
+                    aria-label="Remove GIF"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              )}
+            </div>
 
-                      setGifOpen(
-                        false
-                      );
-                    }
+            <span className="edit-compose-utility-note">
+              Existing attachment is preserved unless you change or remove it.
+            </span>
+          </div>
+
+          {gifOpen && (
+            <div className="edit-compose-giphy-drawer">
+              <GiphyPicker
+                selected={
+                  selectedGif
+                }
+                onSelect={
+                  (
+                    gif
+                  ) => {
+                    setSelectedGif(
+                      gif
+                    );
+
+                    setGifOpen(
+                      false
+                    );
                   }
-                />
-              </div>
-            )}
-          </section>
+                }
+              />
+            </div>
+          )}
 
           {error && (
-            <div className="edit-post-error">
+            <div className="edit-compose-message error">
               {error}
             </div>
           )}
 
           {saved && (
-            <div className="edit-post-success">
-              <CheckCircle2
-                size={13}
-              />
-
+            <div className="edit-compose-message success">
+              <CheckCircle2 size={12} />
               Saved.
             </div>
           )}
         </div>
 
-        <footer className="edit-post-footer">
+        <footer className="edit-compose-footer">
           <span>
-            Editing existing post
+            Editing existing {postTypeLabel.toLowerCase()} post
           </span>
 
           <div>
             <button
-              className="edit-post-cancel"
+              className="edit-compose-cancel"
               type="button"
               onClick={
                 onClose
@@ -1485,7 +1432,7 @@ export default function EditPostDialog({
             </button>
 
             <button
-              className="edit-post-save"
+              className="edit-compose-save"
               type="button"
               disabled={
                 saving ||
@@ -1495,9 +1442,7 @@ export default function EditPostDialog({
                 void submit();
               }}
             >
-              <Save
-                size={12}
-              />
+              <Save size={12} />
 
               {saving
                 ? "Saving..."

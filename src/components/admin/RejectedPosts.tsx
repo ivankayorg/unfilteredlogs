@@ -21,7 +21,7 @@ import type {
 
 
 /* ==========================================================
-   UNFILTERED LOGS ADMIN
+   UNFILTERED LOG ADMIN
    REJECTED POSTS
    ========================================================== */
 
@@ -237,7 +237,7 @@ export default function RejectedPosts() {
                   ? `@${post.profiles.username}`
                   : post.profiles
                       ?.display_name ??
-                    "UNFILTERED LOGS User";
+                    "UNFILTERED LOG User";
 
               return (
                 <article

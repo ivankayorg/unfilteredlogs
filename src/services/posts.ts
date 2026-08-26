@@ -17,7 +17,7 @@ import type {
 
 
 /* ==========================================================
-   UNFILTERED LOGS
+   UNFILTERED LOG
    POSTS SERVICE
    ========================================================== */
 
@@ -129,7 +129,7 @@ async function uploadPostImage(
     )
   ) {
     throw new Error(
-      "UNFILTERED LOGS currently accepts JPG, PNG, WEBP, and GIF images."
+      "UNFILTERED LOG currently accepts JPG, PNG, WEBP, and GIF images."
     );
   }
 
@@ -276,7 +276,7 @@ async function attachTaxonomy(
     categoriesResult.error
   ) {
     console.warn(
-      "UNFILTERED LOGS CATEGORY LOAD ERROR:",
+      "UNFILTERED LOG CATEGORY LOAD ERROR:",
       categoriesResult.error
     );
   }
@@ -285,7 +285,7 @@ async function attachTaxonomy(
     postTagsResult.error
   ) {
     console.warn(
-      "UNFILTERED LOGS TAG LINK LOAD ERROR:",
+      "UNFILTERED LOG TAG LINK LOAD ERROR:",
       postTagsResult.error
     );
   }
@@ -355,7 +355,7 @@ async function attachTaxonomy(
 
   if (tagsError) {
     console.warn(
-      "UNFILTERED LOGS TAG LOAD ERROR:",
+      "UNFILTERED LOG TAG LOAD ERROR:",
       tagsError
     );
   }
@@ -520,7 +520,7 @@ async function attachProfiles(
 
   if (profileError) {
     console.warn(
-      "UNFILTERED LOGS PROFILE LOAD ERROR:",
+      "UNFILTERED LOG PROFILE LOAD ERROR:",
       profileError
     );
   }
@@ -984,7 +984,7 @@ export async function getFeedPosts() {
 
   if (error) {
     console.error(
-      "UNFILTERED LOGS POSTS QUERY ERROR:",
+      "UNFILTERED LOG POSTS QUERY ERROR:",
       {
         message:
           error.message,
@@ -1356,7 +1356,7 @@ export async function updatePost(
 
   if (!updated) {
     throw new Error(
-      "The post was updated, but UNFILTERED LOGS could not reload it."
+      "The post was updated, but UNFILTERED LOG could not reload it."
     );
   }
 

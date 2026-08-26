@@ -2,7 +2,7 @@ import { supabase } from "../lib/supabase";
 
 
 /* ==========================================================
-   UNFILTERED LOGS
+   UNFILTERED LOG
    PUBLIC SITE STATS
    ========================================================== */
 

@@ -27,7 +27,7 @@ import type {
 
 
 /* ==========================================================
-   UNFILTERED LOGS ADMIN
+   UNFILTERED LOG ADMIN
    CATEGORIES + TAGS
    ========================================================== */
 

@@ -1,4 +1,4 @@
-# UNFILTERED LOGS Front Page Prototypes
+# UNFILTERED LOG Front Page Prototypes
 
 This folder is an isolated design sandbox for front-page experiments.
 

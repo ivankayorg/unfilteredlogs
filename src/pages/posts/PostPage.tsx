@@ -159,7 +159,15 @@ export default function PostPage() {
           <>
             <article className="post-page-card">
               <header className="post-page-titlebar">
-                <span className="type-badge">{post.post_type.toUpperCase()}</span>
+                <span
+                  className={`type-badge type-${
+                    post.post_type === "youtube"
+                      ? "video"
+                      : post.post_type
+                  }`}
+                >
+                  {post.post_type.toUpperCase()}
+                </span>
                 <h1>{post.title || "Untitled post"}</h1>
               </header>
 

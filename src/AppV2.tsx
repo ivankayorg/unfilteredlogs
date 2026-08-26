@@ -612,7 +612,6 @@ function FrontPageCard({
   isAdmin: boolean;
   singlePinned: boolean;
 }) {
-  const [playing, setPlaying] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const isOwner = session?.user.id === post.userId;
@@ -620,10 +619,13 @@ function FrontPageCard({
   const canDelete = Boolean(isOwner || isStaff);
   const isVideo = post.type === "video" || post.type === "short";
   const mediaUrl = post.gifUrl ?? (post.type === "text" ? undefined : post.image);
-  const singlePinnedVideo =
-    singlePinned &&
+  const pinnedYouTube =
     isVideo &&
     Boolean(post.youtubeId);
+
+  const singlePinnedVideo =
+    singlePinned &&
+    pinnedYouTube;
 
   return (
     <article
@@ -635,7 +637,7 @@ function FrontPageCard({
       id={`featured-${post.id}`}
     >
       <div className="featured-preview">
-        {singlePinnedVideo ? (
+        {pinnedYouTube ? (
           <a
             className="featured-video-teaser"
             href={`/posts/${post.id}`}
@@ -652,17 +654,17 @@ function FrontPageCard({
               </span>
             )}
 
-            <span className="featured-video-teaser-play">
-              ▶
+            <span
+              className="featured-video-teaser-play"
+              aria-hidden="true"
+            >
+              <Play
+                size={14}
+                fill="currentColor"
+                strokeWidth={0}
+              />
             </span>
           </a>
-        ) : playing && isVideo && post.youtubeId ? (
-          <iframe
-            src={`https://www.youtube.com/embed/${post.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
-            title={post.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
         ) : mediaUrl ? (
           <img src={mediaUrl} alt={post.title} />
         ) : (
@@ -675,27 +677,6 @@ function FrontPageCard({
         <span className={`type-badge type-${post.type === "short" ? "video" : post.type}`}>
           {post.gifUrl ? "GIF" : getPostTypeLabel(post)}
         </span>
-
-        {!singlePinnedVideo && !playing && isVideo && post.youtubeId && (
-          <button
-            className="small-play"
-            type="button"
-            aria-label={`Play ${post.title}`}
-            onClick={() => setPlaying(true)}
-          >
-            ▶
-          </button>
-        )}
-
-        {!singlePinnedVideo && playing && (
-          <button
-            className="featured-close-video"
-            type="button"
-            onClick={() => setPlaying(false)}
-          >
-            Close
-          </button>
-        )}
 
         {(canEdit || canDelete || isAdmin) && (
           <div className="featured-menu-wrap">

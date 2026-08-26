@@ -728,3 +728,36 @@
     grid-column: auto;
   }
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 26
+   SITE-MATCHED LOGIN LOGO
+   ========================================================== */
+
+
+.roffle-auth-header
+.unfiltered-logo-image {
+  width: 244px;
+  height: auto;
+
+  display: block;
+
+  object-fit: contain;
+
+  filter: none;
+}
+
+
+.roffle-auth-header
+.roffle-logo {
+  gap: 0;
+}
+
+
+@media (max-width: 520px) {
+  .roffle-auth-header
+  .unfiltered-logo-image {
+    width: 184px;
+  }
+}

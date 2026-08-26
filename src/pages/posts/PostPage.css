@@ -1,1 +1,41 @@
 .post-page-main{padding:14px 0 40px}.post-page-breadcrumbs{margin-bottom:8px;color:#7d8796;font-size:8px}.post-page-breadcrumbs span,.post-page-breadcrumbs a{margin-right:6px}.post-page-card,.post-page-comments{border:1px solid #9eabba;background:#fff;box-shadow:0 1px 3px rgba(38,51,69,.08)}.post-page-titlebar{padding:12px 14px 10px;border-bottom:1px solid #bcc6d2;background:linear-gradient(#f8fafc,#e9eef4)}.post-page-titlebar h1{margin:6px 0 0;color:#2c568f;font:700 22px/1.2 Arial,Helvetica,sans-serif}.post-page-byline{padding:7px 14px;display:flex;flex-wrap:wrap;gap:10px;border-bottom:1px solid #e0e5eb;background:#f9fbfd;color:#788394;font-size:8px}.post-page-byline strong{color:#315f9c}.post-page-media{margin:12px 14px;border:1px solid #b3bdca;background:#1d2633}.post-page-media iframe{width:100%;aspect-ratio:16/9;display:block;border:0}.post-page-media img{width:100%;max-height:680px;display:block;object-fit:contain}.post-page-body{padding:6px 14px 14px;color:#3e4857;font-size:12px;line-height:1.65;white-space:pre-wrap}.post-page-tags{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px;color:#6f7c8f;font-size:8px}.post-page-actions{min-height:38px;padding:6px 10px;display:flex;align-items:center;gap:7px;border-top:1px solid #d2d9e2;background:#edf2f7}.post-page-actions button{height:24px;padding:0 7px;border:1px solid #b8c2cf;background:#fff;color:#5c6879;font-size:8px;font-weight:700}.post-page-actions button.reacted{color:#a54159}.post-page-actions span{color:#6a7687;font-size:8px}.post-page-comments{margin-top:10px}.post-page-comments .comments-section{margin:0;border:0}.post-page-message{padding:26px}.post-page-message h1{margin-top:0;color:#2c568f;font-size:18px}@media(max-width:600px){.post-page-media{margin:8px}.post-page-titlebar h1{font-size:18px}}
+
+/* ==========================================================
+   PRODUCTION PASS 22
+   INDIVIDUAL POST TYPE BADGES
+   ========================================================== */
+
+
+.post-page-titlebar .type-badge {
+  min-height: 17px;
+
+  padding: 0 5px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border: 1px solid rgba(0,0,0,.13);
+  border-radius: 2px;
+
+  color: #fff !important;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing: .04em;
+}
+
+
+.post-page-titlebar .type-video {
+  background: #4169a7;
+}
+
+
+.post-page-titlebar .type-text {
+  background: #5b6d84;
+}
+
+
+.post-page-titlebar .type-image {
+  background: #477973;
+}

@@ -107,7 +107,7 @@ function authorLabel(
       ?.username ||
     item.author
       ?.display_name ||
-    "UNFILTERED LOGS User"
+    "UNFILTERED LOG User"
   );
 }
 
@@ -382,7 +382,7 @@ function ForumHome({
               nextError
                 instanceof Error
                 ? nextError.message
-                : "UNFILTERED LOGS Forums could not load."
+                : "UNFILTERED LOG Forums could not load."
             );
           }
         }
@@ -431,7 +431,7 @@ function ForumHome({
       <section className="forum-hero">
         <div>
           <span className="forum-kicker">
-            UNFILTERED LOGS FORUMS
+            UNFILTERED LOG FORUMS
           </span>
 
           <h1>
@@ -986,7 +986,7 @@ function NewThreadPage({
         </h1>
 
         <p>
-          Reading is public. Posting requires a UNFILTERED LOGS account.
+          Reading is public. Posting requires a UNFILTERED LOG account.
         </p>
 
         <a
@@ -1057,7 +1057,7 @@ function NewThreadPage({
           nextError
             instanceof Error
             ? nextError.message
-            : "UNFILTERED LOGS could not create the thread."
+            : "UNFILTERED LOG could not create the thread."
         );
 
         setSaving(
@@ -2240,7 +2240,7 @@ export default function Forum() {
 
         <main className="forum-shell">
           <div className="forum-loading">
-            Loading UNFILTERED LOGS Forums...
+            Loading UNFILTERED LOG Forums...
           </div>
         </main>
       </div>

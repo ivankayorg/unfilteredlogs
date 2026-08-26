@@ -1,4 +1,4 @@
-UNFILTERED LOGS - ADMIN CSS CLEANUP 06
+UNFILTERED LOG - ADMIN CSS CLEANUP 06
 
 Replace only:
   src/pages/admin/Admin.css

@@ -6,6 +6,8 @@ import {
   type PublicSiteStats,
 } from "../../services/siteStats";
 
+import "./SiteHeader.css";
+
 /* ==========================================================
    HEADER 001
    SHARED UNFILTERED LOGS CLASSIC BLOG HEADER
@@ -28,19 +30,35 @@ type Props = {
   onSearchSubmit?: (value: string) => void;
 };
 
-export function UnfilteredLogsLogo() {
+type LogoVariant =
+  | "light"
+  | "dark";
+
+
+type LogoProps = {
+  variant?: LogoVariant;
+};
+
+
+export function UnfilteredLogsLogo({
+  variant = "light",
+}: LogoProps) {
+  const logoSource =
+    variant === "dark"
+      ? "/unfilteredlog-logo-dark.png"
+      : "/unfilteredlog-logo.png";
+
   return (
     <a
-      className="roffle-logo site-title"
+      className={`roffle-logo site-title logo-${variant}`}
       href="/"
-      aria-label="UNFILTERED LOGS home"
+      aria-label="UNFILTEREDLOG home"
     >
-      <span className="logo-mark site-logo">UL</span>
-
-      <span className="site-wordmark">
-        <strong className="logo-word">UNFILTERED LOGS</strong>
-        <small>by OneTime Labs</small>
-      </span>
+      <img
+        className="unfiltered-logo-image"
+        src={logoSource}
+        alt="UNFILTEREDLOG by OneTime Labs"
+      />
     </a>
   );
 }
@@ -158,7 +176,25 @@ export default function SiteHeader({
   return (
     <header className="top-shell site-header">
       <div className="brand-row site-width">
-        <UnfilteredLogsLogo />
+        <div className="site-brand-lockup">
+          <UnfilteredLogsLogo />
+        </div>
+
+        <a
+          className="header-discord-join"
+          href="https://discord.gg/ErbQfdpcHD"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Join our Discord"
+        >
+          <span className="header-discord-mark">
+            D
+          </span>
+
+          <strong>
+            JOIN OUR DISCORD
+          </strong>
+        </a>
 
         <div className="top-right">
           {authReady && session && (

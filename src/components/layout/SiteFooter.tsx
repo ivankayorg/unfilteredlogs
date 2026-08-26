@@ -16,7 +16,7 @@ export default function SiteFooter() {
     <footer className="unfiltered-site-footer">
       <div className="site-width unfiltered-site-footer-inner">
         <div className="unfiltered-site-footer-brand">
-          <UnfilteredLogsLogo />
+          <UnfilteredLogsLogo variant="dark" />
 
           <span className="unfiltered-site-footer-tagline">
             Built like the old web. Behaves like the new one.

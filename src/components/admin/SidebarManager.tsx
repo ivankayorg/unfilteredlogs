@@ -11,7 +11,7 @@ import {
 import "./SidebarManager.css";
 
 const LABELS: Record<SidebarModuleKey, string> = {
-  welcome: "Welcome to UNFILTERED LOGS",
+  welcome: "Welcome to UNFILTERED LOG",
   shoutbox: "Shoutbox",
   online: "Who's Online",
   recent_comments: "Recent Comments",

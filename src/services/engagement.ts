@@ -6,7 +6,7 @@ import type {
 
 
 /* ==========================================================
-   UNFILTERED LOGS
+   UNFILTERED LOG
    POST ENGAGEMENT
    Likes + Comments + YouTube Gems
    ========================================================== */
@@ -111,7 +111,7 @@ export async function attachPostEngagement(
       commentsResult.error;
 
     console.warn(
-      "UNFILTERED LOGS ENGAGEMENT TABLES NOT READY:",
+      "UNFILTERED LOG ENGAGEMENT TABLES NOT READY:",
       issue
     );
 
@@ -306,7 +306,7 @@ export async function getYouTubeGems(
 
   if (error) {
     console.warn(
-      "UNFILTERED LOGS YOUTUBE GEMS ERROR:",
+      "UNFILTERED LOG YOUTUBE GEMS ERROR:",
       error
     );
 

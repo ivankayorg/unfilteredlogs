@@ -9,8 +9,8 @@ import type {
 
 import {
   ArchiveX,
-  BookOpen,
   FileClock,
+  GripVertical,
   ShieldCheck,
   Tag,
   Users,
@@ -60,6 +60,92 @@ type Tab =
   | "users";
 
 
+type AdminNavKey =
+  Exclude<
+    Tab,
+    "blog"
+  >;
+
+
+const ADMIN_NAV_STORAGE_KEY =
+  "unfiltered-logs-admin-nav-order";
+
+
+const DEFAULT_ADMIN_NAV_ORDER:
+  AdminNavKey[] = [
+    "dashboard",
+    "moderation",
+    "rejected",
+    "taxonomy",
+    "sidebar",
+    "users",
+  ];
+
+
+function getStoredAdminNavOrder():
+  AdminNavKey[] {
+  try {
+    const raw =
+      window.localStorage.getItem(
+        ADMIN_NAV_STORAGE_KEY
+      );
+
+    if (!raw) {
+      return [
+        ...DEFAULT_ADMIN_NAV_ORDER,
+      ];
+    }
+
+    const parsed =
+      JSON.parse(
+        raw
+      );
+
+    if (
+      !Array.isArray(
+        parsed
+      )
+    ) {
+      return [
+        ...DEFAULT_ADMIN_NAV_ORDER,
+      ];
+    }
+
+    const valid =
+      parsed.filter(
+        (
+          value
+        ): value is AdminNavKey =>
+          DEFAULT_ADMIN_NAV_ORDER.includes(
+            value as AdminNavKey
+          )
+      );
+
+    for (
+      const item
+      of DEFAULT_ADMIN_NAV_ORDER
+    ) {
+      if (
+        !valid.includes(
+          item
+        )
+      ) {
+        valid.push(
+          item
+        );
+      }
+    }
+
+    return valid;
+  } catch {
+    return [
+      ...DEFAULT_ADMIN_NAV_ORDER,
+    ];
+  }
+}
+
+
+
 export default function Admin() {
   const [
     session,
@@ -103,6 +189,24 @@ export default function Admin() {
   ] =
     useState<Tab>(
       "dashboard"
+    );
+
+
+  const [
+    adminNavOrder,
+    setAdminNavOrder,
+  ] =
+    useState<AdminNavKey[]>(
+      getStoredAdminNavOrder
+    );
+
+
+  const [
+    draggingNavKey,
+    setDraggingNavKey,
+  ] =
+    useState<AdminNavKey | null>(
+      null
     );
 
   const [
@@ -186,6 +290,19 @@ export default function Admin() {
           );
 
           if (
+            nextAccess?.role ===
+            "admin"
+          ) {
+            setTab(
+              "blog"
+            );
+          } else {
+            setTab(
+              "dashboard"
+            );
+          }
+
+          if (
             !nextAccess ||
             (
               nextAccess.role !==
@@ -231,6 +348,80 @@ export default function Admin() {
       mounted = false;
     };
   }, []);
+
+
+  useEffect(
+    () => {
+      try {
+        window.localStorage.setItem(
+          ADMIN_NAV_STORAGE_KEY,
+          JSON.stringify(
+            adminNavOrder
+          )
+        );
+      } catch {
+        // Menu-order persistence is optional.
+      }
+    },
+    [
+      adminNavOrder,
+    ]
+  );
+
+
+  const moveAdminNavItem =
+    (
+      source:
+        AdminNavKey,
+      target:
+        AdminNavKey
+    ) => {
+      if (
+        source ===
+        target
+      ) {
+        return;
+      }
+
+      setAdminNavOrder(
+        (
+          current
+        ) => {
+          const next =
+            current.filter(
+              (
+                item
+              ) =>
+                item !==
+                source
+            );
+
+          const targetIndex =
+            next.indexOf(
+              target
+            );
+
+          if (
+            targetIndex ===
+            -1
+          ) {
+            next.push(
+              source
+            );
+
+            return next;
+          }
+
+          next.splice(
+            targetIndex,
+            0,
+            source
+          );
+
+          return next;
+        }
+      );
+    };
 
 
   const signOut =
@@ -323,169 +514,210 @@ export default function Admin() {
 
       <div className="admin-shell">
         <aside className="admin-nav">
-          <button
-            className={
-              tab ===
-                "dashboard"
-                ? "active"
-                : ""
-            }
-            onClick={() => {
-              setTab(
-                "dashboard"
-              );
-            }}
-          >
-            <ShieldCheck
-              size={16}
-            />
+          <div className="admin-nav-heading">
+            <strong>
+              ADMIN MENU
+            </strong>
 
-            Dashboard
-          </button>
+            <span>
+              drag to reorder
+            </span>
+          </div>
 
-          <button
-            className={
-              tab ===
-                "moderation"
-                ? "active"
-                : ""
-            }
-            onClick={() => {
-              setTab(
-                "moderation"
-              );
-            }}
-          >
-            <FileClock
-              size={16}
-            />
-
-            Moderation
-
-            {stats &&
-              stats.pending_posts >
-                0 && (
-              <span className="admin-nav-count">
-                {stats.pending_posts}
-              </span>
-            )}
-          </button>
-
-          <button
-            className={
-              tab ===
-                "rejected"
-                ? "active"
-                : ""
-            }
-            onClick={() => {
-              setTab(
-                "rejected"
-              );
-            }}
-          >
-            <ArchiveX
-              size={16}
-            />
-
-            Rejected
-
-            {stats &&
-              stats.rejected_posts >
-                0 && (
-              <span className="admin-nav-count rejected">
-                {stats.rejected_posts}
-              </span>
-            )}
-          </button>
-
-          <button
-            className={
-              tab ===
-                "taxonomy"
-                ? "active"
-                : ""
-            }
-            onClick={() => {
-              setTab(
-                "taxonomy"
-              );
-            }}
-          >
-            <Tag
-              size={16}
-            />
-
-            Categories & Tags
-          </button>
-
-          {access.role ===
-            "admin" && (
-            <button
-              className={
-                tab ===
-                  "blog"
-                  ? "active"
-                  : ""
+          {adminNavOrder.map(
+            (
+              navKey
+            ) => {
+              if (
+                access.role !==
+                  "admin" &&
+                (
+                  navKey ===
+                    "sidebar" ||
+                  navKey ===
+                    "users"
+                )
+              ) {
+                return null;
               }
-              onClick={() => {
-                setTab(
-                  "blog"
-                );
-              }}
-            >
-              <BookOpen
-                size={16}
-              />
 
-              Blog
-            </button>
-          )}
+              const label =
+                navKey ===
+                  "dashboard"
+                  ? "Dashboard"
+                  : navKey ===
+                      "moderation"
+                    ? "Moderation"
+                    : navKey ===
+                        "rejected"
+                      ? "Rejected"
+                      : navKey ===
+                          "taxonomy"
+                        ? "Categories & Tags"
+                        : navKey ===
+                            "sidebar"
+                          ? "Right Sidebar"
+                          : "Users";
 
-          {access.role ===
-            "admin" && (
-            <button
-              className={
-                tab ===
-                  "sidebar"
-                  ? "active"
-                  : ""
-              }
-              onClick={() => {
-                setTab(
-                  "sidebar"
-                );
-              }}
-            >
-              <PanelRight
-                size={16}
-              />
+              const icon =
+                navKey ===
+                  "dashboard"
+                  ? (
+                    <ShieldCheck
+                      size={15}
+                    />
+                  )
+                  : navKey ===
+                      "moderation"
+                    ? (
+                      <FileClock
+                        size={15}
+                      />
+                    )
+                    : navKey ===
+                        "rejected"
+                      ? (
+                        <ArchiveX
+                          size={15}
+                        />
+                      )
+                      : navKey ===
+                          "taxonomy"
+                        ? (
+                          <Tag
+                            size={15}
+                          />
+                        )
+                        : navKey ===
+                            "sidebar"
+                          ? (
+                            <PanelRight
+                              size={15}
+                            />
+                          )
+                          : (
+                            <Users
+                              size={15}
+                            />
+                          );
 
-              Right Sidebar
-            </button>
-          )}
+              return (
+                <button
+                  key={
+                    navKey
+                  }
+                  className={
+                    `${tab ===
+                      navKey
+                      ? "active "
+                      : ""}${draggingNavKey ===
+                        navKey
+                        ? "dragging"
+                        : ""}`
+                      .trim()
+                  }
+                  type="button"
+                  draggable
+                  onDragStart={
+                    (
+                      event
+                    ) => {
+                      setDraggingNavKey(
+                        navKey
+                      );
 
-          {access.role ===
-            "admin" && (
-            <button
-              className={
-                tab ===
-                  "users"
-                  ? "active"
-                  : ""
-              }
-              onClick={() => {
-                setTab(
-                  "users"
-                );
-              }}
-            >
-              <Users
-                size={16}
-              />
+                      event.dataTransfer.effectAllowed =
+                        "move";
 
-              Users
-            </button>
+                      event.dataTransfer.setData(
+                        "text/plain",
+                        navKey
+                      );
+                    }
+                  }
+                  onDragOver={
+                    (
+                      event
+                    ) => {
+                      event.preventDefault();
+
+                      event.dataTransfer.dropEffect =
+                        "move";
+                    }
+                  }
+                  onDrop={
+                    (
+                      event
+                    ) => {
+                      event.preventDefault();
+
+                      const source =
+                        (
+                          event.dataTransfer.getData(
+                            "text/plain"
+                          ) ||
+                          draggingNavKey
+                        ) as AdminNavKey;
+
+                      if (
+                        source
+                      ) {
+                        moveAdminNavItem(
+                          source,
+                          navKey
+                        );
+                      }
+
+                      setDraggingNavKey(
+                        null
+                      );
+                    }
+                  }
+                  onDragEnd={() => {
+                    setDraggingNavKey(
+                      null
+                    );
+                  }}
+                  onClick={() => {
+                    setTab(
+                      navKey
+                    );
+                  }}
+                >
+                  <GripVertical
+                    className="admin-nav-grip"
+                    size={13}
+                    aria-hidden="true"
+                  />
+
+                  {icon}
+
+                  <span className="admin-nav-label">
+                    {label}
+                  </span>
+
+                  {navKey ===
+                    "moderation" &&
+                    stats &&
+                    stats.pending_posts >
+                      0 && (
+                    <span className="admin-nav-count">
+                      {stats.pending_posts}
+                    </span>
+                  )}
+
+                  {navKey ===
+                    "rejected" &&
+                    stats &&
+                    stats.rejected_posts >
+                      0 && (
+                    <span className="admin-nav-count rejected">
+                      {stats.rejected_posts}
+                    </span>
+                  )}
+                </button>
+              );
+            }
           )}
         </aside>
 

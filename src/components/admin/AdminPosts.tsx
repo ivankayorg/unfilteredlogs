@@ -524,7 +524,7 @@ export default function AdminPosts() {
                       <span className="admin-post-author">
                         {post.profiles
                           ?.display_name ??
-                          "UNFILTERED LOGS User"}
+                          "UNFILTERED LOG User"}
                       </span>
                     </div>
 

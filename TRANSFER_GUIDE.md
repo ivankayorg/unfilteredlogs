@@ -1,6 +1,6 @@
-# UNFILTERED LOGS V2 - Supabase Transfer / New Owner Guide
+# UNFILTERED LOG V2 - Supabase Transfer / New Owner Guide
 
-UNFILTERED LOGS is intentionally not coupled to one Supabase account or project.
+UNFILTERED LOG is intentionally not coupled to one Supabase account or project.
 
 The frontend reads only two browser-safe environment variables:
 
@@ -12,7 +12,7 @@ OAuth client secrets are **never committed to Git**.
 
 ## Option A - Preferred: Transfer the existing Supabase project
 
-Use this when UNFILTERED LOGS is being handed to a new owner and you want to keep the existing database, auth users, project ref, and project configuration.
+Use this when UNFILTERED LOG is being handed to a new owner and you want to keep the existing database, auth users, project ref, and project configuration.
 
 1. The recipient creates a Supabase account and target organization.
 2. The recipient invites the current project owner into the target organization.
@@ -46,7 +46,7 @@ npx supabase login
 npx supabase link --project-ref RECIPIENT_PROJECT_REF
 ```
 
-### 4. Create the UNFILTERED LOGS schema
+### 4. Create the UNFILTERED LOG schema
 
 ```bash
 npx supabase db push
@@ -87,8 +87,8 @@ Never put a Supabase secret key or legacy service-role key into a Vite variable.
 
 In **Supabase > Authentication > URL Configuration**:
 
-- Site URL: production UNFILTERED LOGS URL
-- Redirect URLs: add localhost/staging/production URLs used by UNFILTERED LOGS
+- Site URL: production UNFILTERED LOG URL
+- Redirect URLs: add localhost/staging/production URLs used by UNFILTERED LOG
 
 Recommended development entry:
 
@@ -126,7 +126,7 @@ Enable Discord under **Authentication > Sign In / Providers** and paste the reci
 npm install @supabase/supabase-js
 ```
 
-### 10. Start UNFILTERED LOGS
+### 10. Start UNFILTERED LOG
 
 ```bash
 npm run dev

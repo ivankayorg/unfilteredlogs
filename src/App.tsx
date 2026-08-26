@@ -15,6 +15,9 @@ import { supabase } from "./lib/supabase";
 
 import PasswordAuthForm from "./components/auth/PasswordAuthForm";
 import SiteFooter from "./components/layout/SiteFooter";
+import {
+  UnfilteredLogsLogo,
+} from "./components/layout/SiteHeader";
 
 import "./components/auth/LoginPage.css";
 import "./AppV2.css";
@@ -64,25 +67,6 @@ function PrototypeLoading() {
     <main className="roffle-auth-loading">
       <span>Loading UNFILTERED LOGS...</span>
     </main>
-  );
-}
-
-
-function UnfilteredLogsLogo() {
-  return (
-    <a
-      className="roffle-logo"
-      href="/"
-      aria-label="UNFILTERED LOGS home"
-    >
-      <span className="logo-mark">
-        UL
-      </span>
-
-      <span className="logo-word">
-        UNFILTERED LOGS
-      </span>
-    </a>
   );
 }
 
@@ -281,7 +265,7 @@ function LoginPage() {
     <div className="roffle-auth-page">
       <header className="roffle-auth-header">
         <div className="roffle-auth-header-shell">
-          <UnfilteredLogsLogo />
+          <UnfilteredLogsLogo variant="dark" />
 
           <a
             className="roffle-auth-browse"

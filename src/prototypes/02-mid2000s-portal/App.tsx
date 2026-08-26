@@ -145,7 +145,7 @@ export default function App() {
           <button className="brand" type="button">
             <span className="brand-mark">UL</span>
             <span className="brand-copy">
-              <strong>UNFILTERED LOGS</strong>
+              <strong>UNFILTERED LOG</strong>
               <small>the interesting part of the internet</small>
             </span>
           </button>
@@ -194,7 +194,7 @@ export default function App() {
       <div className="utility-bar">
         <div className="utility-inner">
           <span>
-            <strong>UNFILTERED LOGS</strong> / FRONT PAGE
+            <strong>UNFILTERED LOG</strong> / FRONT PAGE
           </span>
           <div className="utility-links">
             <button type="button">About</button>
@@ -410,7 +410,7 @@ export default function App() {
 
       <footer className="site-footer">
         <div>
-          <strong>UNFILTERED LOGS</strong>
+          <strong>UNFILTERED LOG</strong>
           <span>Built for humans, not engagement funnels.</span>
         </div>
         <div className="footer-links">

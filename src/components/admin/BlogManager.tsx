@@ -558,7 +558,7 @@ export default function BlogManager() {
       <header className="blog-admin-heading">
         <div>
           <span className="admin-eyebrow">
-            UNFILTERED LOGS EDITORIAL
+            UNFILTERED LOG EDITORIAL
           </span>
 
           <h1>
@@ -956,7 +956,7 @@ export default function BlogManager() {
                 }
               >
                 <option value="orange">
-                  UNFILTERED LOGS Blue
+                  UNFILTERED LOG Blue
                 </option>
 
                 <option value="blue">
