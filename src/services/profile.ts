@@ -9,6 +9,8 @@ import {
 
 import type {
   ProfileMicrologPost,
+  ProfileShoutboxAuthor,
+  ProfileShoutboxMessage,
   UserPublicProfile,
 } from "../types/profile";
 
@@ -544,6 +546,355 @@ export async function deleteProfileMicrologPost(
       .eq(
         "id",
         postId
+      );
+
+  if (error) {
+    throw error;
+  }
+}
+
+
+/* ==========================================================
+   PROFILE SHOUTBOX
+   ========================================================== */
+
+
+const PROFILE_SHOUTBOX_LIMIT =
+  280;
+
+
+function mapShoutboxAuthor(
+  value:
+    Record<
+      string,
+      unknown
+    >,
+):
+ProfileShoutboxAuthor {
+  return {
+    id:
+      String(
+        value.id ??
+        ""
+      ),
+
+    username:
+      String(
+        value.username ??
+        ""
+      ),
+
+    display_name:
+      String(
+        value.display_name ??
+        value.username ??
+        ""
+      ),
+
+    avatar_url:
+      typeof value.avatar_url ===
+        "string"
+        ? value.avatar_url
+        : null,
+  };
+}
+
+
+async function hydrateShoutboxMessages(
+  rows:
+    Array<
+      Record<
+        string,
+        unknown
+      >
+    >,
+):
+Promise<
+  ProfileShoutboxMessage[]
+> {
+  if (
+    rows.length ===
+    0
+  ) {
+    return [];
+  }
+
+  const authorIds =
+    Array.from(
+      new Set(
+        rows
+          .map(
+            (
+              row
+            ) =>
+              String(
+                row.author_user_id ??
+                ""
+              )
+          )
+          .filter(
+            Boolean
+          )
+      )
+    );
+
+  const authors =
+    new Map<
+      string,
+      ProfileShoutboxAuthor
+    >();
+
+  if (
+    authorIds.length >
+    0
+  ) {
+    const {
+      data,
+      error,
+    } =
+      await supabase
+        .from(
+          "profiles"
+        )
+        .select(
+          "id, username, display_name, avatar_url"
+        )
+        .in(
+          "id",
+          authorIds
+        );
+
+    if (error) {
+      throw error;
+    }
+
+    for (
+      const value of
+      data ?? []
+    ) {
+      const author =
+        mapShoutboxAuthor(
+          value
+        );
+
+      authors.set(
+        author.id,
+        author
+      );
+    }
+  }
+
+  return rows.map(
+    (
+      row
+    ) => {
+      const authorUserId =
+        String(
+          row.author_user_id ??
+          ""
+        );
+
+      return {
+        id:
+          String(
+            row.id ??
+            ""
+          ),
+
+        target_user_id:
+          String(
+            row.target_user_id ??
+            ""
+          ),
+
+        author_user_id:
+          authorUserId,
+
+        body:
+          String(
+            row.body ??
+            ""
+          ),
+
+        created_at:
+          String(
+            row.created_at ??
+            ""
+          ),
+
+        author:
+          authors.get(
+            authorUserId
+          ) ??
+          null,
+      };
+    }
+  );
+}
+
+
+export async function getProfileShoutboxMessages(
+  targetUserId:
+    string,
+
+  limit =
+    40,
+):
+Promise<
+  ProfileShoutboxMessage[]
+> {
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from(
+        "profile_shoutbox_messages"
+      )
+      .select(
+        "id, target_user_id, author_user_id, body, created_at"
+      )
+      .eq(
+        "target_user_id",
+        targetUserId
+      )
+      .order(
+        "created_at",
+        {
+          ascending:
+            false,
+        }
+      )
+      .limit(
+        limit
+      );
+
+  if (error) {
+    throw error;
+  }
+
+  return hydrateShoutboxMessages(
+    (
+      data ??
+      []
+    ) as Array<
+      Record<
+        string,
+        unknown
+      >
+    >
+  );
+}
+
+
+export async function createProfileShoutboxMessage(
+  targetUserId:
+    string,
+
+  body:
+    string,
+):
+Promise<
+  ProfileShoutboxMessage
+> {
+  const cleaned =
+    body.trim();
+
+  if (!cleaned) {
+    throw new Error(
+      "Write something before shouting."
+    );
+  }
+
+  if (
+    cleaned.length >
+    PROFILE_SHOUTBOX_LIMIT
+  ) {
+    throw new Error(
+      "Profile shoutbox messages are limited to 280 characters."
+    );
+  }
+
+  const {
+    data: {
+      user,
+    },
+  } =
+    await supabase.auth
+      .getUser();
+
+  if (!user) {
+    throw new Error(
+      "Sign in before posting to a profile shoutbox."
+    );
+  }
+
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from(
+        "profile_shoutbox_messages"
+      )
+      .insert({
+        target_user_id:
+          targetUserId,
+
+        author_user_id:
+          user.id,
+
+        body:
+          cleaned,
+      })
+      .select(
+        "id, target_user_id, author_user_id, body, created_at"
+      )
+      .single();
+
+  if (error) {
+    throw error;
+  }
+
+  const hydrated =
+    await hydrateShoutboxMessages(
+      [
+        data as
+          Record<
+            string,
+            unknown
+          >,
+      ]
+    );
+
+  const first =
+    hydrated[0];
+
+  if (!first) {
+    throw new Error(
+      "Shoutbox message was created but could not be loaded."
+    );
+  }
+
+  return first;
+}
+
+
+export async function deleteProfileShoutboxMessage(
+  messageId:
+    string,
+) {
+  const {
+    error,
+  } =
+    await supabase
+      .from(
+        "profile_shoutbox_messages"
+      )
+      .delete()
+      .eq(
+        "id",
+        messageId
       );
 
   if (error) {

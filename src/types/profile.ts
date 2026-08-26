@@ -19,6 +19,36 @@ export type UserPublicProfile = {
 };
 
 
+export type ProfileShoutboxAuthor = {
+  id: string;
+
+  username: string;
+
+  display_name: string;
+
+  avatar_url:
+    string | null;
+};
+
+
+export type ProfileShoutboxMessage = {
+  id: string;
+
+  target_user_id:
+    string;
+
+  author_user_id:
+    string;
+
+  body: string;
+
+  created_at: string;
+
+  author:
+    ProfileShoutboxAuthor | null;
+};
+
+
 export type ProfileMicrologPost = {
   id: string;
 

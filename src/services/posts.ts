@@ -510,7 +510,7 @@ async function attachProfiles(
     await supabase
       .from("profiles")
       .select(
-        "id, display_name, avatar_url"
+        "id, username, display_name, avatar_url"
       )
       .in(
         "id",
@@ -530,8 +530,12 @@ async function attachProfiles(
     new Map<
       string,
       {
+        username:
+          string;
+
         display_name:
           string;
+
         avatar_url:
           string | null;
       }
@@ -545,6 +549,9 @@ async function attachProfiles(
     profileMap.set(
       profile.id,
       {
+        username:
+          profile.username,
+
         display_name:
           profile.display_name,
 

@@ -11,6 +11,9 @@ import {
   Copy,
   Edit3,
   Link,
+  MessageSquare,
+  Send,
+  Trash2,
 } from "lucide-react";
 
 import SiteFooter from "../../components/layout/SiteFooter";
@@ -28,8 +31,11 @@ import {
 } from "../../services/admin";
 
 import {
+  createProfileShoutboxMessage,
+  deleteProfileShoutboxMessage,
   getProfileMicrologPost,
   getProfileMicrologPosts,
+  getProfileShoutboxMessages,
   getPublicProfile,
 } from "../../services/profile";
 
@@ -39,6 +45,8 @@ import type {
 
 import type {
   ProfileMicrologPost,
+  ProfileShoutboxAuthor,
+  ProfileShoutboxMessage,
   UserPublicProfile,
 } from "../../types/profile";
 
@@ -119,6 +127,22 @@ function avatarLetters(
 }
 
 
+function shoutboxAuthorLetters(
+  author:
+    ProfileShoutboxAuthor | null,
+) {
+  return (
+    author?.username
+      .slice(
+        0,
+        2
+      )
+      .toUpperCase() ||
+    "UL"
+  );
+}
+
+
 export default function ProfilePage() {
   const [
     session,
@@ -158,6 +182,38 @@ export default function ProfilePage() {
       ProfileMicrologPost[]
     >(
       []
+    );
+
+  const [
+    shoutboxMessages,
+    setShoutboxMessages,
+  ] =
+    useState<
+      ProfileShoutboxMessage[]
+    >(
+      []
+    );
+
+  const [
+    shoutboxBody,
+    setShoutboxBody,
+  ] =
+    useState("");
+
+  const [
+    shoutboxPosting,
+    setShoutboxPosting,
+  ] =
+    useState(false);
+
+  const [
+    shoutboxError,
+    setShoutboxError,
+  ] =
+    useState<
+      string | null
+    >(
+      null
     );
 
   const [
@@ -360,16 +416,29 @@ export default function ProfilePage() {
               return;
             }
 
-            const nextPosts =
-              await getProfileMicrologPosts(
-                nextProfile.id
-              );
+            const [
+              nextPosts,
+              nextShoutboxMessages,
+            ] =
+              await Promise.all([
+                getProfileMicrologPosts(
+                  nextProfile.id
+                ),
+
+                getProfileShoutboxMessages(
+                  nextProfile.id
+                ),
+              ]);
 
             if (
               mounted
             ) {
               setPosts(
                 nextPosts
+              );
+
+              setShoutboxMessages(
+                nextShoutboxMessages
               );
             }
           }
@@ -460,6 +529,126 @@ export default function ProfilePage() {
       session.user.id ===
         profile.id
     );
+
+
+  const submitShoutboxMessage =
+    async () => {
+      if (
+        !session
+      ) {
+        window.location.assign(
+          `/login?returnTo=${encodeURIComponent(window.location.pathname)}`
+        );
+
+        return;
+      }
+
+      if (!profile) {
+        return;
+      }
+
+      setShoutboxPosting(
+        true
+      );
+
+      setShoutboxError(
+        null
+      );
+
+      try {
+        const created =
+          await createProfileShoutboxMessage(
+            profile.id,
+            shoutboxBody
+          );
+
+        setShoutboxMessages(
+          (
+            current
+          ) => [
+            created,
+            ...current,
+          ].slice(
+            0,
+            40
+          )
+        );
+
+        setShoutboxBody(
+          ""
+        );
+      } catch (
+        nextError
+      ) {
+        setShoutboxError(
+          nextError instanceof
+            Error
+            ? nextError.message
+            : "Could not post to this shoutbox."
+        );
+      } finally {
+        setShoutboxPosting(
+          false
+        );
+      }
+    };
+
+
+  const removeShoutboxMessage =
+    async (
+      message:
+        ProfileShoutboxMessage,
+    ) => {
+      if (!session) {
+        return;
+      }
+
+      const allowed =
+        session.user.id ===
+          message.author_user_id ||
+        session.user.id ===
+          message.target_user_id ||
+        accessRole ===
+          "moderator" ||
+        accessRole ===
+          "admin";
+
+      if (!allowed) {
+        return;
+      }
+
+      setShoutboxError(
+        null
+      );
+
+      try {
+        await deleteProfileShoutboxMessage(
+          message.id
+        );
+
+        setShoutboxMessages(
+          (
+            current
+          ) =>
+            current.filter(
+              (
+                item
+              ) =>
+                item.id !==
+                message.id
+            )
+        );
+      } catch (
+        nextError
+      ) {
+        setShoutboxError(
+          nextError instanceof
+            Error
+            ? nextError.message
+            : "Could not remove that shout."
+        );
+      }
+    };
 
 
   return (
@@ -648,6 +837,10 @@ export default function ProfilePage() {
                   </span>
 
                   <span>
+                    {shoutboxMessages.length} {shoutboxMessages.length === 1 ? "shout" : "shouts"}
+                  </span>
+
+                  <span>
                     /u/{profile.username}
                   </span>
                 </div>
@@ -657,7 +850,7 @@ export default function ProfilePage() {
                 {isOwner && (
                   <a href="/account">
                     <Edit3
-                      size={11}
+                      size={13}
                     />
 
                     Edit my page
@@ -671,7 +864,7 @@ export default function ProfilePage() {
                   }}
                 >
                   <Copy
-                    size={11}
+                    size={13}
                   />
 
                   {copied
@@ -681,86 +874,293 @@ export default function ProfilePage() {
               </div>
             </section>
 
-            <section className="public-microlog">
-              <header className="public-microlog-heading">
-                <strong>
-                  @{profile.username}'S THOUGHT SLOP
-                </strong>
+            <div className="public-profile-content">
+              <section className="public-microlog">
+                <header className="public-microlog-heading">
+                  <strong>
+                    @{profile.username}'S THOUGHT SLOP
+                  </strong>
 
-                <span>
-                  newest first
-                </span>
-              </header>
+                  <span>
+                    newest first
+                  </span>
+                </header>
 
-              <div className="public-microlog-stream">
-                {posts.length ===
-                  0 && (
-                  <div className="public-microlog-empty">
-                    No slop yet. Suspiciously well-adjusted.
-                  </div>
-                )}
+                <div className="public-microlog-stream">
+                  {posts.length ===
+                    0 && (
+                    <div className="public-microlog-empty">
+                      No slop yet. Suspiciously well-adjusted.
+                    </div>
+                  )}
 
-                {posts.map(
-                  (
-                    post
-                  ) => (
-                    <article
-                      className="public-microlog-row"
-                      key={
-                        post.id
-                      }
-                    >
-                      <div className="profile-avatar tiny">
-                        {profile.avatar_url ? (
-                          <img
-                            src={
-                              profile.avatar_url
-                            }
-                            alt=""
-                          />
-                        ) : (
-                          <span>
-                            {avatarLetters(
-                              profile
-                            )}
-                          </span>
-                        )}
-                      </div>
-
-                      <div>
-                        <div className="public-microlog-row-head">
-                          <strong>
-                            @{profile.username}
-                          </strong>
-
-                          <span>
-                            {formatDate(
-                              post.created_at
-                            )}
-                          </span>
+                  {posts.map(
+                    (
+                      post
+                    ) => (
+                      <article
+                        className="public-microlog-row"
+                        key={
+                          post.id
+                        }
+                      >
+                        <div className="profile-avatar tiny">
+                          {profile.avatar_url ? (
+                            <img
+                              src={
+                                profile.avatar_url
+                              }
+                              alt=""
+                            />
+                          ) : (
+                            <span>
+                              {avatarLetters(
+                                profile
+                              )}
+                            </span>
+                          )}
                         </div>
 
-                        <p>
-                          {post.body}
-                        </p>
+                        <div>
+                          <div className="public-microlog-row-head">
+                            <strong>
+                              @{profile.username}
+                            </strong>
 
-                        <footer>
+                            <span>
+                              {formatDate(
+                                post.created_at
+                              )}
+                            </span>
+                          </div>
+
+                          <p>
+                            {post.body}
+                          </p>
+
+                          <footer>
+                            <a
+                              href={`/u/${profile.username}/status/${post.id}`}
+                            >
+                              <Link
+                                size={11}
+                              />
+
+                              slop permalink
+                            </a>
+                          </footer>
+                        </div>
+                      </article>
+                    )
+                  )}
+                </div>
+              </section>
+
+              <section className="profile-shoutbox">
+                <header className="profile-shoutbox-heading">
+                  <div>
+                    <MessageSquare
+                      size={15}
+                    />
+
+                    <strong>
+                      @{profile.username}'S SHOUTBOX
+                    </strong>
+                  </div>
+
+                  <span>
+                    say something
+                  </span>
+                </header>
+
+                <div className="profile-shoutbox-messages">
+                  {shoutboxMessages.length ===
+                    0 && (
+                    <div className="profile-shoutbox-empty">
+                      Nobody has yelled at @{profile.username} yet.
+                    </div>
+                  )}
+
+                  {shoutboxMessages.map(
+                    (
+                      message
+                    ) => {
+                      const canDelete =
+                        Boolean(
+                          session &&
+                          (
+                            session.user.id ===
+                              message.author_user_id ||
+                            isOwner ||
+                            accessRole ===
+                              "moderator" ||
+                            accessRole ===
+                              "admin"
+                          )
+                        );
+
+                      return (
+                        <article
+                          className="profile-shoutbox-message"
+                          key={
+                            message.id
+                          }
+                        >
                           <a
-                            href={`/u/${profile.username}/status/${post.id}`}
+                            className="profile-shoutbox-avatar"
+                            href={
+                              message.author
+                                ? `/u/${message.author.username}`
+                                : "#"
+                            }
                           >
-                            <Link
-                              size={10}
-                            />
-
-                            slop permalink
+                            {message.author
+                              ?.avatar_url ? (
+                              <img
+                                src={
+                                  message.author.avatar_url
+                                }
+                                alt=""
+                              />
+                            ) : (
+                              <span>
+                                {shoutboxAuthorLetters(
+                                  message.author
+                                )}
+                              </span>
+                            )}
                           </a>
-                        </footer>
+
+                          <div>
+                            <header>
+                              {message.author ? (
+                                <a
+                                  href={`/u/${message.author.username}`}
+                                >
+                                  @{message.author.username}
+                                </a>
+                              ) : (
+                                <strong>
+                                  unknown user
+                                </strong>
+                              )}
+
+                              <time>
+                                {formatDate(
+                                  message.created_at
+                                )}
+                              </time>
+                            </header>
+
+                            <p>
+                              {message.body}
+                            </p>
+
+                            {canDelete && (
+                              <button
+                                className="profile-shoutbox-delete"
+                                type="button"
+                                onClick={() => {
+                                  void removeShoutboxMessage(
+                                    message
+                                  );
+                                }}
+                              >
+                                <Trash2
+                                  size={10}
+                                />
+
+                                remove
+                              </button>
+                            )}
+                          </div>
+                        </article>
+                      );
+                    }
+                  )}
+                </div>
+
+                <footer className="profile-shoutbox-composer">
+                  {session ? (
+                    <>
+                      <label>
+                        <span>
+                          SHOUT AT @{profile.username}
+                        </span>
+
+                        <textarea
+                          value={
+                            shoutboxBody
+                          }
+                          maxLength={280}
+                          placeholder={`Leave something on @${profile.username}'s page...`}
+                          onChange={
+                            (
+                              event
+                            ) => {
+                              setShoutboxBody(
+                                event.target.value
+                              );
+
+                              setShoutboxError(
+                                null
+                              );
+                            }
+                          }
+                        />
+                      </label>
+
+                      <div className="profile-shoutbox-composer-actions">
+                        <span>
+                          {shoutboxBody.length}/280
+                        </span>
+
+                        <button
+                          type="button"
+                          disabled={
+                            shoutboxPosting ||
+                            !shoutboxBody.trim()
+                          }
+                          onClick={() => {
+                            void submitShoutboxMessage();
+                          }}
+                        >
+                          <Send
+                            size={12}
+                          />
+
+                          {shoutboxPosting
+                            ? "Shouting..."
+                            : "Post shout"}
+                        </button>
                       </div>
-                    </article>
-                  )
-                )}
-              </div>
-            </section>
+
+                      {shoutboxError && (
+                        <div className="profile-shoutbox-error">
+                          {shoutboxError}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="profile-shoutbox-signin">
+                      <strong>
+                        WANT TO YELL SOMETHING?
+                      </strong>
+
+                      <span>
+                        You can read this mess without an account, but only signed-in users can post.
+                      </span>
+
+                      <a
+                        href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`}
+                      >
+                        Sign in to shout »
+                      </a>
+                    </div>
+                  )}
+                </footer>
+              </section>
+            </div>
           </div>
         )}
       </main>

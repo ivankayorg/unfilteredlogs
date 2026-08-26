@@ -1,5 +1,5 @@
 /* ==========================================================
-   UNFILTERED LOG
+   UNFILTERED LOGS
    POST TYPES
    ========================================================== */
 
@@ -31,8 +31,12 @@ import type {
 
 
 export type PostProfile = {
+  username: string;
+
   display_name: string;
-  avatar_url: string | null;
+
+  avatar_url:
+    string | null;
 };
 
 export type PostRecord = {

@@ -318,7 +318,7 @@ function LoginPage() {
             </strong>
 
             <span>
-              Post. Comment. React. Participate.
+              Your page. Thought Slop. Shoutboxes. Posts. Comments. Reactions.
             </span>
 
             <em>
@@ -345,8 +345,7 @@ function LoginPage() {
 
             <div className="roffle-auth-panel-body">
               <p className="roffle-auth-panel-intro">
-                Email and password. Nothing fancy.
-                We have nonsense to get to.
+                Use your email and password, or one of the provider buttons. Then get back to the nonsense.
               </p>
 
               <PasswordAuthForm />

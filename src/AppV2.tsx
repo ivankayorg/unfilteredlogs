@@ -62,6 +62,7 @@ import {
   DEFAULT_WELCOME_BODY,
   DEFAULT_WELCOME_NOTE,
   getSidebarSettings,
+  type PromotedSidebarMember,
   type SidebarModuleKey,
 } from "./services/sidebarLayout";
 
@@ -129,7 +130,12 @@ type Post = {
     PostRecord;
 
   title: string;
+
   author: string;
+
+  authorUsername:
+    string | null;
+
   avatar: string;
   published: string;
   createdAt: string;
@@ -206,6 +212,11 @@ function mapPostRecord(
       ?.display_name ??
     "UNFILTERED LOGS User";
 
+  const authorUsername =
+    post.profiles
+      ?.username?.trim() ||
+    null;
+
   const avatar =
     author
       .trim()
@@ -237,6 +248,7 @@ function mapPostRecord(
         ),
 
       author,
+      authorUsername,
       avatar,
 
       published:
@@ -342,6 +354,7 @@ function mapPostRecord(
         "Image post",
 
       author,
+      authorUsername,
       avatar,
 
       published:
@@ -435,6 +448,7 @@ function mapPostRecord(
       "Untitled nonsense",
 
     author,
+    authorUsername,
     avatar,
 
     published:
@@ -760,7 +774,18 @@ function FrontPageCard({
 
         <div className="featured-meta">
           <span>
-            by <a href="#author">{post.author}</a>
+            by{" "}
+            {post.authorUsername ? (
+              <a
+                href={`/u/${encodeURIComponent(post.authorUsername)}`}
+              >
+                {post.author}
+              </a>
+            ) : (
+              <span>
+                {post.author}
+              </span>
+            )}
           </span>
           <span>{post.published}</span>
         </div>
@@ -771,7 +796,7 @@ function FrontPageCard({
             type="button"
             onClick={() => onToggleLike(post)}
           >
-            ♥ {post.likes}
+            ♥ LIKE · {post.likes}
           </button>
 
           <a
@@ -779,7 +804,7 @@ function FrontPageCard({
             href={`/posts/${post.id}`}
             aria-label={`Open ${post.comments} comments on ${post.title}`}
           >
-            💬 {post.comments}
+            💬 COMMENTS · {post.comments}
           </a>
         </div>
       </div>
@@ -934,8 +959,21 @@ function PostCard({
       <div className="post-byline">
         <span className="mini-avatar">{post.avatar}</span>
         <span>
-          posted by <a href="#author">{post.author}</a>
-          <em> · {post.published}</em>
+          posted by{" "}
+          {post.authorUsername ? (
+            <a
+              href={`/u/${encodeURIComponent(post.authorUsername)}`}
+            >
+              {post.author}
+            </a>
+          ) : (
+            <span>
+              {post.author}
+            </span>
+          )}
+          <em>
+            {" "}· {post.published}
+          </em>
         </span>
         <a className="permalink" href={`/posts/${post.id}`}>
           permalink
@@ -975,7 +1013,18 @@ function PostCard({
           type="button"
           onClick={() => onToggleLike(post)}
         >
-          {post.likedByMe ? "♥" : "♡"} {post.likes}
+          <span
+            className="post-action-icon"
+            aria-hidden="true"
+          >
+            {post.likedByMe ? "♥" : "♡"}
+          </span>
+
+          <span>
+            {post.likedByMe
+              ? "LIKED"
+              : "LIKE"} · {post.likes}
+          </span>
         </button>
 
         <button
@@ -983,11 +1032,31 @@ function PostCard({
           type="button"
           onClick={() => setCommentsOpen((current) => !current)}
         >
-          💬 {post.comments === 1 ? "1 comment" : `${post.comments} comments`}
+          <span
+            className="post-action-icon"
+            aria-hidden="true"
+          >
+            💬
+          </span>
+
+          <span>
+            {post.comments === 1
+              ? "1 COMMENT"
+              : `${post.comments} COMMENTS`}
+          </span>
         </button>
 
         <button className="post-action" type="button" onClick={() => void sharePost()}>
-          ↗ Share
+          <span
+            className="post-action-icon share"
+            aria-hidden="true"
+          >
+            ↗
+          </span>
+
+          <span>
+            SHARE
+          </span>
         </button>
       </footer>
 
@@ -1125,6 +1194,24 @@ function App() {
   ] =
     useState(
       DEFAULT_WELCOME_NOTE
+    );
+
+  const [
+    promotedMember,
+    setPromotedMember,
+  ] =
+    useState<
+      PromotedSidebarMember | null
+    >(
+      null
+    );
+
+  const [
+    promotedMemberNote,
+    setPromotedMemberNote,
+  ] =
+    useState(
+      ""
     );
 
   const [
@@ -1499,6 +1586,14 @@ function App() {
 
             setWelcomeNote(
               settings.welcomeNote
+            );
+
+            setPromotedMember(
+              settings.promotedMember
+            );
+
+            setPromotedMemberNote(
+              settings.promotedMemberNote
             );
           }
         }
@@ -2959,14 +3054,90 @@ function App() {
           </section>
 
           <aside className="sidebar right-rail">
-            <RailModule title="WELCOME TO UNFILTERED LOGS" order={sidebarModuleOrder("welcome")}>
-              <p>
-                {welcomeBody}
-              </p>
-              <p className="small-note">
-                {welcomeNote}
-              </p>
-              {!session && <a href="/login">Create an account »</a>}
+            <RailModule
+              title={
+                promotedMember
+                  ? "MEMBER SPOTLIGHT"
+                  : "WELCOME TO UNFILTERED LOGS"
+              }
+              order={
+                sidebarModuleOrder(
+                  "welcome"
+                )
+              }
+            >
+              {promotedMember ? (
+                <div className="featured-member-card">
+                  <div className="featured-member-identity">
+                    <a
+                      className="featured-member-avatar"
+                      href={`/u/${promotedMember.username}`}
+                      aria-label={`Open @${promotedMember.username}'s member page`}
+                    >
+                      {promotedMember.avatarUrl ? (
+                        <img
+                          src={promotedMember.avatarUrl}
+                          alt=""
+                        />
+                      ) : (
+                        <span>
+                          {promotedMember.username
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </span>
+                      )}
+                    </a>
+
+                    <div className="featured-member-copy">
+                      <span className="featured-member-kicker">
+                        MEATSPACE PICK
+                      </span>
+
+                      <a
+                        className="featured-member-username"
+                        href={`/u/${promotedMember.username}`}
+                      >
+                        @{promotedMember.username}
+                      </a>
+                    </div>
+                  </div>
+
+                  {promotedMemberNote && (
+                    <div className="featured-member-reason">
+                      <span>
+                        WHY WE PICKED THEM
+                      </span>
+
+                      <p>
+                        {promotedMemberNote}
+                      </p>
+                    </div>
+                  )}
+
+                  <a
+                    className="featured-member-link"
+                    href={`/u/${promotedMember.username}`}
+                  >
+                    VIEW THEIR PAGE »
+                  </a>
+                </div>
+              ) : (
+                <>
+                  <p>
+                    {welcomeBody}
+                  </p>
+
+                  <p className="small-note">
+                    {welcomeNote}
+                  </p>
+
+                  {!session && (
+                    <a href="/login">
+                      Create an account »
+                    </a>
+                  )}
+                </>
+              )}
             </RailModule>
 
             <RailModule title="SHOUTBOX" order={sidebarModuleOrder("shoutbox")}>

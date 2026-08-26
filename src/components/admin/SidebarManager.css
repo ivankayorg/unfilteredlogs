@@ -1,1 +1,375 @@
 .sidebar-manager{max-width:780px}.sidebar-manager .admin-page-title p{max-width:640px;color:#6c7788;font-size:10px;line-height:1.5}.sidebar-copy-panel,.sidebar-order-panel{margin-bottom:12px}.sidebar-copy-fields{padding:12px}.sidebar-copy-fields label{display:block;margin-bottom:12px}.sidebar-copy-fields label:last-child{margin-bottom:0}.sidebar-copy-fields label>span{display:block;margin-bottom:5px;color:#47566b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.sidebar-copy-fields textarea{width:100%;min-height:76px;padding:8px;border:1px solid #aeb9c7;border-radius:0;background:#fff;color:#333;font:11px/1.5 Verdana,Tahoma,Arial,sans-serif;resize:vertical;box-sizing:border-box}.sidebar-copy-fields small{display:block;margin-top:3px;color:#8b95a3;font-size:7px;text-align:right}.sidebar-sort-list{border-top:1px solid #d6dde6;background:#fff}.sidebar-sort-row{min-height:40px;padding:0 10px;display:grid;grid-template-columns:20px 24px minmax(0,1fr);align-items:center;gap:7px;border-bottom:1px solid #e1e6ec;color:#435066;cursor:grab;user-select:none}.sidebar-sort-row:last-child{border-bottom:0}.sidebar-sort-row:hover{background:#f4f7fa}.sidebar-sort-row.dragging{background:#e7eef7;opacity:.72}.sidebar-sort-position{color:#8b95a3;font-size:9px;font-weight:700}.sidebar-sort-row strong{font-size:9px}.sidebar-manager-actions{margin-top:10px;display:flex;gap:6px}.sidebar-manager-actions button{min-height:30px;padding:0 9px;display:inline-flex;align-items:center;gap:5px;border:1px solid #aab5c3;border-radius:0;background:#fff;color:#4e5b6e;font-size:9px;font-weight:700}.sidebar-manager-actions button.primary{border-color:#315f9c;background:#496e9f;color:#fff}.sidebar-manager-message{margin-top:8px;padding:8px 9px;border:1px solid #b8c7db;background:#eef4fb;color:#3c5d88;font-size:9px}
+
+/* ==========================================================
+   PRODUCTION PASS 38
+   MEMBER SPOTLIGHT ADMIN
+   ========================================================== */
+
+
+.sidebar-promoted-user-panel {
+  margin-bottom:
+    12px;
+}
+
+
+.sidebar-promoted-user-fields {
+  padding:
+    12px;
+}
+
+
+.sidebar-promoted-user-fields label >
+span {
+  display:
+    block;
+
+  margin-bottom:
+    5px;
+
+  color:
+    #47566b;
+
+  font-size:
+    9px;
+
+  font-weight:
+    800;
+
+  text-transform:
+    uppercase;
+
+  letter-spacing:
+    .04em;
+}
+
+
+.sidebar-promoted-user-fields select {
+  width:
+    100%;
+
+  height:
+    34px;
+
+  padding:
+    0 8px;
+
+  border:
+    1px solid
+    #aeb9c7;
+
+  border-radius:
+    0;
+
+  background:
+    #fff;
+
+  color:
+    #394658;
+
+  font:
+    10px Verdana,
+    Tahoma,
+    Arial,
+    sans-serif;
+}
+
+
+.sidebar-promoted-user-preview {
+  margin-top:
+    10px;
+
+  padding:
+    10px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    48px
+    minmax(
+      0,
+      1fr
+    );
+
+  gap:
+    9px;
+
+  align-items:
+    center;
+
+  border:
+    1px solid
+    #c0cad6;
+
+  background:
+    #f3f7fb;
+}
+
+
+.sidebar-promoted-user-avatar {
+  width:
+    46px;
+
+  height:
+    46px;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  overflow:
+    hidden;
+
+  border:
+    1px solid
+    #8899ae;
+
+  background:
+    #dbe6f2;
+
+  color:
+    #47668e;
+}
+
+
+.sidebar-promoted-user-avatar img {
+  width:
+    100%;
+
+  height:
+    100%;
+
+  display:
+    block;
+
+  object-fit:
+    cover;
+}
+
+
+.sidebar-promoted-user-preview strong,
+.sidebar-promoted-user-preview span,
+.sidebar-promoted-user-preview a {
+  display:
+    block;
+}
+
+
+.sidebar-promoted-user-preview strong {
+  color:
+    #315f9c;
+
+  font-size:
+    10px;
+}
+
+
+.sidebar-promoted-user-preview span {
+  margin-top:
+    2px;
+
+  color:
+    #596679;
+
+  font-size:
+    9px;
+}
+
+
+.sidebar-promoted-user-preview a {
+  margin-top:
+    5px;
+
+  color:
+    #315f9c;
+
+  font-size:
+    8px;
+
+  font-weight:
+    700;
+}
+
+
+.sidebar-promoted-user-help {
+  margin:
+    10px 0 0;
+
+  color:
+    #6c7788;
+
+  font-size:
+    9px;
+
+  line-height:
+    1.5;
+}
+
+
+/* ==========================================================
+   PRODUCTION PASS 39
+   MEMBER SPOTLIGHT COPY EDITOR
+   ========================================================== */
+
+
+.sidebar-promoted-user-fields {
+  padding:
+    15px;
+}
+
+
+.sidebar-promoted-user-preview {
+  margin-top:
+    12px;
+
+  padding:
+    12px;
+
+  grid-template-columns:
+    58px
+    minmax(
+      0,
+      1fr
+    );
+
+  gap:
+    11px;
+
+  border-left:
+    3px solid
+    #537aae;
+}
+
+
+.sidebar-promoted-user-avatar {
+  width:
+    56px;
+
+  height:
+    56px;
+}
+
+
+.sidebar-promoted-user-preview strong {
+  font-size:
+    11px;
+}
+
+
+.sidebar-promoted-user-preview span {
+  font-size:
+    10px;
+}
+
+
+.sidebar-promoted-user-preview a {
+  font-size:
+    9px;
+}
+
+
+.sidebar-promoted-user-note {
+  margin-top:
+    12px;
+
+  display:
+    block;
+}
+
+
+.sidebar-promoted-user-note > span {
+  display:
+    block;
+
+  margin-bottom:
+    6px;
+
+  color:
+    #47566b;
+
+  font-size:
+    9px;
+
+  font-weight:
+    900;
+
+  text-transform:
+    uppercase;
+
+  letter-spacing:
+    .045em;
+}
+
+
+.sidebar-promoted-user-note textarea {
+  width:
+    100%;
+
+  min-height:
+    96px;
+
+  padding:
+    9px;
+
+  display:
+    block;
+
+  resize:
+    vertical;
+
+  border:
+    1px solid
+    #aeb9c7;
+
+  border-radius:
+    0;
+
+  background:
+    #fff;
+
+  color:
+    #394658;
+
+  font:
+    10px/1.5
+    Verdana,
+    Tahoma,
+    Arial,
+    sans-serif;
+}
+
+
+.sidebar-promoted-user-note textarea:focus {
+  border-color:
+    #5f82b1;
+
+  outline:
+    none;
+
+  box-shadow:
+    inset 0 0 0 1px
+    #d6e2f0;
+}
+
+
+.sidebar-promoted-user-note small {
+  margin-top:
+    5px;
+
+  display:
+    block;
+
+  color:
+    #778395;
+
+  font-size:
+    8px;
+}
+
+
+.sidebar-promoted-user-help {
+  margin-top:
+    12px;
+}

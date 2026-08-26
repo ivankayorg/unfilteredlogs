@@ -1,24 +1,32 @@
 /* ==========================================================
-   UNFILTERED LOGS
-   LOGIN PAGE - PRODUCTION PASS 18
+   UNFILTEREDLOG
+   LOGIN / MEMBER ACCESS
+   PRODUCTION PASS 40
+
+   Classic web personality, but no microscopic interface.
    ========================================================== */
 
 
 .roffle-auth-page {
-  min-height: 100vh;
+  min-height:
+    100vh;
 
-  display: flex;
-  flex-direction: column;
+  display:
+    flex;
+
+  flex-direction:
+    column;
 
   background:
     linear-gradient(
       to bottom,
-      #e5ebf3 0,
-      #d7dfe9 170px,
-      #cdd6e2 100%
+      #e7edf5 0,
+      #d7e0eb 210px,
+      #ccd5e2 100%
     );
 
-  color: #303944;
+  color:
+    #2c3440;
 
   font-family:
     Verdana,
@@ -34,14 +42,26 @@
 
 
 .roffle-auth-header {
-  flex: 0 0 auto;
+  flex:
+    0 0 auto;
 
-  border-bottom: 1px solid #182d49;
+  border-bottom:
+    1px solid
+    #162a44;
 
   background:
     linear-gradient(
-      #345477,
-      #263f60
+      #355578,
+      #223b5c
+    );
+
+  box-shadow:
+    0 1px 3px
+    rgba(
+      19,
+      34,
+      54,
+      .25
     );
 }
 
@@ -49,96 +69,91 @@
 .roffle-auth-header-shell {
   width:
     min(
-      1080px,
+      1180px,
       calc(
-        100% - 24px
+        100% - 36px
       )
     );
 
-  min-height: 47px;
+  min-height:
+    66px;
 
-  margin: 0 auto;
+  margin:
+    0 auto;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display:
+    flex;
 
-  gap: 12px;
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    20px;
 }
 
 
 .roffle-auth-header
 .roffle-logo {
-  display: inline-flex;
-  align-items: center;
+  display:
+    inline-flex;
 
-  gap: 8px;
+  align-items:
+    center;
 
-  color: #fff;
+  gap:
+    0;
 
-  text-decoration: none;
+  text-decoration:
+    none;
 }
 
 
 .roffle-auth-header
-.logo-mark {
-  width: 30px;
-  height: 30px;
+.unfiltered-logo-image {
+  width:
+    292px;
 
-  display: grid;
-  place-items: center;
+  max-width:
+    48vw;
 
-  border: 1px solid #16345d;
+  height:
+    auto;
 
-  background:
-    linear-gradient(
-      #628bc8,
-      #3d67a2
-    );
+  display:
+    block;
 
-  color: #fff;
+  object-fit:
+    contain;
 
-  font-size: 10px;
-  font-weight: 900;
-
-  letter-spacing: -.06em;
-
-  text-shadow:
-    0 1px 1px
-    rgba(
-      0,
-      0,
-      0,
-      .35
-    );
-}
-
-
-.roffle-auth-header
-.logo-word {
-  color: #fff;
-
-  font-size: 11px;
-  font-weight: 900;
-
-  letter-spacing: -.02em;
+  filter:
+    none;
 }
 
 
 .roffle-auth-browse {
-  color: #d5dfeb;
+  color:
+    #e3eaf3;
 
-  font-size: 8px;
-  font-weight: 700;
+  font-size:
+    12px;
 
-  text-decoration: none;
+  font-weight:
+    800;
+
+  text-decoration:
+    none;
 }
 
 
 .roffle-auth-browse:hover {
-  color: #fff;
+  color:
+    #fff;
 
-  text-decoration: underline;
+  text-decoration:
+    underline;
 }
 
 
@@ -150,258 +165,368 @@
 .roffle-auth-main {
   width:
     min(
-      960px,
+      1120px,
       calc(
-        100% - 24px
+        100% - 36px
       )
     );
 
-  flex: 1 0 auto;
+  flex:
+    1 0 auto;
 
-  margin: 0 auto;
+  margin:
+    0 auto;
 
   padding:
-    18px 0
-    26px;
+    30px 0
+    42px;
 }
 
 
 /* ==========================================================
-   WELCOME
+   LARGE WELCOME / HERO
    ========================================================== */
 
 
 .roffle-auth-welcome {
-  margin-bottom: 10px;
+  min-height:
+    205px;
 
-  display: grid;
+  margin-bottom:
+    18px;
+
+  display:
+    grid;
 
   grid-template-columns:
     minmax(
       0,
-      1fr
+      1.7fr
     )
-    250px;
+    minmax(
+      300px,
+      .8fr
+    );
+
+  overflow:
+    hidden;
 
   border:
     1px solid
-    #91a0b3;
+    #899aaf;
 
-  background: #fff;
+  background:
+    #fbfcfe;
 
   box-shadow:
-    0 1px 2px
+    0 2px 7px
     rgba(
-      37,
-      53,
-      74,
-      .08
+      35,
+      49,
+      68,
+      .12
     );
 }
 
 
 .roffle-auth-welcome-copy {
   padding:
-    16px 18px;
+    30px 32px
+    28px;
 }
 
 
 .roffle-auth-kicker {
-  margin-bottom: 5px;
+  margin-bottom:
+    10px;
 
-  display: inline-flex;
-  align-items: center;
+  display:
+    inline-flex;
 
-  gap: 5px;
+  align-items:
+    center;
 
-  color: #4a6993;
+  gap:
+    7px;
 
-  font-size: 7px;
-  font-weight: 900;
+  color:
+    #4776b8;
 
-  letter-spacing: .07em;
+  font-size:
+    11px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    .08em;
 }
 
 
 .roffle-auth-welcome h1 {
-  margin: 0;
+  margin:
+    0;
 
-  color: #283d5b;
+  color:
+    #243b5c;
 
-  font-size: 24px;
-  font-weight: 900;
+  font-size:
+    clamp(
+      32px,
+      4vw,
+      46px
+    );
 
-  line-height: 1.05;
+  font-weight:
+    900;
 
-  letter-spacing: -.035em;
+  line-height:
+    1.02;
+
+  letter-spacing:
+    -.045em;
 }
 
 
 .roffle-auth-welcome-copy p {
-  max-width: 590px;
+  max-width:
+    720px;
 
   margin:
-    8px 0
+    15px 0
     0;
 
-  color: #5f6b7a;
+  color:
+    #596779;
 
-  font-size: 9px;
+  font-size:
+    14px;
 
-  line-height: 1.55;
+  line-height:
+    1.65;
 }
 
 
 .roffle-auth-welcome-note {
   padding:
-    13px 14px;
+    28px 26px;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display:
+    flex;
 
-  gap: 5px;
+  flex-direction:
+    column;
+
+  justify-content:
+    center;
+
+  gap:
+    10px;
 
   border-left:
     1px solid
-    #b8c3d0;
+    #8ea0b6;
 
   background:
     linear-gradient(
-      #edf2f7,
-      #dfe7f0
+      145deg,
+      #345477,
+      #263f60
     );
+
+  color:
+    #edf3f9;
 }
 
 
 .roffle-auth-welcome-note strong {
-  color: #3e5676;
+  color:
+    #fff;
 
-  font-size: 7px;
-  font-weight: 900;
+  font-size:
+    11px;
 
-  letter-spacing: .06em;
+  font-weight:
+    900;
+
+  letter-spacing:
+    .08em;
 }
 
 
 .roffle-auth-welcome-note span {
-  color: #596779;
+  color:
+    #e2eaf3;
 
-  font-size: 8px;
-  line-height: 1.4;
+  font-size:
+    13px;
+
+  line-height:
+    1.55;
 }
 
 
 .roffle-auth-welcome-note em {
-  color: #8b5d64;
+  color:
+    #cbd7e5;
 
-  font-size: 7px;
-  font-style: normal;
+  font-size:
+    11px;
+
+  font-style:
+    normal;
+
+  line-height:
+    1.5;
 }
 
 
 /* ==========================================================
-   LOGIN LAYOUT
+   LOGIN GRID
    ========================================================== */
 
 
 .roffle-auth-layout {
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
     minmax(
       0,
       1fr
     )
-    310px;
+    390px;
 
-  gap: 10px;
+  gap:
+    18px;
 
-  align-items: start;
+  align-items:
+    start;
 }
 
 
 .roffle-auth-side {
-  display: flex;
-  flex-direction: column;
+  display:
+    flex;
 
-  gap: 9px;
+  flex-direction:
+    column;
+
+  gap:
+    14px;
 }
 
 
 .roffle-auth-panel {
-  overflow: hidden;
+  overflow:
+    hidden;
 
   border:
     1px solid
-    #9ca9b9;
+    #93a1b2;
 
-  background: #fff;
+  background:
+    #fff;
+
+  box-shadow:
+    0 1px 4px
+    rgba(
+      38,
+      51,
+      68,
+      .09
+    );
 }
 
 
 .roffle-auth-panel-heading {
-  min-height: 38px;
+  min-height:
+    62px;
 
   padding:
-    6px 9px;
+    11px 16px;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display:
+    flex;
 
-  gap: 10px;
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    14px;
 
   border-bottom:
     1px solid
-    #b7c1cc;
+    #aeb9c7;
 
   background:
     linear-gradient(
-      #edf2f7,
-      #dbe4ee
+      #edf3f8,
+      #dce6f0
     );
 }
 
 
 .roffle-auth-panel-heading > div {
-  min-width: 0;
+  min-width:
+    0;
 }
 
 
 .roffle-auth-panel-heading span {
-  display: block;
+  display:
+    block;
 
-  margin-bottom: 2px;
+  margin-bottom:
+    5px;
 
-  color: #718096;
+  color:
+    #718096;
 
-  font-size: 6px;
-  font-weight: 900;
+  font-size:
+    9px;
 
-  letter-spacing: .07em;
+  font-weight:
+    900;
+
+  letter-spacing:
+    .075em;
 }
 
 
 .roffle-auth-panel-heading h2 {
-  margin: 0;
+  margin:
+    0;
 
-  color: #344b6a;
+  color:
+    #314b6d;
 
-  font-size: 10px;
-  font-weight: 900;
+  font-size:
+    16px;
+
+  font-weight:
+    900;
+
+  line-height:
+    1.2;
 }
 
 
 .roffle-auth-panel-heading svg {
-  flex: 0 0 auto;
+  flex:
+    0 0 auto;
 
-  color: #5a718e;
+  color:
+    #55749b;
 }
 
 
 .roffle-auth-panel-body {
-  padding: 10px;
+  padding:
+    20px;
 }
 
 
@@ -409,38 +534,50 @@
 .roffle-auth-lurk-panel p {
   margin:
     0 0
-    9px;
+    16px;
 
-  color: #77818e;
+  color:
+    #647185;
 
-  font-size: 7px;
+  font-size:
+    12px;
 
-  line-height: 1.45;
+  line-height:
+    1.6;
 }
 
 
 /* ==========================================================
-   PROVIDERS
+   PROVIDER BUTTONS
    ========================================================== */
 
 
 .roffle-google-button,
 .roffle-discord-button,
 .roffle-continue-button {
-  width: 100%;
+  width:
+    100%;
 
-  min-height: 36px;
+  min-height:
+    48px;
 
   padding:
-    0 10px;
+    0 15px;
 
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  display:
+    flex;
 
-  gap: 8px;
+  align-items:
+    center;
 
-  border-radius: 0;
+  justify-content:
+    flex-start;
+
+  gap:
+    11px;
+
+  border-radius:
+    0;
 
   font-family:
     Verdana,
@@ -448,187 +585,252 @@
     Arial,
     sans-serif;
 
-  font-size: 8px;
-  font-weight: 800;
+  font-size:
+    12px;
 
-  cursor: pointer;
+  font-weight:
+    900;
+
+  cursor:
+    pointer;
 }
 
 
 .roffle-google-button {
   border:
     1px solid
-    #c5c9ce;
+    #b7c0cb;
 
-  background: #fff;
+  background:
+    #fff;
 
-  color: #33383d;
+  color:
+    #364150;
 }
 
 
 .roffle-google-button:hover {
-  background: #f6f7f8;
+  background:
+    #f5f7fa;
 }
 
 
 .roffle-discord-button {
-  margin-top: 5px;
+  margin-top:
+    10px;
 
   border:
     1px solid
-    #6874d0;
+    #4357a6;
 
-  background: #5865f2;
+  background:
+    #5865f2;
 
-  color: #fff;
+  color:
+    #fff;
 }
 
 
 .roffle-discord-button:hover {
-  background: #4e5bd9;
+  background:
+    #4d5bd8;
 }
 
 
 .roffle-continue-button {
-  margin-bottom: 7px;
-
-  justify-content: space-between;
+  margin-bottom:
+    10px;
 
   border:
     1px solid
-    #608064;
+    #2c5d96;
 
-  background: #eff7ef;
+  background:
+    #3d70ab;
 
-  color: #3e6844;
+  color:
+    #fff;
 }
 
 
 .roffle-google-button:disabled,
-.roffle-discord-button:disabled {
-  opacity: .55;
+.roffle-discord-button:disabled,
+.roffle-continue-button:disabled {
+  opacity:
+    .5;
 
-  cursor: wait;
+  cursor:
+    not-allowed;
 }
 
 
 .auth-provider-logo {
-  width: 16px;
-  height: 16px;
+  width:
+    21px;
 
-  flex: 0 0 auto;
+  height:
+    21px;
 
-  display: block;
+  flex:
+    0 0 auto;
 }
 
 
 .discord-logo {
-  width: 17px;
-  height: 17px;
+  color:
+    #fff;
 }
 
 
 /* ==========================================================
-   GUEST + ERROR + FOOTNOTE
+   GUEST / LURK
    ========================================================== */
 
 
 .roffle-auth-guest {
-  min-height: 34px;
+  min-height:
+    44px;
 
   padding:
-    0 9px;
+    0 13px;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display:
+    flex;
 
-  gap: 8px;
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    10px;
 
   border:
     1px solid
-    #c5c9ce;
+    #aeb8c4;
 
-  background: #f6f7f8;
+  background:
+    linear-gradient(
+      #fff,
+      #e8edf3
+    );
 
-  color: #3d4650;
+  color:
+    #405b80;
 
-  font-size: 8px;
-  font-weight: 800;
+  font-size:
+    11px;
 
-  text-decoration: none;
+  font-weight:
+    900;
+
+  text-decoration:
+    none;
 }
 
 
 .roffle-auth-guest:hover {
-  background: #fff;
+  background:
+    #f3f6fa;
 
-  color: #315f9c;
-}
-
-
-.roffle-auth-error {
-  margin-top: 7px;
-
-  padding: 7px 8px;
-
-  border:
-    1px solid
-    #d1afb7;
-
-  background: #fff2f4;
-
-  color: #8c4050;
-
-  font-size: 7px;
-
-  line-height: 1.4;
+  text-decoration:
+    underline;
 }
 
 
 .roffle-auth-footnote {
-  padding: 2px 3px;
+  padding:
+    12px 13px;
 
-  display: flex;
-  align-items: flex-start;
+  display:
+    grid;
 
-  gap: 5px;
+  grid-template-columns:
+    17px
+    minmax(
+      0,
+      1fr
+    );
 
-  color: #737f8e;
+  gap:
+    8px;
 
-  font-size: 7px;
+  border:
+    1px solid
+    #aeb9c6;
 
-  line-height: 1.45;
+  background:
+    rgba(
+      245,
+      248,
+      252,
+      .72
+    );
+
+  color:
+    #657287;
+
+  font-size:
+    10px;
+
+  line-height:
+    1.55;
 }
 
 
 .roffle-auth-footnote svg {
-  flex: 0 0 auto;
+  margin-top:
+    2px;
 
-  margin-top: 1px;
-
-  color: #61748e;
+  color:
+    #607b9f;
 }
 
 
-/* ==========================================================
-   LOADING
-   ========================================================== */
+.roffle-auth-error {
+  margin-top:
+    12px;
+
+  padding:
+    10px;
+
+  border:
+    1px solid
+    #c59ca3;
+
+  background:
+    #fbeaec;
+
+  color:
+    #8c3d4c;
+
+  font-size:
+    11px;
+
+  line-height:
+    1.45;
+}
 
 
 .roffle-auth-loading {
-  min-height: 100vh;
+  min-height:
+    100vh;
 
-  display: grid;
-  place-items: center;
+  display:
+    grid;
 
-  background: #243c5b;
+  place-items:
+    center;
 
-  color: #d7e1ec;
+  background:
+    #ccd5e2;
 
-  font-size: 9px;
+  color:
+    #425875;
 
-  font-family:
+  font:
+    900 13px
     Verdana,
     Tahoma,
     Arial,
@@ -641,28 +843,32 @@
    ========================================================== */
 
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .roffle-auth-welcome {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
 
   .roffle-auth-welcome-note {
-    border-left: 0;
-
     border-top:
       1px solid
-      #b8c3d0;
+      #8ea0b6;
+
+    border-left:
+      0;
   }
 
 
   .roffle-auth-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
 
   .roffle-auth-side {
-    display: grid;
+    display:
+      grid;
 
     grid-template-columns:
       repeat(
@@ -682,82 +888,110 @@
 }
 
 
-@media (max-width: 520px) {
+@media (max-width: 620px) {
   .roffle-auth-header-shell,
   .roffle-auth-main {
     width:
-      min(
-        100% - 16px,
-        960px
+      calc(
+        100% - 20px
       );
   }
 
 
-  .roffle-auth-main {
-    padding-top: 9px;
+  .roffle-auth-header-shell {
+    min-height:
+      58px;
   }
 
 
   .roffle-auth-header
-  .logo-word {
-    font-size: 9px;
+  .unfiltered-logo-image {
+    width:
+      210px;
   }
 
 
   .roffle-auth-browse {
-    font-size: 7px;
+    font-size:
+      10px;
+  }
+
+
+  .roffle-auth-main {
+    padding:
+      16px 0
+      28px;
   }
 
 
   .roffle-auth-welcome-copy {
-    padding: 13px 12px;
+    padding:
+      22px 18px;
   }
 
 
   .roffle-auth-welcome h1 {
-    font-size: 20px;
+    font-size:
+      31px;
+  }
+
+
+  .roffle-auth-welcome-copy p {
+    font-size:
+      13px;
+  }
+
+
+  .roffle-auth-welcome-note {
+    padding:
+      19px 18px;
   }
 
 
   .roffle-auth-side {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
 
   .roffle-auth-footnote {
-    grid-column: auto;
+    grid-column:
+      auto;
   }
 }
 
 
-/* ==========================================================
-   PRODUCTION PASS 26
-   SITE-MATCHED LOGIN LOGO
-   ========================================================== */
+@media (max-width: 430px) {
+  .roffle-auth-header-shell {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+
+    padding:
+      10px 0;
+  }
 
 
-.roffle-auth-header
-.unfiltered-logo-image {
-  width: 244px;
-  height: auto;
-
-  display: block;
-
-  object-fit: contain;
-
-  filter: none;
-}
-
-
-.roffle-auth-header
-.roffle-logo {
-  gap: 0;
-}
-
-
-@media (max-width: 520px) {
   .roffle-auth-header
   .unfiltered-logo-image {
-    width: 184px;
+    max-width:
+      100%;
+
+    width:
+      230px;
+  }
+
+
+  .roffle-auth-welcome h1 {
+    font-size:
+      28px;
+  }
+
+
+  .roffle-auth-panel-body {
+    padding:
+      15px;
   }
 }
