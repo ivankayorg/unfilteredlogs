@@ -1,8 +1,100 @@
 {
   "rewrites": [
     {
+      "source": "/u/:username/status/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Discordbot|Slackbot|Slack-ImgProxy|Twitterbot|facebookexternalhit|Facebot|LinkedInBot|WhatsApp|TelegramBot|SkypeUriPreview|Applebot|Pinterestbot|embedly|Bingbot|Googlebot|DuckDuckBot|MetaInspector).*"
+        }
+      ],
+      "destination": "/api/og-page?kind=slop&username=:username&id=:id"
+    },
+    {
+      "source": "/u/:username",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Discordbot|Slackbot|Slack-ImgProxy|Twitterbot|facebookexternalhit|Facebot|LinkedInBot|WhatsApp|TelegramBot|SkypeUriPreview|Applebot|Pinterestbot|embedly|Bingbot|Googlebot|DuckDuckBot|MetaInspector).*"
+        }
+      ],
+      "destination": "/api/og-page?kind=profile&username=:username"
+    },
+    {
+      "source": "/posts/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Discordbot|Slackbot|Slack-ImgProxy|Twitterbot|facebookexternalhit|Facebot|LinkedInBot|WhatsApp|TelegramBot|SkypeUriPreview|Applebot|Pinterestbot|embedly|Bingbot|Googlebot|DuckDuckBot|MetaInspector).*"
+        }
+      ],
+      "destination": "/api/og-page?kind=post&id=:id"
+    },
+    {
+      "source": "/forum/t/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Discordbot|Slackbot|Slack-ImgProxy|Twitterbot|facebookexternalhit|Facebot|LinkedInBot|WhatsApp|TelegramBot|SkypeUriPreview|Applebot|Pinterestbot|embedly|Bingbot|Googlebot|DuckDuckBot|MetaInspector).*"
+        }
+      ],
+      "destination": "/api/og-page?kind=forum-thread&id=:id"
+    },
+    {
+      "source": "/forum",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Discordbot|Slackbot|Slack-ImgProxy|Twitterbot|facebookexternalhit|Facebot|LinkedInBot|WhatsApp|TelegramBot|SkypeUriPreview|Applebot|Pinterestbot|embedly|Bingbot|Googlebot|DuckDuckBot|MetaInspector).*"
+        }
+      ],
+      "destination": "/api/og-page?kind=forum"
+    },
+    {
+      "source": "/blog/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Discordbot|Slackbot|Slack-ImgProxy|Twitterbot|facebookexternalhit|Facebot|LinkedInBot|WhatsApp|TelegramBot|SkypeUriPreview|Applebot|Pinterestbot|embedly|Bingbot|Googlebot|DuckDuckBot|MetaInspector).*"
+        }
+      ],
+      "destination": "/api/og-page?kind=blog-post&slug=:slug"
+    },
+    {
+      "source": "/blog",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Discordbot|Slackbot|Slack-ImgProxy|Twitterbot|facebookexternalhit|Facebot|LinkedInBot|WhatsApp|TelegramBot|SkypeUriPreview|Applebot|Pinterestbot|embedly|Bingbot|Googlebot|DuckDuckBot|MetaInspector).*"
+        }
+      ],
+      "destination": "/api/og-page?kind=blog"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Discordbot|Slackbot|Slack-ImgProxy|Twitterbot|facebookexternalhit|Facebot|LinkedInBot|WhatsApp|TelegramBot|SkypeUriPreview|Applebot|Pinterestbot|embedly|Bingbot|Googlebot|DuckDuckBot|MetaInspector).*"
+        }
+      ],
+      "destination": "/api/og-page?kind=home"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/"
     }
   ]
 }
