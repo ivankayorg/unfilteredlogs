@@ -72,6 +72,14 @@ const PostPage = lazy(
 );
 
 
+const LivePage = lazy(
+  () =>
+    import(
+      "./pages/live/LivePage"
+    )
+);
+
+
 /* ==========================================================
    UNFILTERED LOGS
    APP ENTRY / LOGIN
@@ -557,6 +565,22 @@ function App() {
         }
       >
         <Forum />
+      </Suspense>
+    );
+  }
+
+
+  if (
+    path === "/live" ||
+    path === "/live/"
+  ) {
+    return (
+      <Suspense
+        fallback={
+          <PrototypeLoading />
+        }
+      >
+        <LivePage />
       </Suspense>
     );
   }

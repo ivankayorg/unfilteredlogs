@@ -47,7 +47,8 @@ import "./SiteHeader.css";
 type ActiveSection =
   | "home"
   | "blog"
-  | "forums";
+  | "forums"
+  | "live";
 
 
 type Props = {
@@ -967,6 +968,18 @@ export default function SiteHeader({
               href="/forum"
             >
               Forum
+            </a>
+
+            <a
+              className={
+                activeSection ===
+                  "live"
+                  ? "active live-link"
+                  : "live-link"
+              }
+              href="/live"
+            >
+              Live
             </a>
           </div>
 

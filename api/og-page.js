@@ -295,6 +295,29 @@ function blogMeta(
 }
 
 
+function liveMeta(
+  origin
+) {
+  return {
+    title:
+      "UNFILTEREDLOG LIVE | Ivan may be making a mistake",
+
+    description:
+      "Watch Ivan live on UNFILTEREDLOG. YouTube video, live chat, and whatever seemed like a good idea five minutes ago.",
+
+    url:
+      `${origin}/live`,
+
+    type:
+      "website",
+
+    ...defaultCard(
+      origin
+    ),
+  };
+}
+
+
 function renderHtml(meta) {
   const title =
     escapeHtml(
@@ -1045,6 +1068,14 @@ export default async function handler(
     ) {
       meta =
         blogMeta(
+          origin
+        );
+    } else if (
+      kind ===
+      "live"
+    ) {
+      meta =
+        liveMeta(
           origin
         );
     } else if (
