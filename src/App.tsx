@@ -48,6 +48,22 @@ const Blog = lazy(
 );
 
 
+const UserAdmin = lazy(
+  () =>
+    import(
+      "./pages/account/UserAdmin"
+    )
+);
+
+
+const ProfilePage = lazy(
+  () =>
+    import(
+      "./pages/profile/ProfilePage"
+    )
+);
+
+
 const PostPage = lazy(
   () =>
     import(
@@ -477,6 +493,39 @@ function App() {
   ) {
     return <LoginPage />;
   }
+
+  if (
+    path === "/account" ||
+    path === "/me"
+  ) {
+    return (
+      <Suspense
+        fallback={
+          <PrototypeLoading />
+        }
+      >
+        <UserAdmin />
+      </Suspense>
+    );
+  }
+
+
+  if (
+    path.startsWith(
+      "/u/"
+    )
+  ) {
+    return (
+      <Suspense
+        fallback={
+          <PrototypeLoading />
+        }
+      >
+        <ProfilePage />
+      </Suspense>
+    );
+  }
+
 
   if (
     path === "/blog" ||

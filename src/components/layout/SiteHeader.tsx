@@ -213,6 +213,13 @@ export default function SiteHeader({
           {authReady &&
             (session ? (
               <>
+                <a
+                  className="header-user-page-link"
+                  href="/account"
+                >
+                  My Page
+                </a>
+
                 {(accessRole === "moderator" || accessRole === "admin") && (
                   <a className="header-admin-link" href="/admin">
                     Admin

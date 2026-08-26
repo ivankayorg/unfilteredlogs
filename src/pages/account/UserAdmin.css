@@ -1,0 +1,1359 @@
+/* ==========================================================
+   UNFILTEREDLOG
+   MY PAGE
+   PRODUCTION PASS 33
+
+   Design goals:
+   - readable typography
+   - equal-height / bottom-aligned primary panels
+   - classic blue/slate web chrome
+   - compact without microscopic text
+   ========================================================== */
+
+
+.user-admin-page {
+  min-height:
+    100vh;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  color:
+    var(--text);
+}
+
+
+.user-admin-main {
+  flex:
+    1 0 auto;
+
+  padding:
+    16px 0
+    38px;
+
+  font-size:
+    11px;
+}
+
+
+/* ==========================================================
+   PAGE HEADING
+   ========================================================== */
+
+
+.user-admin-breadcrumbs {
+  min-height:
+    29px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  color:
+    var(--muted);
+
+  font-size:
+    10px;
+}
+
+
+.user-admin-breadcrumbs a {
+  font-weight:
+    700;
+}
+
+
+.user-admin-heading {
+  min-height:
+    86px;
+
+  padding:
+    14px 16px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    18px;
+
+  border:
+    1px solid
+    var(--border);
+
+  background:
+    linear-gradient(
+      var(--paper),
+      var(--blue-100)
+    );
+
+  box-shadow:
+    0 1px 3px
+    rgba(
+      35,
+      51,
+      72,
+      .11
+    );
+}
+
+
+.user-admin-heading > div > span {
+  color:
+    var(--blue-700);
+
+  font-size:
+    9px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    .09em;
+}
+
+
+.user-admin-heading h1 {
+  margin:
+    3px 0
+    0;
+
+  color:
+    var(--navy-900);
+
+  font-size:
+    23px;
+
+  line-height:
+    1;
+}
+
+
+.user-admin-heading p {
+  margin:
+    7px 0
+    0;
+
+  color:
+    #667285;
+
+  font-size:
+    11px;
+
+  line-height:
+    1.45;
+}
+
+
+.user-admin-heading svg {
+  color:
+    var(--blue-600);
+}
+
+
+/* ==========================================================
+   PRIMARY TWO-PANEL LAYOUT
+   BOTH BOXES END ON THE SAME BOTTOM LINE.
+   ========================================================== */
+
+
+.user-admin-columns {
+  margin-top:
+    12px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    minmax(
+      370px,
+      .9fr
+    )
+    minmax(
+      0,
+      1.45fr
+    );
+
+  gap:
+    12px;
+
+  align-items:
+    stretch;
+}
+
+
+.user-admin-panel {
+  min-width:
+    0;
+
+  min-height:
+    575px;
+
+  height:
+    100%;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  overflow:
+    hidden;
+
+  border:
+    1px solid
+    var(--border);
+
+  background:
+    var(--paper);
+
+  box-shadow:
+    0 1px 3px
+    rgba(
+      39,
+      50,
+      66,
+      .09
+    );
+}
+
+
+.user-admin-panel-title {
+  min-height:
+    38px;
+
+  padding:
+    0 11px;
+
+  flex:
+    0 0 auto;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    10px;
+
+  border-bottom:
+    1px solid
+    #97a5b6;
+
+  background:
+    linear-gradient(
+      #dce6f2,
+      #c9d7e8
+    );
+}
+
+
+.user-admin-panel-title strong {
+  color:
+    #324b6f;
+
+  font-size:
+    11px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    .045em;
+}
+
+
+.user-admin-panel-title span {
+  color:
+    #657286;
+
+  font-size:
+    9px;
+
+  font-weight:
+    600;
+}
+
+
+/* ==========================================================
+   PROFILE SETTINGS
+   ========================================================== */
+
+
+.profile-settings-layout {
+  min-height:
+    0;
+
+  flex:
+    1 1 auto;
+
+  padding:
+    16px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    124px
+    minmax(
+      0,
+      1fr
+    );
+
+  gap:
+    16px;
+
+  align-items:
+    start;
+}
+
+
+.profile-logo-editor {
+  min-width:
+    0;
+}
+
+
+.profile-logo-preview {
+  width:
+    116px;
+
+  height:
+    116px;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  overflow:
+    hidden;
+
+  border:
+    1px solid
+    #8092a9;
+
+  background:
+    linear-gradient(
+      #e7eef8,
+      #c9d8ec
+    );
+
+  color:
+    #3c5980;
+
+  font-size:
+    25px;
+
+  font-weight:
+    900;
+
+  box-shadow:
+    inset 0 1px 0
+    rgba(
+      255,
+      255,
+      255,
+      .62
+    );
+}
+
+
+.profile-logo-preview img {
+  width:
+    100%;
+
+  height:
+    100%;
+
+  display:
+    block;
+
+  object-fit:
+    cover;
+}
+
+
+.profile-logo-upload {
+  width:
+    116px;
+
+  min-height:
+    32px;
+
+  margin-top:
+    8px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    5px;
+
+  border:
+    1px solid
+    #8797aa;
+
+  background:
+    linear-gradient(
+      #fff,
+      #e9edf2
+    );
+
+  color:
+    #465267;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+}
+
+
+.profile-logo-upload:hover {
+  background:
+    #eef3f8;
+}
+
+
+.profile-logo-upload input {
+  display:
+    none;
+}
+
+
+.profile-logo-editor small {
+  width:
+    116px;
+
+  margin-top:
+    6px;
+
+  display:
+    block;
+
+  color:
+    #748093;
+
+  font-size:
+    9px;
+
+  line-height:
+    1.4;
+}
+
+
+.profile-settings-fields {
+  min-width:
+    0;
+
+  height:
+    100%;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+}
+
+
+.profile-settings-fields label {
+  display:
+    block;
+}
+
+
+.profile-settings-fields label > span,
+.public-page-linkbox > span {
+  display:
+    block;
+
+  margin-bottom:
+    6px;
+
+  color:
+    #526176;
+
+  font-size:
+    10px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    .045em;
+}
+
+
+.username-input-shell {
+  min-height:
+    38px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  border:
+    1px solid
+    #9eabbc;
+
+  background:
+    #fff;
+}
+
+
+.username-input-shell:focus-within {
+  border-color:
+    var(--blue-600);
+
+  box-shadow:
+    inset 0 0 0 1px
+    var(--blue-200);
+}
+
+
+.username-input-shell b {
+  padding-left:
+    10px;
+
+  color:
+    #6d798b;
+
+  font-size:
+    13px;
+}
+
+
+.username-input-shell input {
+  width:
+    100%;
+
+  height:
+    36px;
+
+  border:
+    0;
+
+  padding:
+    0 9px
+    0 3px;
+
+  background:
+    transparent;
+
+  color:
+    var(--text);
+
+  font-size:
+    12px;
+
+  font-weight:
+    700;
+
+  outline:
+    none;
+}
+
+
+.username-input-shell input:disabled {
+  color:
+    #657184;
+
+  background:
+    #eef2f6;
+
+  cursor:
+    not-allowed;
+}
+
+
+.profile-settings-fields label small {
+  margin-top:
+    6px;
+
+  display:
+    block;
+
+  color:
+    #748093;
+
+  font-size:
+    9px;
+
+  line-height:
+    1.45;
+}
+
+
+/* ==========================================================
+   USERNAME COOLDOWN
+   ========================================================== */
+
+
+.username-cooldown-box {
+  margin-top:
+    12px;
+
+  padding:
+    10px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    18px
+    minmax(
+      0,
+      1fr
+    );
+
+  gap:
+    8px;
+
+  align-items:
+    start;
+
+  border:
+    1px solid
+    #aab7c8;
+
+  background:
+    #eef3f8;
+}
+
+
+.username-cooldown-box svg {
+  margin-top:
+    1px;
+
+  color:
+    #4776b8;
+}
+
+
+.username-cooldown-box strong,
+.username-cooldown-box span {
+  display:
+    block;
+}
+
+
+.username-cooldown-box strong {
+  color:
+    #355e94;
+
+  font-size:
+    9px;
+
+  letter-spacing:
+    .035em;
+}
+
+
+.username-cooldown-box span {
+  margin-top:
+    3px;
+
+  color:
+    #647185;
+
+  font-size:
+    9px;
+
+  line-height:
+    1.4;
+}
+
+
+.username-cooldown-box.locked {
+  border-color:
+    #b9a97f;
+
+  background:
+    #f8f4e8;
+}
+
+
+.username-cooldown-box.locked svg,
+.username-cooldown-box.locked strong {
+  color:
+    #7a6432;
+}
+
+
+/* ==========================================================
+   PUBLIC PAGE + SAVE
+   Save button is pushed to the bottom of the profile panel.
+   ========================================================== */
+
+
+.public-page-linkbox {
+  margin-top:
+    14px;
+
+  padding-top:
+    13px;
+
+  border-top:
+    1px solid
+    var(--border-soft);
+}
+
+
+.public-page-linkbox code {
+  min-height:
+    34px;
+
+  padding:
+    8px 9px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  overflow:
+    hidden;
+
+  border:
+    1px solid
+    #d0d7e0;
+
+  background:
+    #f3f6fa;
+
+  color:
+    #415673;
+
+  font-family:
+    Consolas,
+    "Courier New",
+    monospace;
+
+  font-size:
+    10px;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+
+.public-page-linkbox > div {
+  margin-top:
+    7px;
+
+  display:
+    flex;
+
+  gap:
+    7px;
+}
+
+
+.public-page-linkbox button,
+.public-page-linkbox a {
+  min-height:
+    30px;
+
+  padding:
+    0 10px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    5px;
+
+  border:
+    1px solid
+    #a7b1bd;
+
+  background:
+    linear-gradient(
+      #fff,
+      #e5eaf0
+    );
+
+  color:
+    #4c5a6e;
+
+  font-size:
+    10px;
+
+  font-weight:
+    700;
+
+  text-decoration:
+    none;
+}
+
+
+.profile-save-button {
+  width:
+    100%;
+
+  min-height:
+    36px;
+
+  margin-top:
+    auto;
+
+  border:
+    1px solid
+    #214a86;
+
+  background:
+    linear-gradient(
+      #5985c5,
+      #3765a8
+    );
+
+  color:
+    white;
+
+  font-size:
+    11px;
+
+  font-weight:
+    900;
+
+  text-shadow:
+    0 1px 1px
+    rgba(
+      0,
+      0,
+      0,
+      .25
+    );
+}
+
+
+.profile-save-button:disabled {
+  opacity:
+    .55;
+
+  cursor:
+    not-allowed;
+}
+
+
+/* ==========================================================
+   THOUGHT SLOP
+   ========================================================== */
+
+
+.microlog-admin-panel {
+  min-height:
+    575px;
+}
+
+
+.microlog-composer {
+  flex:
+    0 0 auto;
+
+  padding:
+    12px;
+
+  border-bottom:
+    1px solid
+    #d2d9e3;
+
+  background:
+    #f3f6fa;
+}
+
+
+.microlog-composer textarea {
+  width:
+    100%;
+
+  height:
+    112px;
+
+  padding:
+    10px;
+
+  display:
+    block;
+
+  resize:
+    vertical;
+
+  border:
+    1px solid
+    #aab5c3;
+
+  background:
+    #fff;
+
+  color:
+    var(--text);
+
+  font-family:
+    Verdana,
+    Tahoma,
+    Arial,
+    sans-serif;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.5;
+
+  outline:
+    none;
+}
+
+
+.microlog-composer textarea:focus {
+  border-color:
+    var(--blue-600);
+
+  box-shadow:
+    inset 0 0 0 1px
+    var(--blue-200);
+}
+
+
+.microlog-composer-footer {
+  min-height:
+    38px;
+
+  display:
+    flex;
+
+  align-items:
+    flex-end;
+
+  justify-content:
+    flex-end;
+
+  gap:
+    10px;
+}
+
+
+.microlog-composer-footer span {
+  color:
+    #748093;
+
+  font-size:
+    9px;
+}
+
+
+.microlog-composer-footer span.near-limit {
+  color:
+    #a54159;
+
+  font-weight:
+    900;
+}
+
+
+.microlog-composer-footer button {
+  min-height:
+    31px;
+
+  padding:
+    0 11px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    5px;
+
+  border:
+    1px solid
+    #456895;
+
+  background:
+    #5075a6;
+
+  color:
+    white;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+}
+
+
+.microlog-composer-footer button:disabled {
+  opacity:
+    .5;
+}
+
+
+.microlog-admin-list {
+  min-height:
+    0;
+
+  flex:
+    1 1 auto;
+
+  overflow-y:
+    auto;
+
+  background:
+    #fff;
+}
+
+
+.microlog-admin-row {
+  padding:
+    12px 13px;
+
+  border-bottom:
+    1px solid
+    #e0e5eb;
+
+  background:
+    #fff;
+}
+
+
+.microlog-admin-row:nth-child(even) {
+  background:
+    #f9fbfd;
+}
+
+
+.microlog-admin-row p {
+  margin:
+    0;
+
+  color:
+    #3e4857;
+
+  font-size:
+    11px;
+
+  line-height:
+    1.55;
+
+  white-space:
+    pre-wrap;
+
+  overflow-wrap:
+    anywhere;
+}
+
+
+.microlog-admin-row footer {
+  margin-top:
+    8px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  flex-wrap:
+    wrap;
+
+  gap:
+    10px;
+
+  color:
+    #7b8796;
+
+  font-size:
+    9px;
+}
+
+
+.microlog-admin-row footer a,
+.microlog-admin-row footer button {
+  padding:
+    0;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    4px;
+
+  border:
+    0;
+
+  background:
+    transparent;
+
+  color:
+    #41699f;
+
+  font-size:
+    9px;
+
+  font-weight:
+    700;
+
+  text-decoration:
+    none;
+}
+
+
+.microlog-admin-row footer button.danger {
+  margin-left:
+    auto;
+
+  color:
+    #9a4050;
+}
+
+
+.microlog-empty {
+  height:
+    100%;
+
+  min-height:
+    240px;
+
+  padding:
+    30px 12px;
+
+  display:
+    grid;
+
+  place-items:
+    center;
+
+  color:
+    #6f7b8d;
+
+  font-size:
+    11px;
+
+  text-align:
+    center;
+}
+
+
+/* ==========================================================
+   FEEDBACK
+   ========================================================== */
+
+
+.user-admin-message,
+.user-admin-error {
+  margin-top:
+    12px;
+
+  padding:
+    12px;
+
+  border:
+    1px solid
+    #a8b3c1;
+
+  background:
+    #f4f7fa;
+
+  color:
+    #596679;
+
+  font-size:
+    11px;
+}
+
+
+.user-admin-error {
+  border-color:
+    #c59ca3;
+
+  background:
+    #fbeaec;
+
+  color:
+    #8c3d4c;
+}
+
+
+.user-admin-toast {
+  position:
+    fixed;
+
+  right:
+    14px;
+
+  bottom:
+    14px;
+
+  z-index:
+    600;
+
+  padding:
+    9px 11px;
+
+  border:
+    1px solid
+    #7e91aa;
+
+  background:
+    var(--navy-900);
+
+  color:
+    #fff;
+
+  font-size:
+    10px;
+
+  box-shadow:
+    2px 3px 8px
+    rgba(
+      35,
+      48,
+      68,
+      .25
+    );
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+
+@media (max-width: 820px) {
+  .user-admin-columns {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .user-admin-panel,
+  .microlog-admin-panel {
+    min-height:
+      auto;
+  }
+
+
+  .profile-save-button {
+    margin-top:
+      18px;
+  }
+}
+
+
+@media (max-width: 520px) {
+  .user-admin-main {
+    padding-top:
+      10px;
+  }
+
+
+  .user-admin-heading h1 {
+    font-size:
+      20px;
+  }
+
+
+  .profile-settings-layout {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .profile-logo-editor {
+    display:
+      grid;
+
+    grid-template-columns:
+      116px
+      minmax(
+        0,
+        1fr
+      );
+
+    gap:
+      8px 10px;
+
+    align-items:
+      start;
+  }
+
+
+  .profile-logo-upload {
+    margin-top:
+      0;
+  }
+
+
+  .profile-logo-editor small {
+    grid-column:
+      1 / -1;
+
+    width:
+      auto;
+  }
+
+
+  .user-admin-panel-title {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+
+    justify-content:
+      center;
+
+    padding:
+      7px 10px;
+  }
+}

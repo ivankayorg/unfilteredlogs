@@ -316,3 +316,55 @@
     padding-right: 6px;
   }
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 28
+   NORMAL USER CONTROL PANEL LINK
+   ========================================================== */
+
+
+.header-user-page-link {
+  height: 29px;
+
+  padding:
+    0 9px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border:
+    1px solid
+    #a4afbd;
+
+  border-radius: 3px;
+
+  background:
+    linear-gradient(
+      #fff,
+      #e9edf2
+    );
+
+  color: #465267;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+
+.header-user-page-link:hover {
+  border-color: #8292a8;
+
+  color: #2f5f9f;
+
+  text-decoration: none;
+}
+
+
+@media (max-width: 680px) {
+  .header-user-page-link {
+    display: none;
+  }
+}

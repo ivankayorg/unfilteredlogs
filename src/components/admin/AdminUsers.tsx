@@ -5,9 +5,11 @@ import {
 
 import {
   RefreshCw,
+  Save,
 } from "lucide-react";
 
 import {
+  adminChangeUsername,
   getAdminUsers,
   setAccountStatus,
   setUserRole,
@@ -19,9 +21,11 @@ import type {
   UserRole,
 } from "../../types/admin";
 
+import "./AdminUsers.css";
+
 
 /* ==========================================================
-   UNFILTERED LOG
+   UNFILTERED LOGS
    ADMIN USERS
    ========================================================== */
 
@@ -50,14 +54,54 @@ export default function AdminUsers() {
     );
 
 
+  const [
+    usernameDrafts,
+    setUsernameDrafts,
+  ] =
+    useState<
+      Record<
+        string,
+        string
+      >
+    >(
+      {}
+    );
+
+
+  const [
+    savingUsernameFor,
+    setSavingUsernameFor,
+  ] =
+    useState<string | null>(
+      null
+    );
+
+
   const load =
     async () => {
       setLoading(true);
       setError(null);
 
       try {
+        const nextUsers =
+          await getAdminUsers();
+
         setUsers(
-          await getAdminUsers()
+          nextUsers
+        );
+
+        setUsernameDrafts(
+          Object.fromEntries(
+            nextUsers.map(
+              (
+                user
+              ) => [
+                user.user_id,
+                user.username ??
+                "",
+              ]
+            )
+          )
         );
       } catch (
         nextError
@@ -77,6 +121,82 @@ export default function AdminUsers() {
   useEffect(() => {
     void load();
   }, []);
+
+
+  const changeUsername =
+    async (
+      user:
+        AdminUser,
+    ) => {
+      const draft =
+        usernameDrafts[
+          user.user_id
+        ] ??
+        "";
+
+      setError(
+        null
+      );
+
+      setSavingUsernameFor(
+        user.user_id
+      );
+
+      try {
+        const changed =
+          await adminChangeUsername(
+            user.user_id,
+            draft
+          );
+
+        setUsers(
+          (
+            current
+          ) =>
+            current.map(
+              (
+                currentUser
+              ) =>
+                currentUser.user_id ===
+                user.user_id
+                  ? {
+                      ...currentUser,
+
+                      username:
+                        changed,
+
+                      display_name:
+                        changed,
+                    }
+                  : currentUser
+            )
+        );
+
+        setUsernameDrafts(
+          (
+            current
+          ) => ({
+            ...current,
+
+            [user.user_id]:
+              changed,
+          })
+        );
+      } catch (
+        nextError
+      ) {
+        setError(
+          nextError instanceof
+            Error
+            ? nextError.message
+            : "Could not change username."
+        );
+      } finally {
+        setSavingUsernameFor(
+          null
+        );
+      }
+    };
 
 
   const updateRole =
@@ -210,6 +330,10 @@ export default function AdminUsers() {
                 </th>
 
                 <th>
+                  Username
+                </th>
+
+                <th>
                   Email
                 </th>
 
@@ -243,10 +367,88 @@ export default function AdminUsers() {
                   >
                     <td>
                       <strong>
-                        {user.username
-                          ? `@${user.username}`
-                          : user.display_name}
+                        {user.display_name}
                       </strong>
+                    </td>
+
+                    <td className="admin-username-cell">
+                      <div className="admin-username-editor">
+                        <span>
+                          @
+                        </span>
+
+                        <input
+                          value={
+                            usernameDrafts[
+                              user.user_id
+                            ] ??
+                            ""
+                          }
+                          maxLength={24}
+                          aria-label={
+                            `Username for ${user.display_name}`
+                          }
+                          onChange={
+                            (
+                              event
+                            ) => {
+                              setUsernameDrafts(
+                                (
+                                  current
+                                ) => ({
+                                  ...current,
+
+                                  [user.user_id]:
+                                    event.target.value,
+                                })
+                              );
+                            }
+                          }
+                        />
+
+                        <button
+                          type="button"
+                          title="Admin override: change username regardless of the 30-day user cooldown."
+                          disabled={
+                            savingUsernameFor ===
+                              user.user_id ||
+                            !(
+                              usernameDrafts[
+                                user.user_id
+                              ] ??
+                              ""
+                            ).trim() ||
+                            (
+                              usernameDrafts[
+                                user.user_id
+                              ] ??
+                              ""
+                            ).trim() ===
+                              (
+                                user.username ??
+                                ""
+                              )
+                          }
+                          onClick={() => {
+                            void changeUsername(
+                              user
+                            );
+                          }}
+                        >
+                          <Save
+                            size={11}
+                          />
+
+                          {savingUsernameFor ===
+                            user.user_id
+                            ? "Saving"
+                            : "Change"}
+                        </button>
+                      </div>
+
+                      <small>
+                        Admin override · resets user cooldown
+                      </small>
                     </td>
 
                     <td>

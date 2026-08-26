@@ -13,7 +13,7 @@ import type {
 
 
 /* ==========================================================
-   UNFILTERED LOG
+   UNFILTERED LOGS
    ADMIN SERVICE
    ========================================================== */
 
@@ -172,6 +172,64 @@ export async function getAdminUsers() {
     data ??
     []
   ) as AdminUser[];
+}
+
+
+export async function adminChangeUsername(
+  userId:
+    string,
+
+  username:
+    string,
+) {
+  const cleaned =
+    username
+      .trim()
+      .replace(
+        /\s+/g,
+        "_"
+      );
+
+  if (
+    !/^[A-Za-z0-9_]{3,24}$/.test(
+      cleaned
+    )
+  ) {
+    throw new Error(
+      "Username must be 3–24 characters using only letters, numbers, and underscores."
+    );
+  }
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "admin_change_username",
+      {
+        target_user:
+          userId,
+
+        new_username:
+          cleaned,
+      }
+    );
+
+  if (error) {
+    throw error;
+  }
+
+  const first =
+    Array.isArray(
+      data
+    )
+      ? data[0]
+      : data;
+
+  return String(
+    first?.profile_username ??
+    cleaned
+  );
 }
 
 
