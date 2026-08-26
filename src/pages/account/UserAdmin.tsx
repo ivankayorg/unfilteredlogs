@@ -80,22 +80,6 @@ function formatDate(
 }
 
 
-function initials(
-  profile:
-    UserPublicProfile,
-) {
-  return (
-    profile.username
-      .trim()
-      .slice(
-        0,
-        2
-      )
-      .toUpperCase() ||
-    "UL"
-  );
-}
-
 
 const USERNAME_CHANGE_COOLDOWN_MS =
   30 *

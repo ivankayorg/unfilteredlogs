@@ -49,7 +49,6 @@ import type {
 import type {
   ProfileForumActivity,
   ProfileMicrologPost,
-  ProfileShoutboxAuthor,
   ProfileShoutboxMessage,
   UserPublicProfile,
 } from "../../types/profile";
@@ -115,36 +114,6 @@ function formatDate(
 }
 
 
-function avatarLetters(
-  profile:
-    UserPublicProfile,
-) {
-  return (
-    profile.username
-      .slice(
-        0,
-        2
-      )
-      .toUpperCase() ||
-    "UL"
-  );
-}
-
-
-function shoutboxAuthorLetters(
-  author:
-    ProfileShoutboxAuthor | null,
-) {
-  return (
-    author?.username
-      .slice(
-        0,
-        2
-      )
-      .toUpperCase() ||
-    "UL"
-  );
-}
 
 
 export default function ProfilePage() {
