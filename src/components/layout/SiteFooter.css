@@ -1,0 +1,239 @@
+/* ==========================================================
+   UNFILTERED LOGS
+   SHARED PUBLIC FOOTER
+   ========================================================== */
+
+
+.unfiltered-site-footer {
+  flex: 0 0 auto;
+
+  margin-top: auto;
+
+  border-top:
+    1px solid
+    #7c8da3;
+
+  background:
+    linear-gradient(
+      #334c6d,
+      #223752
+    );
+
+  color:
+    #cbd6e4;
+
+  font-family:
+    Verdana,
+    Tahoma,
+    Arial,
+    sans-serif;
+}
+
+
+.unfiltered-site-footer-inner {
+  min-height:
+    72px;
+
+  display: flex;
+  align-items: center;
+  justify-content:
+    space-between;
+
+  gap:
+    18px;
+}
+
+
+.unfiltered-site-footer-brand {
+  display: flex;
+  flex-direction: column;
+
+  gap:
+    3px;
+}
+
+
+.unfiltered-site-footer
+.roffle-logo {
+  width: auto;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap:
+    10px;
+
+  color:
+    #fff;
+
+  text-decoration:
+    none;
+}
+
+
+.unfiltered-site-footer
+.site-logo {
+  width:
+    36px;
+
+  height:
+    36px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    1px solid
+    #173662;
+
+  border-radius:
+    2px;
+
+  background:
+    linear-gradient(
+      #5d86c3,
+      #345b96
+    );
+
+  color:
+    #fff;
+
+  font-size:
+    13px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    -.08em;
+
+  text-shadow:
+    0 1px 1px
+    rgba(
+      0,
+      0,
+      0,
+      .35
+    );
+}
+
+
+.unfiltered-site-footer
+.site-wordmark {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.unfiltered-site-footer
+.logo-word {
+  color:
+    #fff;
+
+  font-size:
+    15px;
+
+  font-weight:
+    900;
+
+  line-height:
+    1;
+
+  letter-spacing:
+    -.035em;
+}
+
+
+.unfiltered-site-footer
+.site-wordmark small {
+  margin-top:
+    3px;
+
+  color:
+    #aebdd0;
+
+  font-size:
+    7px;
+
+  font-weight:
+    400;
+}
+
+
+.unfiltered-site-footer-tagline {
+  color:
+    #aebdd0;
+
+  font-size:
+    8px;
+}
+
+
+.unfiltered-site-footer nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap:
+    12px;
+}
+
+
+.unfiltered-site-footer nav a {
+  color:
+    #d7e3f1;
+
+  font-size:
+    8px;
+
+  font-weight:
+    700;
+
+  text-decoration:
+    none;
+}
+
+
+.unfiltered-site-footer nav a:hover {
+  color:
+    #fff;
+
+  text-decoration:
+    underline;
+}
+
+
+@media (
+  max-width:
+    620px
+) {
+  .unfiltered-site-footer-inner {
+    min-height:
+      82px;
+
+    padding:
+      9px 0;
+
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+
+    gap:
+      8px;
+  }
+
+
+  .unfiltered-site-footer
+  .site-wordmark small {
+    display:
+      none;
+  }
+
+
+  .unfiltered-site-footer-tagline {
+    display:
+      none;
+  }
+}

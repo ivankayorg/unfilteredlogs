@@ -1,6 +1,6 @@
 /* ==========================================================
    FORUM 001
-   ROFFLE FORUM TYPES
+   UNFILTERED LOGS FORUM TYPES
    Separate from main-feed posts/comments
    ========================================================== */
 

@@ -6,7 +6,7 @@ const supabasePublishableKey = import.meta.env
 
 if (!supabaseUrl || !supabasePublishableKey) {
   throw new Error(
-    "ROFFLE Supabase configuration is missing. Copy .env.example to .env.local and set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."
+    "UNFILTERED LOGS Supabase configuration is missing. Copy .env.example to .env.local and set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."
   );
 }
 

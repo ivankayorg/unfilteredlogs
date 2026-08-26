@@ -17,7 +17,7 @@ import type {
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    POSTS SERVICE
    ========================================================== */
 
@@ -129,7 +129,7 @@ async function uploadPostImage(
     )
   ) {
     throw new Error(
-      "ROFFLE currently accepts JPG, PNG, WEBP, and GIF images."
+      "UNFILTERED LOGS currently accepts JPG, PNG, WEBP, and GIF images."
     );
   }
 
@@ -276,7 +276,7 @@ async function attachTaxonomy(
     categoriesResult.error
   ) {
     console.warn(
-      "ROFFLE CATEGORY LOAD ERROR:",
+      "UNFILTERED LOGS CATEGORY LOAD ERROR:",
       categoriesResult.error
     );
   }
@@ -285,7 +285,7 @@ async function attachTaxonomy(
     postTagsResult.error
   ) {
     console.warn(
-      "ROFFLE TAG LINK LOAD ERROR:",
+      "UNFILTERED LOGS TAG LINK LOAD ERROR:",
       postTagsResult.error
     );
   }
@@ -355,7 +355,7 @@ async function attachTaxonomy(
 
   if (tagsError) {
     console.warn(
-      "ROFFLE TAG LOAD ERROR:",
+      "UNFILTERED LOGS TAG LOAD ERROR:",
       tagsError
     );
   }
@@ -520,7 +520,7 @@ async function attachProfiles(
 
   if (profileError) {
     console.warn(
-      "ROFFLE PROFILE LOAD ERROR:",
+      "UNFILTERED LOGS PROFILE LOAD ERROR:",
       profileError
     );
   }
@@ -984,7 +984,7 @@ export async function getFeedPosts() {
 
   if (error) {
     console.error(
-      "ROFFLE POSTS QUERY ERROR:",
+      "UNFILTERED LOGS POSTS QUERY ERROR:",
       {
         message:
           error.message,
@@ -1034,6 +1034,67 @@ export async function getFeedPosts() {
   );
 }
 
+
+
+/* ==========================================================
+   READ ONE POST
+   ========================================================== */
+
+
+export async function getPostById(
+  postId: string,
+): Promise<PostRecord | null> {
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from("posts")
+      .select("*")
+      .eq(
+        "id",
+        postId
+      )
+      .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  const profiledRecords =
+    await attachProfiles([
+      data as Record<string, any>,
+    ]);
+
+  const attachedRecords =
+    await attachTaxonomy(
+      profiledRecords
+    );
+
+  const visibleRecords =
+    attachedRecords.filter(
+      (post) =>
+        post.moderation_status !==
+        "rejected"
+    );
+
+  if (
+    visibleRecords.length === 0
+  ) {
+    return null;
+  }
+
+  const engaged =
+    await attachPostEngagement(
+      visibleRecords
+    );
+
+  return engaged[0] ?? null;
+}
 
 
 /* ==========================================================
@@ -1295,7 +1356,7 @@ export async function updatePost(
 
   if (!updated) {
     throw new Error(
-      "The post was updated, but ROFFLE could not reload it."
+      "The post was updated, but UNFILTERED LOGS could not reload it."
     );
   }
 

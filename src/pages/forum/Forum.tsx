@@ -28,6 +28,7 @@ import {
 } from "../../lib/supabase";
 
 import SiteHeader from "../../components/layout/SiteHeader";
+import SiteFooter from "../../components/layout/SiteFooter";
 import GiphyPicker from "../../components/posts/GiphyPicker";
 import QuickPostDialog from "../../components/posts/QuickPostDialog";
 
@@ -106,7 +107,7 @@ function authorLabel(
       ?.username ||
     item.author
       ?.display_name ||
-    "ROFFLE User"
+    "UNFILTERED LOGS User"
   );
 }
 
@@ -381,7 +382,7 @@ function ForumHome({
               nextError
                 instanceof Error
                 ? nextError.message
-                : "ROFFLE Forums could not load."
+                : "UNFILTERED LOGS Forums could not load."
             );
           }
         }
@@ -430,7 +431,7 @@ function ForumHome({
       <section className="forum-hero">
         <div>
           <span className="forum-kicker">
-            ROFFLE FORUMS
+            UNFILTERED LOGS FORUMS
           </span>
 
           <h1>
@@ -985,7 +986,7 @@ function NewThreadPage({
         </h1>
 
         <p>
-          Reading is public. Posting requires a ROFFLE account.
+          Reading is public. Posting requires a UNFILTERED LOGS account.
         </p>
 
         <a
@@ -1056,7 +1057,7 @@ function NewThreadPage({
           nextError
             instanceof Error
             ? nextError.message
-            : "ROFFLE could not create the thread."
+            : "UNFILTERED LOGS could not create the thread."
         );
 
         setSaving(
@@ -2239,7 +2240,7 @@ export default function Forum() {
 
         <main className="forum-shell">
           <div className="forum-loading">
-            Loading ROFFLE Forums...
+            Loading UNFILTERED LOGS Forums...
           </div>
         </main>
       </div>
@@ -2361,17 +2362,7 @@ export default function Forum() {
         }}
       />
 
-      <footer className="forum-footer">
-        <div>
-          <span>
-            ROFFLE Forums
-          </span>
-
-          <a href="/">
-            Back to Home
-          </a>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

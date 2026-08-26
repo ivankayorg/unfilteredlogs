@@ -2,7 +2,7 @@ import { supabase } from "../lib/supabase";
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    PASSWORD AUTH SERVICE
    ========================================================== */
 

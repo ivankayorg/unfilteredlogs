@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 75% 5%, rgba(255, 90, 31, 0.16), transparent 31rem),
+    radial-gradient(circle at 75% 5%, rgba(59, 92, 204, 0.16), transparent 31rem),
     radial-gradient(circle at 15% 90%, rgba(255, 255, 255, 0.045), transparent 26rem),
     #0d0d0e;
   color: #fff;
@@ -39,7 +39,7 @@
   display: grid;
   place-items: center;
   border-radius: 10px;
-  background: #ff5a1f;
+  background: #3b5ccc;
   color: #fff;
   transform: rotate(-4deg);
 }
@@ -47,7 +47,7 @@
 .prototype-heading > span {
   display: block;
   margin-bottom: 11px;
-  color: #ff6a35;
+  color: #5574e8;
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.18em;
@@ -97,13 +97,13 @@
 }
 
 .prototype-option-primary {
-  border-color: rgba(255, 90, 31, 0.38);
-  background: rgba(255, 90, 31, 0.085);
+  border-color: rgba(59, 92, 204, 0.38);
+  background: rgba(59, 92, 204, 0.085);
 }
 
 .prototype-option-primary:hover {
-  border-color: #ff5a1f;
-  background: rgba(255, 90, 31, 0.13);
+  border-color: #3b5ccc;
+  background: rgba(59, 92, 204, 0.13);
 }
 
 .prototype-index {
@@ -113,7 +113,7 @@
 }
 
 .prototype-option-primary .prototype-index {
-  color: #ff6a35;
+  color: #5574e8;
 }
 
 .prototype-option div {

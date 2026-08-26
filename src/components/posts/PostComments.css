@@ -1,12 +1,12 @@
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    INLINE COMMENTS
    ========================================================== */
 
 
 .post-comments {
   margin:
-    0 18px 14px;
+    9px 18px 14px;
 
   overflow: hidden;
 
@@ -15,7 +15,7 @@
     var(--border);
 
   border-radius:
-    12px;
+    0;
 
   background:
     #fafaf8;
@@ -36,7 +36,11 @@
     1px solid
     var(--border);
 
-  background: #fff;
+  background:
+    linear-gradient(
+      #edf2f7,
+      #dbe4ef
+    );
 }
 
 
@@ -59,7 +63,7 @@
     3px 6px;
 
   border-radius:
-    999px;
+    0;
 
   background:
     var(--accent-soft);
@@ -117,7 +121,7 @@
   display: grid;
   place-items: center;
 
-  border-radius: 9px;
+  border-radius: 0;
 
   background: #222;
 
@@ -176,7 +180,7 @@
     1px solid
     transparent;
 
-  border-radius: 7px;
+  border-radius: 0;
 
   background:
     transparent;
@@ -190,7 +194,7 @@
     #ead9d4;
 
   background:
-    #fff2ef;
+    #f1f4ff;
 
   color:
     #a83e2b;
@@ -225,10 +229,10 @@
       0.18
     );
 
-  border-radius: 8px;
+  border-radius: 0;
 
   background:
-    #fff3ef;
+    #f3f5ff;
 
   color:
     #a83e2b;
@@ -263,7 +267,7 @@
     1px solid
     #d9d9d4;
 
-  border-radius: 9px;
+  border-radius: 0;
 
   background: #fff;
 
@@ -330,7 +334,7 @@
     1px solid
     var(--accent);
 
-  border-radius: 8px;
+  border-radius: 0;
 
   background:
     var(--accent);
@@ -408,7 +412,7 @@
 
   gap: 4px;
 
-  border-radius: 7px;
+  border-radius: 0;
 
   background:
     transparent;
@@ -435,7 +439,7 @@
     #ead9d4;
 
   background:
-    #fff2ef;
+    #f1f4ff;
 
   color:
     #a83e2b;
@@ -498,7 +502,7 @@
 
   overflow: hidden;
 
-  border-radius: 9px;
+  border-radius: 0;
 
   background: #111;
 }
@@ -697,4 +701,130 @@
 
   cursor:
     not-allowed;
+}
+
+
+/* ==========================================================
+   PRODUCTION PASS 09
+   OLD-SCHOOL COMMENT SECTION
+   ========================================================== */
+
+.post-comments,
+.post-comments-heading,
+.post-comment,
+.post-comment-avatar,
+.post-comments-heading span,
+.post-comments-error,
+.post-comment-form textarea,
+.post-comment-form button,
+.post-comment-actions button,
+.post-comment-delete,
+.post-comment-report,
+.post-comment-gif {
+  border-radius: 0 !important;
+}
+
+.post-comments {
+  margin-top: 9px;
+  box-shadow: none;
+}
+
+.post-comments-heading {
+  min-height: 30px;
+  padding: 0 9px;
+  background:
+    linear-gradient(
+      #edf2f7,
+      #dbe4ef
+    );
+}
+
+.post-comments-heading strong {
+  color: #354c6c;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .05em;
+}
+
+.post-comments-heading span {
+  min-width: 20px;
+  padding: 1px 4px;
+  background: #637a98;
+  color: #fff;
+  font-size: 7px;
+}
+
+.post-comment {
+  padding: 8px 9px;
+  grid-template-columns:
+    28px
+    minmax(0, 1fr)
+    auto;
+  gap: 8px;
+}
+
+.post-comment:nth-child(even) {
+  background: #f7f9fb;
+}
+
+.post-comment-avatar {
+  width: 28px;
+  height: 28px;
+  background: #536b8a;
+  font-size: 9px;
+}
+
+.post-comment-meta strong {
+  color: #315f9c;
+  font-size: 9px;
+}
+
+.post-comment-copy p {
+  margin-top: 3px;
+  color: #4f5a69;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.post-comment-form {
+  padding: 8px 9px;
+  background: #f4f7fa;
+}
+
+.post-comment-form textarea {
+  min-height: 62px;
+  padding: 7px 8px;
+  border-color: #aeb9c6;
+  font-size: 10px;
+}
+
+.post-comment-form textarea:focus {
+  border-color: #6c88ab;
+  box-shadow: inset 0 0 0 1px #d8e3f0;
+}
+
+.post-comment-form button {
+  min-height: 27px;
+  padding: 0 8px;
+  border-color: #496e9f;
+  background: #496e9f;
+  font-size: 8px;
+}
+
+.post-comment-actions button {
+  min-height: 24px;
+  padding: 0 5px;
+  font-size: 7px;
+}
+
+.post-comment-gif {
+  background: transparent;
+  border: 1px solid #bcc6d1;
+}
+
+@media (max-width: 620px) {
+  .post-comments {
+    margin:
+      8px 12px 12px;
+  }
 }

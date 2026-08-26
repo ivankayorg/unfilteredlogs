@@ -10,7 +10,7 @@ import type {
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    TAXONOMY SERVICE
    ========================================================== */
 
@@ -291,6 +291,32 @@ export async function updateTaxonomyItem(
 
         new_active:
           active,
+      }
+    );
+
+  if (error) {
+    throw error;
+  }
+}
+
+
+export async function deleteTaxonomyItem(
+  kind:
+    "category"
+    | "tag",
+  id: string,
+) {
+  const {
+    error,
+  } =
+    await supabase.rpc(
+      "admin_delete_taxonomy",
+      {
+        item_kind:
+          kind,
+
+        item_id:
+          id,
       }
     );
 

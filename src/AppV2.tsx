@@ -6,7 +6,6 @@ import {
 import { supabase } from "./lib/supabase";
 import {
   BookOpen,
-  MessageCircle,
   Play,
   ChevronRight,
   SlidersHorizontal,
@@ -15,17 +14,13 @@ import {
   EyeOff,
   Flame,
   Hash,
-  Image as ImageIcon,
-  Video,
-  Heart,
   Pencil,
   Pin,
   Trash2,
 } from "lucide-react";
 
-import SiteHeader, {
-  RoffleLogo,
-} from "./components/layout/SiteHeader";
+import SiteHeader from "./components/layout/SiteHeader";
+import SiteFooter from "./components/layout/SiteFooter";
 import QuickPostDialog from "./components/posts/QuickPostDialog";
 import EditPostDialog from "./components/posts/EditPostDialog";
 import PostComments from "./components/posts/PostComments";
@@ -46,6 +41,29 @@ import {
 import {
   getMyAccess,
 } from "./services/admin";
+
+import {
+  getShoutboxMessages,
+  postShoutboxMessage,
+  subscribeToShoutbox,
+  type ShoutboxMessage,
+} from "./services/shoutbox";
+
+import {
+  getRecentComments,
+  subscribeToOnlineUsers,
+  subscribeToRecentComments,
+  type OnlineUser,
+  type RecentCommentItem,
+} from "./services/communitySidebar";
+
+import {
+  DEFAULT_SIDEBAR_ORDER,
+  DEFAULT_WELCOME_BODY,
+  DEFAULT_WELCOME_NOTE,
+  getSidebarSettings,
+  type SidebarModuleKey,
+} from "./services/sidebarLayout";
 
 import {
   getActiveTaxonomy,
@@ -176,7 +194,7 @@ function formatPostDate(
 function getTextPostBackground(
   postId: string,
 ) {
-  return `https://picsum.photos/seed/roffle-${postId}/1200/800`;
+  return `https://picsum.photos/seed/unfilteredlogs-${postId}/1200/800`;
 }
 
 
@@ -186,14 +204,14 @@ function mapPostRecord(
   const author =
     post.profiles
       ?.display_name ??
-    "ROFFLE User";
+    "UNFILTERED LOGS User";
 
   const avatar =
     author
       .trim()
       .charAt(0)
       .toUpperCase() ||
-    "R";
+    "U";
 
   if (
     post.post_type ===
@@ -497,181 +515,296 @@ function mapPostRecord(
 }
 
 
-function MediaStage({
-  post,
-}: {
-  post: Post;
-}) {
+function getPostTypeLabel(post: Post) {
+  if (post.type === "short") return "SHORT";
+  if (post.type === "video") return "VIDEO";
+  if (post.type === "image" || post.type === "gallery") return "IMAGE";
+  if (post.type === "link") return "LINK";
+  return "TEXT";
+}
+
+function MediaStage({ post }: { post: Post }) {
   if (post.type === "short") {
-    const hasRealVideo =
-      post.youtubeId &&
-      post.youtubeId !== "YOUR_SHORT_ID";
-
-    return (
+    return post.youtubeId ? (
       <div className="short-stage">
-        <div className="short-ambient">
-          <img
-            src={post.image}
-            alt=""
-          />
-        </div>
-
-        <div className="short-frame">
-          {hasRealVideo ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${post.youtubeId}?rel=0&modestbranding=1`}
-              title={post.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
-          ) : (
-            <div className="short-placeholder">
-              <img
-                src={post.image}
-                alt={post.title}
-              />
-
-              <div className="short-shade" />
-
-              <button
-                className="big-play"
-                aria-label="Play video"
-              >
-                <Play
-                  size={29}
-                  fill="currentColor"
-                />
-              </button>
-
-              <div className="short-label">
-                <Video size={15} />
-                YouTube Short
-              </div>
-            </div>
-          )}
-        </div>
+        <iframe
+          src={`https://www.youtube.com/embed/${post.youtubeId}?rel=0&modestbranding=1`}
+          title={post.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
       </div>
+    ) : (
+      <div className="media-unavailable">Video unavailable</div>
     );
   }
 
-  if (
-    post.type ===
-    "video"
-  ) {
-    return (
+  if (post.type === "video") {
+    return post.youtubeId ? (
       <div className="video-stage">
-        {post.youtubeId ? (
-          <iframe
-            src={`https://www.youtube.com/embed/${post.youtubeId}?rel=0&modestbranding=1`}
-            title={post.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
-        ) : (
-          <div className="video-stage-empty">
-            Video unavailable
-          </div>
-        )}
+        <iframe
+          src={`https://www.youtube.com/embed/${post.youtubeId}?rel=0&modestbranding=1`}
+          title={post.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
       </div>
+    ) : (
+      <div className="media-unavailable">Video unavailable</div>
     );
   }
 
-
-  if (
-    post.type === "image" ||
-    post.type === "gallery"
-  ) {
+  if (post.type === "image" || post.type === "gallery") {
     return (
       <div className="photo-stage">
-        <img
-          src={post.image}
-          alt={post.title}
-        />
-
-        {post.type === "gallery" && (
-          <div className="photo-count">
-            <ImageIcon size={15} />
-            3 photos
-          </div>
-        )}
+        {post.image ? <img src={post.image} alt={post.title} /> : null}
       </div>
     );
   }
 
   if (post.type === "link") {
     return (
-      <a
-        className="link-card"
-        href="#external"
-      >
-        <div className="link-image">
-          <img
-            src={post.image}
-            alt=""
-          />
-
-          <span className="external-badge">
-            <ExternalLink size={15} />
-          </span>
-        </div>
+      <a className="link-card" href="#external">
+        {post.image && (
+          <div className="link-image">
+            <img src={post.image} alt="" />
+            <span className="external-badge">
+              <ExternalLink size={15} />
+            </span>
+          </div>
+        )}
 
         <div className="link-copy">
-          <span className="link-source">
-            {post.source}
-          </span>
-
-          <h3>{post.title}</h3>
-
-          <p>
-            {post.description}
-          </p>
-
+          <span className="link-source">{post.source}</span>
+          <strong>{post.title}</strong>
+          {post.description && <p>{post.description}</p>}
           <span className="visit-link">
-            Visit link
-            <ChevronRight size={15} />
+            Visit link <ChevronRight size={15} />
           </span>
         </div>
       </a>
     );
   }
 
-  if (
-    post.type ===
-    "text"
-  ) {
-    return (
-      <div
-        className="text-magazine-stage"
-        style={{
-          backgroundImage:
-            post.image
-              ? `url(${post.image})`
-              : undefined,
-        }}
-      >
-        <div className="text-magazine-overlay" />
+  return null;
+}
 
-        <div className="text-magazine-copy">
+function FrontPageCard({
+  post,
+  session,
+  onToggleLike,
+  onEdit,
+  onDelete,
+  onToggleFrontPagePin,
+  onToggleFrontPageVisibility,
+  isStaff,
+  isAdmin,
+  singlePinned,
+}: {
+  post: Post;
+  session: Session | null;
+  onToggleLike: (post: Post) => void;
+  onEdit: (post: Post) => void;
+  onDelete: (post: Post) => void;
+  onToggleFrontPagePin: (post: Post) => void;
+  onToggleFrontPageVisibility: (post: Post) => void;
+  isStaff: boolean;
+  isAdmin: boolean;
+  singlePinned: boolean;
+}) {
+  const [playing, setPlaying] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const isOwner = session?.user.id === post.userId;
+  const canEdit = Boolean(isOwner || isAdmin);
+  const canDelete = Boolean(isOwner || isStaff);
+  const isVideo = post.type === "video" || post.type === "short";
+  const mediaUrl = post.gifUrl ?? (post.type === "text" ? undefined : post.image);
+  const singlePinnedVideo =
+    singlePinned &&
+    isVideo &&
+    Boolean(post.youtubeId);
+
+  return (
+    <article
+      className={
+        singlePinnedVideo
+          ? "featured-post single-pinned-video"
+          : "featured-post"
+      }
+      id={`featured-${post.id}`}
+    >
+      <div className="featured-preview">
+        {singlePinnedVideo ? (
+          <a
+            className="featured-video-teaser"
+            href={`/posts/${post.id}`}
+            aria-label={`Open ${post.title}`}
+          >
+            {mediaUrl ? (
+              <img
+                src={mediaUrl}
+                alt=""
+              />
+            ) : (
+              <span>
+                VIDEO
+              </span>
+            )}
+
+            <span className="featured-video-teaser-play">
+              ▶
+            </span>
+          </a>
+        ) : playing && isVideo && post.youtubeId ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${post.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+            title={post.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        ) : mediaUrl ? (
+          <img src={mediaUrl} alt={post.title} />
+        ) : (
+          <div className="featured-text-preview">
+            <span>“</span>
+            <p>{post.description ?? post.title}</p>
+          </div>
+        )}
+
+        <span className={`type-badge type-${post.type === "short" ? "video" : post.type}`}>
+          {post.gifUrl ? "GIF" : getPostTypeLabel(post)}
+        </span>
+
+        {!singlePinnedVideo && !playing && isVideo && post.youtubeId && (
+          <button
+            className="small-play"
+            type="button"
+            aria-label={`Play ${post.title}`}
+            onClick={() => setPlaying(true)}
+          >
+            ▶
+          </button>
+        )}
+
+        {!singlePinnedVideo && playing && (
+          <button
+            className="featured-close-video"
+            type="button"
+            onClick={() => setPlaying(false)}
+          >
+            Close
+          </button>
+        )}
+
+        {(canEdit || canDelete || isAdmin) && (
+          <div className="featured-menu-wrap">
+            <button
+              className="featured-menu-button"
+              type="button"
+              aria-label="Featured post menu"
+              onClick={() => setMenuOpen((current) => !current)}
+            >
+              •••
+            </button>
+
+            {menuOpen && (
+              <div className="post-menu-dropdown featured-menu-dropdown">
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onEdit(post);
+                    }}
+                  >
+                    <Pencil size={13} /> Edit
+                  </button>
+                )}
+
+                {isAdmin && post.moderationStatus === "approved" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onToggleFrontPageVisibility(post);
+                    }}
+                  >
+                    <EyeOff size={13} />
+                    {post.frontPageVisible ? "Hide from front page" : "Show on front page"}
+                  </button>
+                )}
+
+                {isAdmin && post.moderationStatus === "approved" && post.frontPageVisible && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onToggleFrontPagePin(post);
+                    }}
+                  >
+                    <Pin size={13} /> Remove from front page
+                  </button>
+                )}
+
+                {canDelete && (
+                  <button
+                    className="danger"
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onDelete(post);
+                    }}
+                  >
+                    <Trash2 size={13} /> Delete
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="featured-info">
+        <a className="featured-title" href={`/posts/${post.id}`}>
+          {post.title}
+        </a>
+
+        {singlePinnedVideo && (
+          <p className="featured-context">
+            {post.description?.trim() ||
+              "Open the post to watch the full video and join the discussion."}
+          </p>
+        )}
+
+        <div className="featured-meta">
           <span>
-            TEXT POST
+            by <a href="#author">{post.author}</a>
           </span>
+          <span>{post.published}</span>
+        </div>
 
-          <strong>
-            {post.title}
-          </strong>
+        <div className="featured-stats">
+          <button
+            className={post.likedByMe ? "mini-action liked" : "mini-action"}
+            type="button"
+            onClick={() => onToggleLike(post)}
+          >
+            ♥ {post.likes}
+          </button>
 
-          {post.description && (
-            <p>
-              {post.description}
-            </p>
-          )}
+          <a
+            className="mini-action"
+            href={`/posts/${post.id}`}
+            aria-label={`Open ${post.comments} comments on ${post.title}`}
+          >
+            💬 {post.comments}
+          </a>
         </div>
       </div>
-    );
-  }
 
-
-  return null;
+    </article>
+  );
 }
 
 function PostCard({
@@ -685,441 +818,237 @@ function PostCard({
   onToggleFrontPageVisibility,
   isStaff,
   isAdmin,
-  featured = false,
 }: {
   post: Post;
-
-  session:
-    Session | null;
-
-  onToggleLike: (
-    post: Post,
-  ) => void;
-
-  onCommentCountChanged: (
-    postId: string,
-    count: number,
-  ) => void;
-
-  onEdit: (
-    post: Post,
-  ) => void;
-
-  onDelete: (
-    post: Post,
-  ) => void;
-
-  onToggleFrontPagePin: (
-    post: Post,
-  ) => void;
-
-  onToggleFrontPageVisibility: (
-    post: Post,
-  ) => void;
-
+  session: Session | null;
+  onToggleLike: (post: Post) => void;
+  onCommentCountChanged: (postId: string, count: number) => void;
+  onEdit: (post: Post) => void;
+  onDelete: (post: Post) => void;
+  onToggleFrontPagePin: (post: Post) => void;
+  onToggleFrontPageVisibility: (post: Post) => void;
   isStaff: boolean;
-
   isAdmin: boolean;
-
-  featured?: boolean;
 }) {
-  const [
-    commentsOpen,
-    setCommentsOpen,
-  ] =
-    useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const [
-    menuOpen,
-    setMenuOpen,
-  ] =
-    useState(false);
+  const isOwner = session?.user.id === post.userId;
+  const canEdit = Boolean(isOwner || isAdmin);
+  const canDelete = Boolean(isOwner || isStaff);
 
-  const isOwner =
-    session?.user.id ===
-    post.userId;
+  const sharePost = async () => {
+    const url = `${window.location.origin}/posts/${post.id}`;
 
-  const canEdit =
-    Boolean(
-      isOwner
-    );
-
-  const canDelete =
-    Boolean(
-      isOwner ||
-      isStaff
-    );
-
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: post.title, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch {
+      // Sharing is optional. Closing the native share sheet is not an error state.
+    }
+  };
 
   return (
-    <article
-      className={`post-card magazine-card magazine-card-${post.displaySize} ${
-        featured
-          ? "front-page-pinned-card"
-          : ""
-      }`}
-      id={`post-${post.id}`}
-    >
-      <header className="post-header">
-        <div className="post-header-top">
-          <div className="post-badge-group">
-            <span className="content-badge">
-              {post.tag}
+    <article className="blog-post" id={`post-${post.id}`}>
+      <div className="post-titlebar">
+        <div className="post-titlewrap">
+          <div className="post-title-badges">
+            <span className={`type-badge type-${post.type === "short" ? "video" : post.type}`}>
+              {getPostTypeLabel(post)}
             </span>
 
             {post.frontPagePinned && (
-              <span className="front-page-pin-badge">
-                <Pin
-                  size={10}
-                />
-
-                Front page
+              <span className="status-badge front-page-status">
+                <Pin size={10} /> FRONT PAGE
               </span>
             )}
 
-            {isAdmin &&
-              !post.frontPageVisible && (
-              <span className="front-page-pin-badge">
-                <EyeOff
-                  size={10}
-                />
-
-                Front page hidden
-              </span>
+            {post.moderationStatus === "pending" && (
+              <span className="status-badge pending-status">PENDING</span>
             )}
 
-            {post.moderationStatus ===
-              "pending" && (
-              <span className="moderation-badge pending">
-                Pending approval
-              </span>
-            )}
-
-            {post.moderationStatus ===
-              "rejected" && (
-              <span className="moderation-badge rejected">
-                Rejected
-              </span>
+            {post.moderationStatus === "rejected" && (
+              <span className="status-badge rejected-status">REJECTED</span>
             )}
           </div>
 
-          {(canEdit ||
-            canDelete ||
-            isAdmin) && (
-            <div className="post-menu-wrap">
-              <button
-                className="post-menu"
-                type="button"
-                aria-label="Post menu"
-                aria-expanded={
-                  menuOpen
-                }
-                onClick={() => {
-                  setMenuOpen(
-                    (
-                      current
-                    ) =>
-                      !current
-                  );
-                }}
-              >
-                •••
-              </button>
-
-              {menuOpen && (
-                <div className="post-menu-dropdown">
-                  {canEdit && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpen(
-                          false
-                        );
-
-                        onEdit(
-                          post
-                        );
-                      }}
-                    >
-                      <Pencil
-                        size={13}
-                      />
-
-                      Edit
-                    </button>
-                  )}
-
-                  {isAdmin &&
-                    post.moderationStatus ===
-                      "approved" && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpen(
-                          false
-                        );
-
-                        onToggleFrontPageVisibility(
-                          post
-                        );
-                      }}
-                    >
-                      <EyeOff
-                        size={13}
-                      />
-
-                      {post.frontPageVisible
-                        ? "Hide from front page"
-                        : "Show on front page"}
-                    </button>
-                  )}
-
-                  {isAdmin &&
-                    post.moderationStatus ===
-                      "approved" &&
-                    post.frontPageVisible && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpen(
-                          false
-                        );
-
-                        onToggleFrontPagePin(
-                          post
-                        );
-                      }}
-                    >
-                      <Pin
-                        size={13}
-                      />
-
-                      {post.frontPagePinned
-                        ? "Unpin from front page"
-                        : "Pin to front page"}
-                    </button>
-                  )}
-
-                  {canDelete && (
-                    <button
-                      className="danger"
-                      type="button"
-                      onClick={() => {
-                        setMenuOpen(
-                          false
-                        );
-
-                        onDelete(
-                          post
-                        );
-                      }}
-                    >
-                      <Trash2
-                        size={13}
-                      />
-
-                      Delete
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+          <a className="post-title" href={`/posts/${post.id}`}>
+            {post.title}
+          </a>
         </div>
 
-        <a
-          className="post-title"
-          href={`#post-${post.id}`}
-        >
-          {post.title}
-        </a>
+        {(canEdit || canDelete || isAdmin) && (
+          <div className="post-menu-wrap">
+            <button
+              className="post-menu"
+              type="button"
+              aria-label="Post menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((current) => !current)}
+            >
+              •••
+            </button>
 
-        {post.articleTags.length >
-          0 && (
-          <div className="post-article-tags">
-            {post.articleTags.map(
-              (
-                articleTag
-              ) => (
-                <span
-                  key={
-                    articleTag.id
-                  }
-                >
-                  #
-                  {articleTag.name}
-                </span>
-              )
+            {menuOpen && (
+              <div className="post-menu-dropdown">
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onEdit(post);
+                    }}
+                  >
+                    <Pencil size={13} /> Edit
+                  </button>
+                )}
+
+                {isAdmin && post.moderationStatus === "approved" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onToggleFrontPageVisibility(post);
+                    }}
+                  >
+                    <EyeOff size={13} />
+                    {post.frontPageVisible ? "Hide from front page" : "Show on front page"}
+                  </button>
+                )}
+
+                {isAdmin && post.moderationStatus === "approved" && post.frontPageVisible && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onToggleFrontPagePin(post);
+                    }}
+                  >
+                    <Pin size={13} />
+                    {post.frontPagePinned ? "Remove from front page" : "Post to front page"}
+                  </button>
+                )}
+
+                {canDelete && (
+                  <button
+                    className="danger"
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onDelete(post);
+                    }}
+                  >
+                    <Trash2 size={13} /> Delete
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}
-
-        <div className="post-meta-row">
-          <div className="avatar">
-            {post.avatar}
-          </div>
-
-          <div className="author-inline">
-            <a href="#author">
-              {post.author}
-            </a>
-
-            <span className="meta-dot">
-              •
-            </span>
-
-            <span>
-              {post.published}
-            </span>
-          </div>
-
-          <div className="post-metrics">
-            <span>
-              <Heart size={15} />
-              {post.likes}
-            </span>
-
-            <span>
-              <MessageCircle size={15} />
-              {post.comments}
-            </span>
-          </div>
-        </div>
-      </header>
-
-      <div className="post-media">
-        <MediaStage post={post} />
       </div>
 
+      <div className="post-byline">
+        <span className="mini-avatar">{post.avatar}</span>
+        <span>
+          posted by <a href="#author">{post.author}</a>
+          <em> · {post.published}</em>
+        </span>
+        <a className="permalink" href={`/posts/${post.id}`}>
+          permalink
+        </a>
+      </div>
+
+      {post.type !== "text" && (
+        <div className="post-media">
+          <MediaStage post={post} />
+        </div>
+      )}
+
+      {post.description && <p className="post-body">{post.description}</p>}
 
       {post.gifUrl && (
         <div className="post-gif-attachment">
-          <img
-            src={
-              post.gifUrl
-            }
-            alt="Attached reaction GIF"
-            loading="lazy"
-          />
+          <img src={post.gifUrl} alt="Attached reaction GIF" loading="lazy" />
+          <span>GIF</span>
+        </div>
+      )}
 
-          <span>
-            GIF
-          </span>
+      {(post.tag || post.articleTags.length > 0) && (
+        <div className="tag-row">
+          <span>Filed under:</span>
+          {post.tag && <button type="button">{post.tag}</button>}
+          {post.articleTags.map((articleTag) => (
+            <button type="button" key={articleTag.id}>
+              #{articleTag.name}
+            </button>
+          ))}
         </div>
       )}
 
       <footer className="post-footer">
         <button
-          className={
-            post.likedByMe
-              ? "reaction liked"
-              : "reaction"
-          }
+          className={post.likedByMe ? "post-action reacted" : "post-action"}
           type="button"
-          onClick={() => {
-            onToggleLike(
-              post
-            );
-          }}
+          onClick={() => onToggleLike(post)}
         >
-          😂
-          <span>
-            Roffle
-          </span>
-
-          {post.likes >
-            0 && (
-            <strong>
-              {post.likes}
-            </strong>
-          )}
+          {post.likedByMe ? "♥" : "♡"} {post.likes}
         </button>
 
         <button
-          className={
-            commentsOpen
-              ? "comment-link active"
-              : "comment-link"
-          }
+          className={commentsOpen ? "post-action active" : "post-action"}
           type="button"
-          onClick={() => {
-            setCommentsOpen(
-              (
-                current
-              ) =>
-                !current
-            );
-          }}
+          onClick={() => setCommentsOpen((current) => !current)}
         >
-          <MessageCircle size={16} />
-
-          {post.comments === 1
-            ? "1 comment"
-            : `${post.comments} comments`}
+          💬 {post.comments === 1 ? "1 comment" : `${post.comments} comments`}
         </button>
 
-        <a
-          className="open-post"
-          href={`#post-${post.id}`}
-        >
-          Open post
-          <ChevronRight size={17} />
-        </a>
+        <button className="post-action" type="button" onClick={() => void sharePost()}>
+          ↗ Share
+        </button>
       </footer>
 
       {commentsOpen && (
-        <PostComments
-          postId={
-            String(
-              post.id
-            )
-          }
-          session={
-            session
-          }
-          onCountChanged={
-            (
-              count
-            ) => {
-              onCommentCountChanged(
-                String(
-                  post.id
-                ),
-                count
-              );
-            }
-          }
-          isStaff={
-            isStaff
-          }
-        />
+        <div className="classic-comments-shell">
+          <PostComments
+            postId={String(post.id)}
+            session={session}
+            onCountChanged={(count) => onCommentCountChanged(String(post.id), count)}
+            isStaff={isStaff}
+          />
+        </div>
       )}
     </article>
   );
 }
 
-
 function RailModule({
   title,
   icon,
   children,
+  order,
 }: {
   title: string;
   icon?: ReactNode;
   children: ReactNode;
+  order?: number;
 }) {
   return (
-    <section className="rail-module">
-      <header className="rail-heading">
-        <div>
-          {icon}
-          <h3>{title}</h3>
-        </div>
-      </header>
-
-      <div className="rail-body">
-        {children}
+    <section
+      className="side-box rail-module"
+      style={
+        order === undefined
+          ? undefined
+          : { order }
+      }
+    >
+      <div className="side-title rail-heading">
+        <span className="side-title-icon">{icon}</span>
+        <span>{title}</span>
       </div>
+      <div className="side-content rail-body">{children}</div>
     </section>
   );
 }
@@ -1127,6 +1056,13 @@ function RailModule({
 function App() {
   const [filterOpen, setFilterOpen] =
     useState(false);
+
+  const [searchQuery, setSearchQuery] =
+    useState(() =>
+      new URLSearchParams(
+        window.location.search
+      ).get("q") ?? ""
+    );
 
   const [
     timeFilter,
@@ -1177,6 +1113,38 @@ function App() {
     setCategoriesExpanded,
   ] =
     useState(false);
+
+  const [
+    filterTagsExpanded,
+    setFilterTagsExpanded,
+  ] =
+    useState(false);
+
+  const [
+    sidebarOrder,
+    setSidebarOrder,
+  ] =
+    useState<SidebarModuleKey[]>(
+      [
+        ...DEFAULT_SIDEBAR_ORDER,
+      ]
+    );
+
+  const [
+    welcomeBody,
+    setWelcomeBody,
+  ] =
+    useState(
+      DEFAULT_WELCOME_BODY
+    );
+
+  const [
+    welcomeNote,
+    setWelcomeNote,
+  ] =
+    useState(
+      DEFAULT_WELCOME_NOTE
+    );
 
   const [
     currentPage,
@@ -1240,6 +1208,43 @@ function App() {
       null
     );
 
+  const [
+    shoutboxMessages,
+    setShoutboxMessages,
+  ] =
+    useState<ShoutboxMessage[]>(
+      []
+    );
+
+  const [
+    shoutboxInput,
+    setShoutboxInput,
+  ] =
+    useState("");
+
+  const [
+    shoutboxPosting,
+    setShoutboxPosting,
+  ] =
+    useState(false);
+
+
+  const [
+    onlineUsers,
+    setOnlineUsers,
+  ] =
+    useState<OnlineUser[]>(
+      []
+    );
+
+  const [
+    recentComments,
+    setRecentComments,
+  ] =
+    useState<RecentCommentItem[]>(
+      []
+    );
+
 
   useEffect(() => {
     let mounted = true;
@@ -1282,6 +1287,138 @@ function App() {
       subscription.unsubscribe();
     };
   }, []);
+
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadRecentComments =
+      async () => {
+        try {
+          const comments =
+            await getRecentComments();
+
+          if (mounted) {
+            setRecentComments(
+              comments
+            );
+          }
+        } catch (error) {
+          console.warn(
+            "UNFILTERED LOGS RECENT COMMENTS ERROR:",
+            error
+          );
+        }
+      };
+
+    void loadRecentComments();
+
+    const unsubscribe =
+      subscribeToRecentComments(
+        () => {
+          void loadRecentComments();
+        }
+      );
+
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
+  }, []);
+
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadShoutbox =
+      async () => {
+        try {
+          const messages =
+            await getShoutboxMessages();
+
+          if (mounted) {
+            setShoutboxMessages(
+              messages
+            );
+          }
+        } catch (error) {
+          console.warn(
+            "UNFILTERED LOGS SHOUTBOX LOAD ERROR:",
+            error
+          );
+        }
+      };
+
+    void loadShoutbox();
+
+    const unsubscribe =
+      subscribeToShoutbox(
+        () => {
+          void loadShoutbox();
+        }
+      );
+
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
+  }, []);
+
+
+  useEffect(() => {
+    let mounted = true;
+    let cleanup:
+      (() => void) |
+      null =
+        null;
+
+    void subscribeToOnlineUsers(
+      session,
+      (
+        users
+      ) => {
+        if (mounted) {
+          setOnlineUsers(
+            users
+          );
+        }
+      }
+    )
+      .then(
+        (
+          unsubscribe
+        ) => {
+          if (!mounted) {
+            unsubscribe();
+            return;
+          }
+
+          cleanup =
+            unsubscribe;
+        }
+      )
+      .catch(
+        (
+          error
+        ) => {
+          console.warn(
+            "UNFILTERED LOGS PRESENCE ERROR:",
+            error
+          );
+
+          if (mounted) {
+            setOnlineUsers(
+              []
+            );
+          }
+        }
+      );
+
+    return () => {
+      mounted = false;
+      cleanup?.();
+    };
+  }, [session]);
 
 
   useEffect(() => {
@@ -1352,7 +1489,43 @@ function App() {
           error
         ) => {
           console.warn(
-            "ROFFLE FILTER TAXONOMY ERROR:",
+            "UNFILTERED LOGS FILTER TAXONOMY ERROR:",
+            error
+          );
+        }
+      );
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+
+  useEffect(() => {
+    let mounted = true;
+
+    void getSidebarSettings()
+      .then(
+        (settings) => {
+          if (mounted) {
+            setSidebarOrder(
+              settings.moduleOrder
+            );
+
+            setWelcomeBody(
+              settings.welcomeBody
+            );
+
+            setWelcomeNote(
+              settings.welcomeNote
+            );
+          }
+        }
+      )
+      .catch(
+        (error) => {
+          console.warn(
+            "UNFILTERED LOGS SIDEBAR ORDER ERROR:",
             error
           );
         }
@@ -1384,7 +1557,7 @@ function App() {
           error
         ) => {
           console.warn(
-            "ROFFLE BLOG HIGHLIGHT ERROR:",
+            "UNFILTERED LOGS BLOG HIGHLIGHT ERROR:",
             error
           );
         }
@@ -1413,7 +1586,7 @@ function App() {
           }
 
           console.log(
-            "ROFFLE POSTS LOADED:",
+            "UNFILTERED LOGS POSTS LOADED:",
             records.length
           );
 
@@ -1429,7 +1602,7 @@ function App() {
           error
         ) => {
           console.error(
-            "ROFFLE FEED ERROR:",
+            "UNFILTERED LOGS FEED ERROR:",
             error
           );
 
@@ -1597,7 +1770,7 @@ function App() {
         error
       ) {
         console.error(
-          "ROFFLE POST DELETE ERROR:",
+          "UNFILTERED LOGS POST DELETE ERROR:",
           error
         );
 
@@ -1614,7 +1787,7 @@ function App() {
                   }
                 ).message
               )
-            : "ROFFLE could not delete the post.";
+            : "UNFILTERED LOGS could not delete the post.";
 
         window.alert(
           message
@@ -1636,6 +1809,25 @@ function App() {
 
       const nextPinned =
         !post.frontPagePinned;
+
+      if (nextPinned) {
+        const pinnedCount =
+          livePosts.filter(
+            (item) =>
+              item.id !== post.id &&
+              item.moderationStatus === "approved" &&
+              item.frontPageVisible &&
+              item.frontPagePinned
+          ).length;
+
+        if (pinnedCount >= 3) {
+          window.alert(
+            "The front page already has three posts. Remove one before posting another to the front page."
+          );
+
+          return;
+        }
+      }
 
       try {
         await setFrontPagePin(
@@ -1673,7 +1865,7 @@ function App() {
         error
       ) {
         console.error(
-          "ROFFLE FRONT PAGE PIN ERROR:",
+          "UNFILTERED LOGS FRONT PAGE PIN ERROR:",
           error
         );
 
@@ -1741,7 +1933,7 @@ function App() {
         error
       ) {
         console.error(
-          "ROFFLE FRONT PAGE VISIBILITY ERROR:",
+          "UNFILTERED LOGS FRONT PAGE VISIBILITY ERROR:",
           error
         );
 
@@ -1811,7 +2003,7 @@ function App() {
         error
       ) {
         console.error(
-          "ROFFLE LIKE ERROR:",
+          "UNFILTERED LOGS LIKE ERROR:",
           error
         );
       }
@@ -1847,6 +2039,59 @@ function App() {
     };
 
 
+  const submitShoutboxMessage =
+    async () => {
+      const body =
+        shoutboxInput.trim();
+
+      if (!body) {
+        return;
+      }
+
+      if (!session) {
+        window.location.assign(
+          "/login"
+        );
+
+        return;
+      }
+
+      setShoutboxPosting(
+        true
+      );
+
+      try {
+        await postShoutboxMessage(
+          body
+        );
+
+        setShoutboxInput("");
+
+        const messages =
+          await getShoutboxMessages();
+
+        setShoutboxMessages(
+          messages
+        );
+      } catch (error) {
+        console.error(
+          "UNFILTERED LOGS SHOUTBOX POST ERROR:",
+          error
+        );
+
+        window.alert(
+          error instanceof Error
+            ? error.message
+            : "Could not post shout."
+        );
+      } finally {
+        setShoutboxPosting(
+          false
+        );
+      }
+    };
+
+
   const signOut =
     async () => {
       await supabase.auth.signOut();
@@ -1864,6 +2109,9 @@ function App() {
       () => {
         const now =
           Date.now();
+
+        const normalizedSearch =
+          searchQuery.trim().toLowerCase();
 
         return livePosts.filter(
           (
@@ -1967,11 +2215,27 @@ function App() {
                   tagFilter
               );
 
+            const matchesSearch =
+              !normalizedSearch ||
+              [
+                post.title,
+                post.description ?? "",
+                post.author,
+                post.tag ?? "",
+                ...post.articleTags.map(
+                  (articleTag) => articleTag.name
+                ),
+              ]
+                .join(" ")
+                .toLowerCase()
+                .includes(normalizedSearch);
+
             return (
               matchesTime &&
               matchesContent &&
               matchesCategory &&
-              matchesTag
+              matchesTag &&
+              matchesSearch
             );
           }
         );
@@ -1982,6 +2246,7 @@ function App() {
         contentFilter,
         categoryFilter,
         tagFilter,
+        searchQuery,
       ]
     );
 
@@ -2010,6 +2275,11 @@ function App() {
       "all"
         ? 1
         : 0
+    ) +
+    (
+      searchQuery.trim()
+        ? 1
+        : 0
     );
 
 
@@ -2018,31 +2288,22 @@ function App() {
       () =>
         livePosts
           .filter(
-            (
-              post
-            ) =>
-              post.moderationStatus ===
-                "approved" &&
+            (post) =>
+              post.moderationStatus === "approved" &&
               post.frontPageVisible &&
               post.frontPagePinned
           )
           .sort(
-            (
-              left,
-              right
-            ) =>
+            (left, right) =>
               new Date(
-                right.frontPagePinnedAt ??
-                right.createdAt
+                right.frontPagePinnedAt ?? right.createdAt
               ).getTime() -
               new Date(
-                left.frontPagePinnedAt ??
-                left.createdAt
+                left.frontPagePinnedAt ?? left.createdAt
               ).getTime()
-          ),
-      [
-        livePosts,
-      ]
+          )
+          .slice(0, 3),
+      [livePosts]
     );
 
 
@@ -2099,54 +2360,7 @@ function App() {
     );
 
 
-  const visiblePageNumbers =
-    useMemo(
-      () => {
-        if (
-          totalPages <=
-          7
-        ) {
-          return Array.from(
-            {
-              length:
-                totalPages,
-            },
-            (
-              _,
-              index
-            ) =>
-              index + 1
-          );
-        }
 
-        const start =
-          Math.max(
-            1,
-            Math.min(
-              currentPage -
-                2,
-              totalPages -
-                4
-            )
-          );
-
-        return Array.from(
-          {
-            length: 5,
-          },
-          (
-            _,
-            index
-          ) =>
-            start +
-            index
-        );
-      },
-      [
-        currentPage,
-        totalPages,
-      ]
-    );
 
 
   useEffect(() => {
@@ -2173,6 +2387,7 @@ function App() {
     contentFilter,
     categoryFilter,
     tagFilter,
+    searchQuery,
   ]);
 
 
@@ -2269,6 +2484,37 @@ function App() {
     );
 
 
+  const railCategories =
+    useMemo(
+      () =>
+        [...filterCategories].sort(
+          (
+            left,
+            right
+          ) =>
+            (
+              categoryPostCounts.get(
+                right.id
+              ) ??
+              0
+            ) -
+              (
+                categoryPostCounts.get(
+                  left.id
+                ) ??
+                0
+              ) ||
+            left.name.localeCompare(
+              right.name
+            )
+        ),
+      [
+        filterCategories,
+        categoryPostCounts,
+      ]
+    );
+
+
   const tagPostCounts =
     useMemo(
       () => {
@@ -2339,6 +2585,60 @@ function App() {
     );
 
 
+  const popularPosts =
+    useMemo(
+      () =>
+        [...approvedRailPosts]
+          .filter((post) => post.frontPageVisible)
+          .sort(
+            (left, right) =>
+              right.likes + right.comments * 2 -
+              (left.likes + left.comments * 2)
+          )
+          .slice(0, 5),
+      [approvedRailPosts]
+    );
+
+
+  const archiveRows =
+    useMemo(
+      () => {
+        const counts = new Map<string, number>();
+
+        for (const post of approvedRailPosts) {
+          const date = new Date(post.createdAt);
+          const label = date.toLocaleDateString(undefined, {
+            month: "long",
+            year: "numeric",
+          });
+
+          counts.set(label, (counts.get(label) ?? 0) + 1);
+        }
+
+        return Array.from(counts.entries()).slice(0, 6);
+      },
+      [approvedRailPosts]
+    );
+
+
+  const siteTotals =
+    useMemo(
+      () => ({
+        logs: approvedRailPosts.length,
+        reactions: approvedRailPosts.reduce(
+          (total, post) => total + post.likes,
+          0
+        ),
+        comments: approvedRailPosts.reduce(
+          (total, post) => total + post.comments,
+          0
+        ),
+        categories: filterCategories.length,
+      }),
+      [approvedRailPosts, filterCategories.length]
+    );
+
+
   const scrollToFeed =
     () => {
       window.setTimeout(
@@ -2362,6 +2662,22 @@ function App() {
     };
 
 
+  const sidebarModuleOrder =
+    (
+      key:
+        SidebarModuleKey
+    ) => {
+      const index =
+        sidebarOrder.indexOf(
+          key
+        );
+
+      return index === -1
+        ? sidebarOrder.length
+        : index;
+    };
+
+
   const clearFilters =
     () => {
       setTimeFilter(
@@ -2379,789 +2695,474 @@ function App() {
       setTagFilter(
         "all"
       );
+
+      setSearchQuery(
+        ""
+      );
     };
 
 
 
 
   return (
-    <div className="roffle-app">
+    <div className="classic-site roffle-app">
       <SiteHeader
-        session={
-          session
-        }
-        authReady={
-          authReady
-        }
-        accessRole={
-          accessRole
-        }
+        session={session}
+        authReady={authReady}
+        accessRole={accessRole}
         activeSection="home"
-        onPost={
-          openQuickPost
-        }
+        onPost={openQuickPost}
         onSignOut={() => {
           void signOut();
         }}
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        onSearchSubmit={setSearchQuery}
       />
 
-      {/* ==================================================
-          PAGE
-          ================================================== */}
-
-      <main className="page-shell">
-        {/* ==================================================
-            BLOG HIGHLIGHT
-            ================================================== */}
-
-        {highlightedBlogPost?.published &&
-          highlightedBlogPost.is_highlighted && (
-          <section
-            className={`home-blog-highlight highlight-${highlightedBlogPost.accent_style}`}
-          >
-            <div className="home-blog-highlight-copy">
-              <span className="home-blog-highlight-kicker">
-                <BookOpen
-                  size={14}
-                />
-
-                HIGHLIGHTED ARTICLE
-              </span>
-
-              <h1>
-                {highlightedBlogPost.title}
-              </h1>
-
-              {highlightedBlogPost.excerpt && (
-                <p>
-                  {highlightedBlogPost.excerpt}
-                </p>
-              )}
-
-              <a
-                href={`/blog/${highlightedBlogPost.slug}`}
-              >
-                Read the blog post
-
-                <ChevronRight
-                  size={15}
-                />
-              </a>
-            </div>
-          </section>
-        )}
-
-        {/* ==================================================
-            ADMIN-PINNED FRONT PAGE POSTS
-            ================================================== */}
-
-        {activeFilterCount ===
-          0 &&
-          pinnedFrontPagePosts.length >
-            0 && (
-          <section className="front-page-pinned-section">
-            <div className="section-label">
-              <Pin
-                size={15}
-              />
-
-              Pinned to the front page
+      <main className="site-width page-body">
+        {activeFilterCount === 0 && pinnedFrontPagePosts.length > 0 && (
+          <section className="featured-box">
+            <div className="box-heading">
+              <strong>POSTED TO THE FRONT PAGE</strong>
+              <span>selected by the moderators</span>
             </div>
 
-            <div className="front-page-pinned-grid">
-              {pinnedFrontPagePosts.map(
-                (
-                  post
-                ) => (
-                  <PostCard
-                    featured
-                    key={
-                      post.id
-                    }
-                    post={
-                      post
-                    }
-                    session={
-                      session
-                    }
-                    onToggleLike={
-                      handleToggleLike
-                    }
-                    onCommentCountChanged={
-                      handleCommentCountChanged
-                    }
-                    onEdit={
-                      (
-                        selected
-                      ) => {
-                        setEditingPost(
-                          selected.sourceRecord
-                        );
-                      }
-                    }
-                    onDelete={
-                      (
-                        selected
-                      ) => {
-                        void handleDeletePost(
-                          selected
-                        );
-                      }
-                    }
-                    onToggleFrontPagePin={
-                      handleToggleFrontPagePin
-                    }
-                    onToggleFrontPageVisibility={
-                      handleToggleFrontPageVisibility
-                    }
-                    isStaff={
-                      accessRole ===
-                        "moderator" ||
-                      accessRole ===
-                        "admin"
-                    }
-                    isAdmin={
-                      accessRole ===
-                        "admin"
-                    }
-                  />
-                )
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* ==================================================
-            TABS + FILTER
-            ================================================== */}
-
-        <div className="feed-controls">
-          <div className="feed-tabs">
-            <button className="feed-tab active">
-              Magazine
-            </button>
-
-            <button className="feed-tab">
-              My Subscriptions
-            </button>
-          </div>
-
-          <button
-            className={`filter-trigger ${
-              filterOpen ? "open" : ""
-            }`}
-            onClick={() =>
-              setFilterOpen(
-                !filterOpen
-              )
-            }
-          >
-            <SlidersHorizontal
-              size={17}
-            />
-
-            Filter
-
-            {activeFilterCount >
-              0 && (
-              <span className="filter-count">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {filterOpen && (
-          <div className="filter-panel">
-            <div className="filter-panel-top">
-              <div>
-                <strong>
-                  Filter posts
-                </strong>
-
-                <span>
-                  {filteredPosts.length} of{" "}
-                  {livePosts.length} matching
-                </span>
-              </div>
-
-              {activeFilterCount >
-                0 && (
-                <button
-                  className="filter-clear"
-                  type="button"
-                  onClick={
-                    clearFilters
-                  }
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-
-            <div className="filter-row">
-              <span>
-                Time
-              </span>
-
-              <button
-                className={
-                  timeFilter ===
-                    "all"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setTimeFilter(
-                    "all"
-                  );
-                }}
-              >
-                All time
-              </button>
-
-              <button
-                className={
-                  timeFilter ===
-                    "today"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setTimeFilter(
-                    "today"
-                  );
-                }}
-              >
-                Today
-              </button>
-
-              <button
-                className={
-                  timeFilter ===
-                    "week"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setTimeFilter(
-                    "week"
-                  );
-                }}
-              >
-                Last week
-              </button>
-
-              <button
-                className={
-                  timeFilter ===
-                    "month"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setTimeFilter(
-                    "month"
-                  );
-                }}
-              >
-                Last month
-              </button>
-            </div>
-
-            <div className="filter-row">
-              <span>
-                Content
-              </span>
-
-              <button
-                className={
-                  contentFilter ===
-                    "all"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setContentFilter(
-                    "all"
-                  );
-                }}
-              >
-                All
-              </button>
-
-              <button
-                className={
-                  contentFilter ===
-                    "videos"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setContentFilter(
-                    "videos"
-                  );
-                }}
-              >
-                Videos
-              </button>
-
-              <button
-                className={
-                  contentFilter ===
-                    "photos"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setContentFilter(
-                    "photos"
-                  );
-                }}
-              >
-                Photos
-              </button>
-
-              <button
-                className={
-                  contentFilter ===
-                    "discussions"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setContentFilter(
-                    "discussions"
-                  );
-                }}
-              >
-                Discussions
-              </button>
-            </div>
-
-            <div className="filter-row">
-              <span>
-                Category
-              </span>
-
-              <button
-                className={
-                  categoryFilter ===
-                    "all"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setCategoryFilter(
-                    "all"
-                  );
-                }}
-              >
-                All
-              </button>
-
-              {filterCategories.map(
-                (
-                  category
-                ) => (
-                  <button
-                    key={
-                      category.id
-                    }
-                    className={
-                      categoryFilter ===
-                        category.id
-                        ? "selected"
-                        : ""
-                    }
-                    type="button"
-                    onClick={() => {
-                      setCategoryFilter(
-                        category.id
-                      );
-                    }}
-                  >
-                    {category.name}
-                  </button>
-                )
-              )}
-            </div>
-
-            <div className="filter-row">
-              <span>
-                Tags
-              </span>
-
-              <button
-                className={
-                  tagFilter ===
-                    "all"
-                    ? "selected"
-                    : ""
-                }
-                type="button"
-                onClick={() => {
-                  setTagFilter(
-                    "all"
-                  );
-                }}
-              >
-                All
-              </button>
-
-              {filterTags.map(
-                (
-                  articleTag
-                ) => (
-                  <button
-                    key={
-                      articleTag.id
-                    }
-                    className={
-                      tagFilter ===
-                        articleTag.id
-                        ? "selected"
-                        : ""
-                    }
-                    type="button"
-                    onClick={() => {
-                      setTagFilter(
-                        articleTag.id
-                      );
-                    }}
-                  >
-                    #
-                    {articleTag.name}
-                  </button>
-                )
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ==================================================
-            MAIN GRID
-            ================================================== */}
-
-        <div className="main-grid">
-          {/* ==========================
-              FEED
-              ========================== */}
-
-          <section className="feed-column">
-            <div className="feed-status">
-              <div>
-                <span className="live-dot" />
-
-                New posts
-              </div>
-
-              <span>
-                {magazineSourcePosts.length} posts
-                {" · "}
-                Latest first
-              </span>
-            </div>
-
-            {magazineSourcePosts.length ===
-              0 ? (
-              <div className="feed-empty-filter">
-                <strong>
-                  {activeFilterCount > 0
-                    ? "Nothing matches that."
-                    : "No more posts yet."}
-                </strong>
-
-                <span>
-                  {activeFilterCount > 0
-                    ? "ROFFLE looked. The nonsense is elsewhere."
-                    : "The pinned stuff is above. More nonsense will arrive eventually."}
-                </span>
-
-                {activeFilterCount >
-                  0 && (
-                  <button
-                    type="button"
-                    onClick={
-                      clearFilters
-                    }
-                  >
-                    Clear filters
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="magazine-grid">
-                {paginatedPosts.map(
-                  (
-                    post
-                  ) => (
-                    <PostCard
-                      key={
-                        post.id
-                      }
-                      post={
-                        post
-                      }
-                      session={
-                        session
-                      }
-                      onToggleLike={
-                        handleToggleLike
-                      }
-                      onCommentCountChanged={
-                        handleCommentCountChanged
-                      }
-                      onEdit={
-                        (
-                          selected
-                        ) => {
-                          setEditingPost(
-                            selected.sourceRecord
-                          );
-                        }
-                      }
-                      onDelete={
-                        (
-                          selected
-                        ) => {
-                          void handleDeletePost(
-                            selected
-                          );
-                        }
-                      }
-                      onToggleFrontPagePin={
-                        handleToggleFrontPagePin
-                      }
-                      onToggleFrontPageVisibility={
-                        handleToggleFrontPageVisibility
-                      }
-                      isStaff={
-                        accessRole ===
-                          "moderator" ||
-                        accessRole ===
-                          "admin"
-                      }
-                      isAdmin={
-                        accessRole ===
-                          "admin"
-                      }
-                    />
-                  )
-                )}
-              </div>
-            )}
-
-            {magazineSourcePosts.length >
-              0 && (
-              <div className="pagination-wrap">
-                <div className="pagination-summary">
-                  Showing{" "}
-                  {(
-                    (
-                      currentPage -
-                      1
-                    ) *
-                    POSTS_PER_PAGE
-                  ) +
-                    1}
-                  {"–"}
-                  {Math.min(
-                    currentPage *
-                      POSTS_PER_PAGE,
-                    magazineSourcePosts.length
-                  )}{" "}
-                  of{" "}
-                  {magazineSourcePosts.length}
-                </div>
-
-                <div className="pagination">
-                  <button
-                    type="button"
-                    disabled={
-                      currentPage ===
-                      1
-                    }
-                    onClick={() => {
-                      goToPage(
-                        currentPage -
-                          1
-                      );
-                    }}
-                  >
-                    Previous
-                  </button>
-
-                  {visiblePageNumbers[0] >
-                    1 && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          goToPage(
-                            1
-                          );
-                        }}
-                      >
-                        1
-                      </button>
-
-                      {visiblePageNumbers[0] >
-                        2 && (
-                        <span className="pagination-ellipsis">
-                          …
-                        </span>
-                      )}
-                    </>
-                  )}
-
-                  {visiblePageNumbers.map(
-                    (
-                      pageNumber
-                    ) => (
-                      <button
-                        key={
-                          pageNumber
-                        }
-                        type="button"
-                        className={
-                          currentPage ===
-                            pageNumber
-                            ? "page-current"
-                            : ""
-                        }
-                        onClick={() => {
-                          goToPage(
-                            pageNumber
-                          );
-                        }}
-                      >
-                        {pageNumber}
-                      </button>
-                    )
-                  )}
-
-                  {visiblePageNumbers[
-                    visiblePageNumbers.length -
-                      1
-                  ] <
-                    totalPages && (
-                    <>
-                      {visiblePageNumbers[
-                        visiblePageNumbers.length -
-                          1
-                      ] <
-                        totalPages -
-                          1 && (
-                        <span className="pagination-ellipsis">
-                          …
-                        </span>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          goToPage(
-                            totalPages
-                          );
-                        }}
-                      >
-                        {totalPages}
-                      </button>
-                    </>
-                  )}
-
-                  <button
-                    type="button"
-                    disabled={
-                      currentPage ===
-                      totalPages
-                    }
-                    onClick={() => {
-                      goToPage(
-                        currentPage +
-                          1
-                      );
-                    }}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
-          </section>
-
-          {/* ==========================
-              RIGHT RAIL
-              ========================== */}
-
-          <aside className="right-rail">
-            <RailModule
-              title="YouTube Gems"
-              icon={
-                <Play size={17} />
-              }
+            <div
+              className={`featured-strip pinned-count-${Math.min(
+                pinnedFrontPagePosts.length,
+                3
+              )}`}
             >
-              <div className="gem-list">
-                {youtubeGems.length ===
-                  0 ? (
-                  <div className="gem-empty">
-                    No YouTube gems yet.
+              {pinnedFrontPagePosts.map((post) => (
+                <FrontPageCard
+                  key={post.id}
+                  post={post}
+                  session={session}
+                  onToggleLike={handleToggleLike}
+                  onEdit={(selected) => setEditingPost(selected.sourceRecord)}
+                  onDelete={(selected) => {
+                    void handleDeletePost(selected);
+                  }}
+                  onToggleFrontPagePin={handleToggleFrontPagePin}
+                  onToggleFrontPageVisibility={handleToggleFrontPageVisibility}
+                  isStaff={accessRole === "moderator" || accessRole === "admin"}
+                  isAdmin={accessRole === "admin"}
+                  singlePinned={pinnedFrontPagePosts.length === 1}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        <div className="layout-columns">
+          <section className="main-column feed-column">
+            <div className="feed-heading">
+              <div>
+                <h1>Recent Logs</h1>
+                <span>Newest posts from everybody.</span>
+              </div>
+
+              <div className="feed-heading-actions">
+                <div className="view-controls">
+                  <button
+                    className={contentFilter === "all" ? "active" : ""}
+                    type="button"
+                    onClick={() => setContentFilter("all")}
+                  >
+                    All
+                  </button>
+                  <button
+                    className={contentFilter === "videos" ? "active" : ""}
+                    type="button"
+                    onClick={() => setContentFilter("videos")}
+                  >
+                    Video
+                  </button>
+                  <button
+                    className={contentFilter === "photos" ? "active" : ""}
+                    type="button"
+                    onClick={() => setContentFilter("photos")}
+                  >
+                    Images
+                  </button>
+                  <button
+                    className={contentFilter === "discussions" ? "active" : ""}
+                    type="button"
+                    onClick={() => setContentFilter("discussions")}
+                  >
+                    Text
+                  </button>
+                </div>
+
+                <button
+                  className={filterOpen ? "advanced-filter open" : "advanced-filter"}
+                  type="button"
+                  onClick={() => setFilterOpen((current) => !current)}
+                >
+                  <SlidersHorizontal size={13} /> Filter
+                  <span
+                    className={
+                      activeFilterCount > 0
+                        ? "filter-count"
+                        : "filter-count empty"
+                    }
+                    aria-hidden={
+                      activeFilterCount === 0
+                    }
+                  >
+                    {activeFilterCount > 0
+                      ? activeFilterCount
+                      : "#"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {filterOpen && (
+              <div className="filter-panel classic-filter-panel">
+                <div className="filter-panel-top">
+                  <div>
+                    <strong>Filter posts</strong>
+                    <span>{filteredPosts.length} of {livePosts.length} matching</span>
+                  </div>
+
+                  {activeFilterCount > 0 && (
+                    <button className="filter-clear" type="button" onClick={clearFilters}>
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="filter-row">
+                  <span className="filter-label">Time</span>
+                  <div className="filter-options">
+                    {([
+                      ["all", "All time"],
+                      ["today", "Today"],
+                      ["week", "Last week"],
+                      ["month", "Last month"],
+                    ] as const).map(([value, label]) => (
+                      <button
+                        key={value}
+                        className={timeFilter === value ? "selected" : ""}
+                        type="button"
+                        onClick={() => setTimeFilter(value)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="filter-row">
+                  <span className="filter-label">Category</span>
+                  <div className="filter-options">
+                    <button
+                      className={categoryFilter === "all" ? "selected" : ""}
+                      type="button"
+                      onClick={() => setCategoryFilter("all")}
+                    >
+                      All
+                    </button>
+                    {filterCategories.map((category) => (
+                      <button
+                        key={category.id}
+                        className={categoryFilter === category.id ? "selected" : ""}
+                        type="button"
+                        onClick={() => setCategoryFilter(category.id)}
+                      >
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="filter-row filter-tags-row">
+                  <span className="filter-label">Tags</span>
+                  <div className="filter-options">
+                    <button
+                      className={tagFilter === "all" ? "selected" : ""}
+                      type="button"
+                      onClick={() => setTagFilter("all")}
+                    >
+                      All
+                    </button>
+
+                    {(filterTagsExpanded
+                      ? filterTags
+                      : filterTags.slice(0, 10)
+                    ).map((articleTag) => (
+                      <button
+                        key={articleTag.id}
+                        className={tagFilter === articleTag.id ? "selected" : ""}
+                        type="button"
+                        onClick={() => setTagFilter(articleTag.id)}
+                      >
+                        #{articleTag.name}
+                      </button>
+                    ))}
+
+                    {filterTags.length > 10 && (
+                      <button
+                        className="filter-more-button"
+                        type="button"
+                        onClick={() =>
+                          setFilterTagsExpanded(
+                            (current) =>
+                              !current
+                          )
+                        }
+                      >
+                        {filterTagsExpanded
+                          ? "<< LESS"
+                          : "MORE >>"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="post-stack">
+              {magazineSourcePosts.length === 0 ? (
+                <div className="empty-state">
+                  {activeFilterCount > 0
+                    ? "No posts match those filters."
+                    : "No posts yet. Somebody has to post first."}
+                </div>
+              ) : (
+                paginatedPosts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    session={session}
+                    onToggleLike={handleToggleLike}
+                    onCommentCountChanged={handleCommentCountChanged}
+                    onEdit={(selected) => setEditingPost(selected.sourceRecord)}
+                    onDelete={(selected) => {
+                      void handleDeletePost(selected);
+                    }}
+                    onToggleFrontPagePin={handleToggleFrontPagePin}
+                    onToggleFrontPageVisibility={handleToggleFrontPageVisibility}
+                    isStaff={accessRole === "moderator" || accessRole === "admin"}
+                    isAdmin={accessRole === "admin"}
+                  />
+                ))
+              )}
+            </div>
+
+            {magazineSourcePosts.length > 0 && (
+              <div className="pager">
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() => goToPage(currentPage - 1)}
+                >
+                  ← Newer
+                </button>
+
+                <span>
+                  Page {currentPage} of {totalPages} · {magazineSourcePosts.length} posts
+                </span>
+
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() => goToPage(currentPage + 1)}
+                >
+                  Older →
+                </button>
+              </div>
+            )}
+          </section>
+
+          <aside className="sidebar right-rail">
+            <RailModule title="WELCOME TO UNFILTERED LOGS" order={sidebarModuleOrder("welcome")}>
+              <p>
+                {welcomeBody}
+              </p>
+              <p className="small-note">
+                {welcomeNote}
+              </p>
+              {!session && <a href="/login">Create an account »</a>}
+            </RailModule>
+
+            <RailModule title="SHOUTBOX" order={sidebarModuleOrder("shoutbox")}>
+              <div className="production-shoutbox">
+                <div className="shout-list" aria-live="polite">
+                  {shoutboxMessages.length === 0 ? (
+                    <p className="shout-empty">No shouts yet. Be the first.</p>
+                  ) : (
+                    shoutboxMessages.map((message) => (
+                      <p key={message.id}>
+                        <span className="shout-line">
+                          <strong>
+                            {message.profile?.username ??
+                              message.profile?.display_name ??
+                              "member"}:
+                          </strong>
+
+                          <span className="shout-time">
+                            {new Date(message.created_at).toLocaleTimeString(
+                              undefined,
+                              {
+                                hour: "numeric",
+                                minute: "2-digit",
+                              }
+                            )}
+                          </span>
+                        </span>
+
+                        <span className="shout-message">
+                          {message.body}
+                        </span>
+                      </p>
+                    ))
+                  )}
+                </div>
+
+                <div className="shout-form">
+                  <input
+                    value={shoutboxInput}
+                    maxLength={280}
+                    disabled={!session || shoutboxPosting}
+                    onChange={(event) =>
+                      setShoutboxInput(
+                        event.target.value
+                      )
+                    }
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        void submitShoutboxMessage();
+                      }
+                    }}
+                    placeholder={
+                      session
+                        ? "say something..."
+                        : "sign in to shout..."
+                    }
+                    aria-label="Shoutbox message"
+                  />
+
+                  <button
+                    type="button"
+                    disabled={
+                      !session ||
+                      shoutboxPosting ||
+                      !shoutboxInput.trim()
+                    }
+                    onClick={() => {
+                      void submitShoutboxMessage();
+                    }}
+                  >
+                    {shoutboxPosting
+                      ? "..."
+                      : "Go"}
+                  </button>
+                </div>
+              </div>
+            </RailModule>
+
+            <RailModule title="WHO'S ONLINE" order={sidebarModuleOrder("online")}>
+              <div className="production-online-users">
+                <div className="online-summary">
+                  <strong>
+                    {onlineUsers.length}
+                  </strong>{" "}
+                  {onlineUsers.length === 1
+                    ? "member"
+                    : "members"}{" "}
+                  online
+                </div>
+
+                <div className="online-user-list">
+                  {onlineUsers.length === 0 ? (
+                    <span className="online-more">
+                      Nobody signed in right now.
+                    </span>
+                  ) : (
+                    onlineUsers
+                      .slice(0, 12)
+                      .map(
+                        (
+                          user
+                        ) => (
+                          <span
+                            className="online-user"
+                            key={
+                              user.user_id
+                            }
+                          >
+                            <span className="online-dot" />
+                            {user.username ??
+                              user.display_name ??
+                              "member"}
+                          </span>
+                        )
+                      )
+                  )}
+
+                  {onlineUsers.length > 12 && (
+                    <span className="online-more">
+                      +{onlineUsers.length - 12} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            </RailModule>
+
+            <RailModule title="RECENT COMMENTS" order={sidebarModuleOrder("recent_comments")}>
+              <div className="production-recent-comments">
+                {recentComments.length === 0 ? (
+                  <div className="rail-taxonomy-empty">
+                    No comments yet.
                   </div>
                 ) : (
-                  youtubeGems.map(
+                  recentComments.map(
                     (
-                      gem
+                      comment
                     ) => (
                       <a
-                        className="gem"
-                        href={`#post-${gem.id}`}
-                        key={gem.id}
+                        className="recent-comment-row"
+                        href={`/posts/${comment.post_id}`}
+                        key={
+                          comment.id
+                        }
                       >
-                        <div className="gem-image">
-                          <img
-                            src={`https://i.ytimg.com/vi/${gem.youtubeId}/hqdefault.jpg`}
-                            alt=""
-                          />
+                        <div className="recent-comment-meta">
+                          <strong>
+                            {comment.username ??
+                              comment.display_name ??
+                              "member"}
+                          </strong>
 
                           <span>
-                            <Play
-                              size={14}
-                              fill="currentColor"
-                            />
+                            {new Date(
+                              comment.created_at
+                            ).toLocaleTimeString(
+                              undefined,
+                              {
+                                hour: "numeric",
+                                minute: "2-digit",
+                              }
+                            )}
                           </span>
                         </div>
 
-                        <div>
-                          <strong>
-                            {gem.title}
-                          </strong>
+                        <p>
+                          {comment.body?.trim() ||
+                            (comment.gif_url
+                              ? "[GIF]"
+                              : "Comment")}
+                        </p>
 
-                          <small className="gem-engagement">
-                            <span>
-                              <Heart
-                                size={11}
-                              />
-                              {gem.likeCount}
-                            </span>
-
-                            <span>
-                              <MessageCircle
-                                size={11}
-                              />
-                              {gem.commentCount}
-                            </span>
+                        {comment.post_title && (
+                          <small>
+                            on {comment.post_title}
                           </small>
-                        </div>
+                        )}
                       </a>
                     )
                   )
@@ -3169,385 +3170,203 @@ function App() {
               </div>
             </RailModule>
 
-            <RailModule
-              title="Categories"
-              icon={
-                <Hash size={17} />
-              }
-            >
-              {filterCategories.length ===
-                0 ? (
-                <div className="rail-taxonomy-empty">
-                  No categories yet.
-                </div>
+            {highlightedBlogPost?.published && highlightedBlogPost.is_highlighted && (
+              <RailModule title="FROM EDITORIAL" icon={<BookOpen size={13} />} order={sidebarModuleOrder("editorial")}>
+                <article className="editorial-side-preview">
+                  {highlightedBlogPost.hero_image_url && (
+                    <a
+                      className="editorial-side-image"
+                      href={`/blog/${highlightedBlogPost.slug}`}
+                    >
+                      <img
+                        src={highlightedBlogPost.hero_image_url}
+                        alt=""
+                      />
+                    </a>
+                  )}
+
+                  <div className="editorial-side-copy">
+                    <span className="editorial-side-date">
+                      {highlightedBlogPost.published_at
+                        ? new Date(highlightedBlogPost.published_at).toLocaleDateString(
+                            undefined,
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )
+                        : "Editorial"}
+                    </span>
+
+                    <a
+                      className="editorial-side-title"
+                      href={`/blog/${highlightedBlogPost.slug}`}
+                    >
+                      {highlightedBlogPost.title}
+                    </a>
+
+                    {highlightedBlogPost.excerpt && (
+                      <p>
+                        {highlightedBlogPost.excerpt}
+                      </p>
+                    )}
+
+                    <a
+                      className="editorial-side-read"
+                      href={`/blog/${highlightedBlogPost.slug}`}
+                    >
+                      Read full article »
+                    </a>
+                  </div>
+                </article>
+              </RailModule>
+            )}
+
+            <RailModule title="POPULAR POSTS" icon={<Flame size={13} />} order={sidebarModuleOrder("popular")}>
+              {popularPosts.length === 0 ? (
+                <div className="rail-taxonomy-empty">Nothing popular yet.</div>
               ) : (
-                <div className="category-list">
+                <ol className="popular-list">
+                  {popularPosts.map((post, index) => (
+                    <li key={post.id}>
+                      <span>{index + 1}.</span>
+                      <a href={`/posts/${post.id}`}>{post.title}</a>
+                      <strong>{post.likes + post.comments}</strong>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </RailModule>
+
+            <RailModule title="YOUTUBE GEMS" icon={<Play size={13} />} order={sidebarModuleOrder("youtube_gems")}>
+              {youtubeGems.length === 0 ? (
+                <div className="rail-taxonomy-empty">No YouTube gems yet.</div>
+              ) : (
+                <div className="gem-list">
+                  {youtubeGems.map((gem) => (
+                    <a className="gem" href={`/posts/${gem.id}`} key={gem.id}>
+                      <div className="gem-image">
+                        <img
+                          src={`https://i.ytimg.com/vi/${gem.youtubeId}/hqdefault.jpg`}
+                          alt=""
+                        />
+                        <span>▶</span>
+                      </div>
+                      <div>
+                        <strong>{gem.title}</strong>
+                        <small>♥ {gem.likeCount} · 💬 {gem.commentCount}</small>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </RailModule>
+
+            <RailModule title="CATEGORIES" icon={<Hash size={13} />} order={sidebarModuleOrder("categories")}>
+              <div className="archive-list category-list classic-category-list">
+                <button
+                  className={categoryFilter === "all" ? "selected" : ""}
+                  type="button"
+                  onClick={() => {
+                    setCategoryFilter("all");
+                    scrollToFeed();
+                  }}
+                >
+                  <span>All categories</span>
+                  <strong>{approvedRailPosts.length}</strong>
+                </button>
+
+                {(categoriesExpanded ? railCategories : railCategories.slice(0, 6)).map((category) => (
                   <button
-                    className={
-                      categoryFilter ===
-                        "all"
-                        ? "selected"
-                        : ""
-                    }
+                    key={category.id}
+                    className={categoryFilter === category.id ? "selected" : ""}
                     type="button"
                     onClick={() => {
-                      setCategoryFilter(
-                        "all"
-                      );
-
+                      setCategoryFilter((current) => current === category.id ? "all" : category.id);
                       scrollToFeed();
                     }}
                   >
-                    <div>
-                      <span className="category-icon">
-                        <Hash
-                          size={15}
-                        />
-                      </span>
-
-                      <span>
-                        All categories
-                      </span>
-                    </div>
-
-                    <strong>
-                      {approvedRailPosts.length}
-                    </strong>
+                    <span>{category.name}</span>
+                    <strong>{categoryPostCounts.get(category.id) ?? 0}</strong>
                   </button>
+                ))}
 
-                  {(categoriesExpanded
-                    ? filterCategories
-                    : filterCategories.slice(
-                        0,
-                        5
-                      )
-                  ).map(
-                    (
-                      category
-                    ) => {
-                      const count =
-                        categoryPostCounts.get(
-                          category.id
-                        ) ??
-                        0;
-
-                      return (
-                        <button
-                          key={
-                            category.id
-                          }
-                          className={
-                            categoryFilter ===
-                              category.id
-                              ? "selected"
-                              : ""
-                          }
-                          type="button"
-                          onClick={() => {
-                            setCategoryFilter(
-                              (
-                                current
-                              ) =>
-                                current ===
-                                  category.id
-                                  ? "all"
-                                  : category.id
-                            );
-
-                            scrollToFeed();
-                          }}
-                        >
-                          <div>
-                            <span className="category-icon">
-                              {category.slug ===
-                                "videos" ? (
-                                <Video
-                                  size={15}
-                                />
-                              ) : category.slug ===
-                                  "images" ? (
-                                <ImageIcon
-                                  size={15}
-                                />
-                              ) : category.slug ===
-                                  "funny" ||
-                                category.slug ===
-                                  "wtf" ? (
-                                <Flame
-                                  size={15}
-                                />
-                              ) : (
-                                <Hash
-                                  size={15}
-                                />
-                              )}
-                            </span>
-
-                            <span>
-                              {category.name}
-                            </span>
-                          </div>
-
-                          <strong>
-                            {count}
-                          </strong>
-                        </button>
-                      );
-                    }
-                  )}
-
-                  {filterCategories.length >
-                    5 && (
-                    <button
-                      className="category-more-toggle"
-                      type="button"
-                      onClick={() => {
-                        setCategoriesExpanded(
-                          (
-                            current
-                          ) =>
-                            !current
-                        );
-                      }}
-                    >
-                      {categoriesExpanded
-                        ? "LESS ‹"
-                        : `MORE ›`}
-                    </button>
-                  )}
-                </div>
-              )}
+                {railCategories.length > 6 && (
+                  <button
+                    className="category-more-toggle"
+                    type="button"
+                    onClick={() => setCategoriesExpanded((current) => !current)}
+                  >
+                    {categoriesExpanded ? "Less" : "More"}
+                  </button>
+                )}
+              </div>
             </RailModule>
 
-            <RailModule
-              title="Article Tags"
-              icon={
-                <Hash size={17} />
-              }
-            >
-              {railTags.length ===
-                0 ? (
-                <div className="rail-taxonomy-empty">
-                  No article tags yet.
-                </div>
+            <RailModule title="TAGS" icon={<Hash size={13} />} order={sidebarModuleOrder("tags")}>
+              {railTags.length === 0 ? (
+                <div className="rail-taxonomy-empty">No tags yet.</div>
               ) : (
-                <>
-                  <div className="tag-list">
-                    {railTags.map(
-                      (
-                        articleTag
-                      ) => {
-                        const count =
-                          tagPostCounts.get(
-                            articleTag.id
-                          ) ??
-                          0;
-
-                        return (
-                          <button
-                            key={
-                              articleTag.id
-                            }
-                            className={
-                              tagFilter ===
-                                articleTag.id
-                                ? "selected"
-                                : ""
-                            }
-                            type="button"
-                            title={`${count} ${
-                              count === 1
-                                ? "post"
-                                : "posts"
-                            }`}
-                            onClick={() => {
-                              setTagFilter(
-                                (
-                                  current
-                                ) =>
-                                  current ===
-                                    articleTag.id
-                                    ? "all"
-                                    : articleTag.id
-                              );
-
-                              scrollToFeed();
-                            }}
-                          >
-                            <span>
-                              #
-                              {articleTag.name}
-                            </span>
-
-                            {count >
-                              0 && (
-                              <strong>
-                                {count}
-                              </strong>
-                            )}
-                          </button>
-                        );
-                      }
-                    )}
-                  </div>
-
-                  {tagFilter !==
-                    "all" && (
+                <div className="tag-cloud">
+                  {railTags.map((articleTag, index) => (
                     <button
-                      className="rail-clear-tag"
                       type="button"
+                      key={articleTag.id}
+                      className={`tag-size-${(index % 3) + 1} ${tagFilter === articleTag.id ? "active" : ""}`}
                       onClick={() => {
-                        setTagFilter(
-                          "all"
-                        );
-
+                        setTagFilter((current) => current === articleTag.id ? "all" : articleTag.id);
                         scrollToFeed();
                       }}
                     >
-                      Clear tag
+                      {articleTag.name}
                     </button>
-                  )}
-                </>
+                  ))}
+                </div>
               )}
             </RailModule>
 
-            {!session && (
-              <section className="join-card">
-                <div className="join-orb">
-                  R
+            <RailModule title="ARCHIVES" icon={<Clock size={13} />} order={sidebarModuleOrder("archives")}>
+              {archiveRows.length === 0 ? (
+                <div className="rail-taxonomy-empty">No archives yet.</div>
+              ) : (
+                <div className="archive-list">
+                  {archiveRows.map(([label, count]) => (
+                    <span className="archive-row" key={label}>
+                      <span>{label}</span>
+                      <strong>{count}</strong>
+                    </span>
+                  ))}
                 </div>
+              )}
+            </RailModule>
 
-                <h3>
-                  You're already here.
-                </h3>
-
-                <p>
-                  Might as well make an
-                  account.
-                </p>
-
-                <a href="/login">
-                  Join ROFFLE
-                </a>
-              </section>
-            )}
+            <RailModule title="SITE STATS" order={sidebarModuleOrder("stats")}>
+              <dl className="classic-stats">
+                <div><dt>Posts</dt><dd>{siteTotals.logs}</dd></div>
+                <div><dt>Reactions</dt><dd>{siteTotals.reactions}</dd></div>
+                <div><dt>Comments</dt><dd>{siteTotals.comments}</dd></div>
+                <div><dt>Categories</dt><dd>{siteTotals.categories}</dd></div>
+              </dl>
+            </RailModule>
           </aside>
         </div>
       </main>
 
       <QuickPostDialog
         open={postDialogOpen}
-        onClose={() => {
-          setPostDialogOpen(
-            false
-          );
-        }}
-        onPosted={
-          handlePostCreated
-        }
+        onClose={() => setPostDialogOpen(false)}
+        onPosted={handlePostCreated}
       />
 
       <EditPostDialog
-        open={
-          Boolean(
-            editingPost
-          )
-        }
-        post={
-          editingPost
-        }
-        onClose={() => {
-          setEditingPost(
-            null
-          );
-        }}
-        onSaved={
-          handlePostEdited
-        }
+        open={Boolean(editingPost)}
+        post={editingPost}
+        onClose={() => setEditingPost(null)}
+        onSaved={handlePostEdited}
       />
 
-      {/* ==================================================
-          FOOTER
-          ================================================== */}
-
-      <footer className="site-footer">
-        <div className="footer-shell">
-          <div className="footer-brand">
-            <RoffleLogo />
-
-            <p>
-              wtf internet nonsense
-            </p>
-          </div>
-
-          <div className="footer-links">
-            <div>
-              <strong>
-                ROFFLE
-              </strong>
-
-              <a href="/">
-                Home
-              </a>
-
-              <a href="/blog">
-                Blog
-              </a>
-
-              <a href="/forum">
-                Forums
-              </a>
-            </div>
-
-            <div>
-              <strong>
-                ACCOUNT
-              </strong>
-
-              <a href="/login">
-                Sign in
-              </a>
-
-              <a href="/login">
-                Register
-              </a>
-
-              <a href="#help">
-                Help
-              </a>
-            </div>
-
-            <div>
-              <strong>
-                LEGAL
-              </strong>
-
-              <a href="#privacy">
-                Privacy
-              </a>
-
-              <a href="#terms">
-                Terms
-              </a>
-
-              <a href="#contact">
-                Contact
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="footer-bottom">
-          <span>
-            © 2026 ROFFLE
-          </span>
-
-          <span>
-            <Clock size={13} />
-            The internet never closes. I work a lot... this sucks. tf are you even doing reading down here?
-          </span>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

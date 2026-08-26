@@ -11,7 +11,7 @@ import type {
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    COMMENTS SERVICE
    ========================================================== */
 
@@ -98,7 +98,7 @@ async function attachCommentProfiles(
 
     if (error) {
       console.warn(
-        "ROFFLE COMMENT PROFILE ERROR:",
+        "UNFILTERED LOGS COMMENT PROFILE ERROR:",
         error
       );
     } else {

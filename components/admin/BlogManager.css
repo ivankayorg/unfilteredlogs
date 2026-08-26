@@ -1,0 +1,362 @@
+/* ==========================================================
+   BLOG ADMIN 001
+   MANAGER
+   ========================================================== */
+
+
+.blog-admin-heading {
+  margin-bottom: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content:
+    space-between;
+
+  gap: 16px;
+}
+
+
+.blog-admin-heading h1 {
+  margin: 2px 0 0;
+}
+
+
+.blog-admin-heading >
+button {
+  min-height: 34px;
+
+  padding:
+    0 11px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  border:
+    1px solid
+    #4f63d9;
+
+  border-radius: 8px;
+
+  background:
+    #4f63d9;
+
+  color: #fff;
+
+  font-size: 9px;
+  font-weight: 850;
+}
+
+
+.blog-admin-grid {
+  display: grid;
+
+  grid-template-columns:
+    260px
+    minmax(
+      0,
+      1fr
+    );
+
+  gap: 16px;
+}
+
+
+.blog-admin-list,
+.blog-admin-editor {
+  border:
+    1px solid
+    #e1e1dc;
+
+  border-radius: 12px;
+
+  background: #fff;
+}
+
+
+.blog-admin-list {
+  overflow: hidden;
+}
+
+
+.blog-admin-list >
+button {
+  width: 100%;
+
+  padding:
+    10px 11px;
+
+  display: grid;
+
+  grid-template-columns:
+    20px
+    minmax(
+      0,
+      1fr
+    );
+
+  align-items: start;
+
+  gap: 7px;
+
+  border: 0;
+  border-bottom:
+    1px solid
+    #ecece7;
+
+  background: #fff;
+
+  color: #333;
+
+  text-align: left;
+}
+
+
+.blog-admin-list >
+button.selected {
+  background:
+    #fff2ec;
+
+  color:
+    #d94714;
+}
+
+
+.blog-admin-list strong,
+.blog-admin-list small {
+  display: block;
+}
+
+
+.blog-admin-list strong {
+  overflow: hidden;
+
+  font-size: 9px;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+
+.blog-admin-list small {
+  margin-top: 3px;
+
+  color: #999;
+
+  font-size: 7px;
+}
+
+
+.blog-admin-empty,
+.blog-admin-loading {
+  padding: 18px;
+
+  color: #999;
+
+  font-size: 9px;
+}
+
+
+.blog-admin-editor {
+  padding: 18px;
+}
+
+
+.blog-admin-editor >
+label {
+  display: block;
+
+  margin-bottom: 13px;
+}
+
+
+.blog-admin-editor >
+label > span {
+  margin-bottom: 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content:
+    space-between;
+
+  color: #555;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+
+.blog-admin-editor >
+label small {
+  color: #aaa;
+
+  font-size: 7px;
+}
+
+
+.blog-admin-editor input,
+.blog-admin-editor select,
+.blog-admin-editor textarea {
+  width: 100%;
+
+  box-sizing:
+    border-box;
+
+  border:
+    1px solid
+    #d9d9d4;
+
+  border-radius: 8px;
+
+  background: #fff;
+
+  color: #222;
+
+  font: inherit;
+
+  font-size: 9px;
+
+  outline: 0;
+}
+
+
+.blog-admin-editor input,
+.blog-admin-editor select {
+  min-height: 36px;
+
+  padding:
+    0 9px;
+}
+
+
+.blog-admin-editor textarea {
+  padding: 9px;
+
+  resize: vertical;
+
+  line-height: 1.5;
+}
+
+
+.blog-admin-excerpt {
+  min-height: 80px;
+}
+
+
+.blog-admin-body {
+  min-height: 330px;
+}
+
+
+.blog-admin-editor input:focus,
+.blog-admin-editor select:focus,
+.blog-admin-editor textarea:focus {
+  border-color:
+    #4f63d9;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      255,
+      90,
+      31,
+      0.08
+    );
+}
+
+
+.blog-admin-toggles {
+  margin-bottom: 16px;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 14px;
+}
+
+
+.blog-admin-toggles label {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  color: #555;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+
+.blog-admin-toggles input {
+  width: auto;
+  min-height: 0;
+}
+
+
+.blog-admin-actions {
+  display: flex;
+  justify-content:
+    flex-end;
+
+  gap: 7px;
+}
+
+
+.blog-admin-actions button {
+  min-height: 34px;
+
+  padding:
+    0 11px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  border-radius: 8px;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+
+.blog-admin-actions button.primary {
+  border:
+    1px solid
+    #4f63d9;
+
+  background:
+    #4f63d9;
+
+  color: #fff;
+}
+
+
+.blog-admin-actions button.danger {
+  margin-right: auto;
+
+  border:
+    1px solid
+    #e9c8c2;
+
+  background:
+    #fff5f2;
+
+  color:
+    #a53625;
+}
+
+
+@media (
+  max-width: 800px
+) {
+  .blog-admin-grid {
+    grid-template-columns:
+      1fr;
+  }
+}

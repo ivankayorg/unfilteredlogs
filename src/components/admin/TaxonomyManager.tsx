@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -7,10 +8,14 @@ import {
   Check,
   Plus,
   RefreshCw,
+  Save,
+  Trash2,
+  X,
 } from "lucide-react";
 
 import {
   createTaxonomyItem,
+  deleteTaxonomyItem,
   getAllTaxonomy,
   updateTaxonomyItem,
 } from "../../services/taxonomy";
@@ -22,7 +27,7 @@ import type {
 
 
 /* ==========================================================
-   ROFFLE ADMIN
+   UNFILTERED LOGS ADMIN
    CATEGORIES + TAGS
    ========================================================== */
 
@@ -32,6 +37,11 @@ type EditableCategory =
 
 type EditableTag =
   PostTag;
+
+
+type TaxonomyKind =
+  | "category"
+  | "tag";
 
 
 export default function TaxonomyManager() {
@@ -86,10 +96,75 @@ export default function TaxonomyManager() {
     );
 
 
+  const activeCategories =
+    useMemo(
+      () =>
+        categories.filter(
+          (
+            category
+          ) =>
+            category.active
+        ),
+      [
+        categories,
+      ]
+    );
+
+
+  const inactiveCategories =
+    useMemo(
+      () =>
+        categories.filter(
+          (
+            category
+          ) =>
+            !category.active
+        ),
+      [
+        categories,
+      ]
+    );
+
+
+  const activeTags =
+    useMemo(
+      () =>
+        tags.filter(
+          (
+            tag
+          ) =>
+            tag.active
+        ),
+      [
+        tags,
+      ]
+    );
+
+
+  const inactiveTags =
+    useMemo(
+      () =>
+        tags.filter(
+          (
+            tag
+          ) =>
+            !tag.active
+        ),
+      [
+        tags,
+      ]
+    );
+
+
   const load =
     async () => {
-      setLoading(true);
-      setError(null);
+      setLoading(
+        true
+      );
+
+      setError(
+        null
+      );
 
       try {
         const taxonomy =
@@ -112,7 +187,9 @@ export default function TaxonomyManager() {
             : "Could not load categories and tags."
         );
       } finally {
-        setLoading(false);
+        setLoading(
+          false
+        );
       }
     };
 
@@ -125,8 +202,7 @@ export default function TaxonomyManager() {
   const create =
     async (
       kind:
-        "category"
-        | "tag",
+        TaxonomyKind,
     ) => {
       const name =
         kind ===
@@ -138,7 +214,9 @@ export default function TaxonomyManager() {
         `new-${kind}`
       );
 
-      setError(null);
+      setError(
+        null
+      );
 
       try {
         await createTaxonomyItem(
@@ -150,9 +228,13 @@ export default function TaxonomyManager() {
           kind ===
           "category"
         ) {
-          setNewCategory("");
+          setNewCategory(
+            ""
+          );
         } else {
-          setNewTag("");
+          setNewTag(
+            ""
+          );
         }
 
         await load();
@@ -173,56 +255,28 @@ export default function TaxonomyManager() {
     };
 
 
-  const saveCategory =
+  const saveItem =
     async (
-      category:
-        EditableCategory,
-    ) => {
-      setWorking(
-        category.id
-      );
-
-      try {
-        await updateTaxonomyItem(
-          "category",
-          category.id,
-          category.name,
-          category.active
-        );
-
-        await load();
-      } catch (
-        nextError
-      ) {
-        setError(
-          nextError
-            instanceof Error
-            ? nextError.message
-            : "Could not save category."
-        );
-      } finally {
-        setWorking(
-          null
-        );
-      }
-    };
-
-
-  const saveTag =
-    async (
-      tag:
+      kind:
+        TaxonomyKind,
+      item:
+        EditableCategory |
         EditableTag,
     ) => {
       setWorking(
-        tag.id
+        item.id
+      );
+
+      setError(
+        null
       );
 
       try {
         await updateTaxonomyItem(
-          "tag",
-          tag.id,
-          tag.name,
-          tag.active
+          kind,
+          item.id,
+          item.name,
+          item.active
         );
 
         await load();
@@ -233,7 +287,7 @@ export default function TaxonomyManager() {
           nextError
             instanceof Error
             ? nextError.message
-            : "Could not save tag."
+            : "Could not save taxonomy item."
         );
       } finally {
         setWorking(
@@ -241,6 +295,416 @@ export default function TaxonomyManager() {
         );
       }
     };
+
+
+  const setActive =
+    async (
+      kind:
+        TaxonomyKind,
+      item:
+        EditableCategory |
+        EditableTag,
+      active:
+        boolean,
+    ) => {
+      setWorking(
+        item.id
+      );
+
+      setError(
+        null
+      );
+
+      try {
+        await updateTaxonomyItem(
+          kind,
+          item.id,
+          item.name,
+          active
+        );
+
+        await load();
+      } catch (
+        nextError
+      ) {
+        setError(
+          nextError
+            instanceof Error
+            ? nextError.message
+            : active
+              ? "Could not reactivate taxonomy item."
+              : "Could not deactivate taxonomy item."
+        );
+      } finally {
+        setWorking(
+          null
+        );
+      }
+    };
+
+
+  const remove =
+    async (
+      kind:
+        TaxonomyKind,
+      item:
+        EditableCategory |
+        EditableTag,
+    ) => {
+      const label =
+        kind ===
+          "category"
+          ? "category"
+          : "article tag";
+
+      const warning =
+        kind ===
+          "category"
+          ? `Permanently delete the category "${item.name}"?\n\nExisting posts will remain, but this category assignment will be removed from them.`
+          : `Permanently delete the article tag "${item.name}"?\n\nExisting posts will remain, but this tag will be removed from them.`;
+
+      if (
+        !window.confirm(
+          warning
+        )
+      ) {
+        return;
+      }
+
+      setWorking(
+        item.id
+      );
+
+      setError(
+        null
+      );
+
+      try {
+        await deleteTaxonomyItem(
+          kind,
+          item.id
+        );
+
+        await load();
+      } catch (
+        nextError
+      ) {
+        setError(
+          nextError
+            instanceof Error
+            ? nextError.message
+            : `Could not delete ${label}.`
+        );
+      } finally {
+        setWorking(
+          null
+        );
+      }
+    };
+
+
+  const updateCategoryName =
+    (
+      id:
+        string,
+      value:
+        string,
+    ) => {
+      setCategories(
+        (
+          current
+        ) =>
+          current.map(
+            (
+              item
+            ) =>
+              item.id ===
+                id
+                ? {
+                    ...item,
+
+                    name:
+                      value,
+                  }
+                : item
+          )
+      );
+    };
+
+
+  const updateTagName =
+    (
+      id:
+        string,
+      value:
+        string,
+    ) => {
+      setTags(
+        (
+          current
+        ) =>
+          current.map(
+            (
+              item
+            ) =>
+              item.id ===
+                id
+                ? {
+                    ...item,
+
+                    name:
+                      value,
+                  }
+                : item
+          )
+      );
+    };
+
+
+  const renderCategory =
+    (
+      category:
+        EditableCategory,
+    ) => (
+      <div
+        className={
+          category.active
+            ? "taxonomy-item"
+            : "taxonomy-item inactive"
+        }
+        key={
+          category.id
+        }
+      >
+        <input
+          value={
+            category.name
+          }
+          maxLength={48}
+          disabled={
+            working ===
+            category.id
+          }
+          onChange={
+            (
+              event
+            ) => {
+              updateCategoryName(
+                category.id,
+                event.target.value
+              );
+            }
+          }
+        />
+
+        <button
+          className="taxonomy-rename-save"
+          type="button"
+          title="Save name"
+          aria-label="Save category name"
+          disabled={
+            working ===
+            category.id
+          }
+          onClick={() => {
+            void saveItem(
+              "category",
+              category
+            );
+          }}
+        >
+          <Save
+            size={12}
+          />
+        </button>
+
+        <button
+          className={
+            category.active
+              ? "taxonomy-state active"
+              : "taxonomy-state inactive"
+          }
+          type="button"
+          title={
+            category.active
+              ? "Deactivate category"
+              : "Reactivate category"
+          }
+          aria-label={
+            category.active
+              ? "Deactivate category"
+              : "Reactivate category"
+          }
+          disabled={
+            working ===
+            category.id
+          }
+          onClick={() => {
+            void setActive(
+              "category",
+              category,
+              !category.active
+            );
+          }}
+        >
+          {category.active
+            ? (
+              <Check
+                size={13}
+              />
+            )
+            : (
+              <X
+                size={13}
+              />
+            )}
+        </button>
+
+        <button
+          className="taxonomy-delete"
+          type="button"
+          title="Permanently delete category"
+          aria-label="Permanently delete category"
+          disabled={
+            working ===
+            category.id
+          }
+          onClick={() => {
+            void remove(
+              "category",
+              category
+            );
+          }}
+        >
+          <Trash2
+            size={12}
+          />
+        </button>
+      </div>
+    );
+
+
+  const renderTag =
+    (
+      tag:
+        EditableTag,
+    ) => (
+      <div
+        className={
+          tag.active
+            ? "taxonomy-item"
+            : "taxonomy-item inactive"
+        }
+        key={
+          tag.id
+        }
+      >
+        <input
+          value={
+            tag.name
+          }
+          maxLength={48}
+          disabled={
+            working ===
+            tag.id
+          }
+          onChange={
+            (
+              event
+            ) => {
+              updateTagName(
+                tag.id,
+                event.target.value
+              );
+            }
+          }
+        />
+
+        <button
+          className="taxonomy-rename-save"
+          type="button"
+          title="Save name"
+          aria-label="Save article tag name"
+          disabled={
+            working ===
+            tag.id
+          }
+          onClick={() => {
+            void saveItem(
+              "tag",
+              tag
+            );
+          }}
+        >
+          <Save
+            size={12}
+          />
+        </button>
+
+        <button
+          className={
+            tag.active
+              ? "taxonomy-state active"
+              : "taxonomy-state inactive"
+          }
+          type="button"
+          title={
+            tag.active
+              ? "Deactivate article tag"
+              : "Reactivate article tag"
+          }
+          aria-label={
+            tag.active
+              ? "Deactivate article tag"
+              : "Reactivate article tag"
+          }
+          disabled={
+            working ===
+            tag.id
+          }
+          onClick={() => {
+            void setActive(
+              "tag",
+              tag,
+              !tag.active
+            );
+          }}
+        >
+          {tag.active
+            ? (
+              <Check
+                size={13}
+              />
+            )
+            : (
+              <X
+                size={13}
+              />
+            )}
+        </button>
+
+        <button
+          className="taxonomy-delete"
+          type="button"
+          title="Permanently delete article tag"
+          aria-label="Permanently delete article tag"
+          disabled={
+            working ===
+            tag.id
+          }
+          onClick={() => {
+            void remove(
+              "tag",
+              tag
+            );
+          }}
+        >
+          <Trash2
+            size={12}
+          />
+        </button>
+      </div>
+    );
 
 
   return (
@@ -296,7 +760,10 @@ export default function TaxonomyManager() {
               </div>
 
               <span>
-                {categories.length}
+                {activeCategories.length}
+                {" active · "}
+                {inactiveCategories.length}
+                {" deactivated"}
               </span>
             </div>
 
@@ -310,8 +777,7 @@ export default function TaxonomyManager() {
                     event
                   ) => {
                     setNewCategory(
-                      event.target
-                        .value
+                      event.target.value
                     );
                   }
                 }
@@ -335,109 +801,59 @@ export default function TaxonomyManager() {
                 <Plus
                   size={13}
                 />
+
                 Add
               </button>
             </div>
 
-            <div className="taxonomy-item-list">
-              {categories.map(
-                (
-                  category,
-                  index
-                ) => (
-                  <div
-                    className={
-                      category.active
-                        ? "taxonomy-item"
-                        : "taxonomy-item inactive"
-                    }
-                    key={
-                      category.id
-                    }
-                  >
-                    <input
-                      value={
-                        category.name
-                      }
-                      maxLength={48}
-                      onChange={
-                        (
-                          event
-                        ) => {
-                          setCategories(
-                            (
-                              current
-                            ) =>
-                              current.map(
-                                (
-                                  item,
-                                  itemIndex
-                                ) =>
-                                  itemIndex ===
-                                    index
-                                    ? {
-                                        ...item,
-                                        name:
-                                          event.target
-                                            .value,
-                                      }
-                                    : item
-                              )
-                          );
-                        }
-                      }
-                    />
+            <div className="taxonomy-state-section">
+              <div className="taxonomy-section-heading">
+                <strong>
+                  Active categories
+                </strong>
 
-                    <button
-                      className="taxonomy-status"
-                      type="button"
-                      onClick={() => {
-                        setCategories(
-                          (
-                            current
-                          ) =>
-                            current.map(
-                              (
-                                item,
-                                itemIndex
-                              ) =>
-                                itemIndex ===
-                                  index
-                                  ? {
-                                      ...item,
-                                      active:
-                                        !item.active,
-                                    }
-                                  : item
-                            )
-                        );
-                      }}
-                    >
-                      {category.active
-                        ? "Active"
-                        : "Disabled"}
-                    </button>
+                <span>
+                  {activeCategories.length}
+                </span>
+              </div>
 
-                    <button
-                      className="taxonomy-save"
-                      type="button"
-                      disabled={
-                        working ===
-                        category.id
-                      }
-                      onClick={() => {
-                        void saveCategory(
-                          category
-                        );
-                      }}
-                    >
-                      <Check
-                        size={13}
-                      />
-                    </button>
+              <div className="taxonomy-item-list">
+                {activeCategories.length ===
+                  0 ? (
+                  <div className="taxonomy-section-empty">
+                    No active categories.
                   </div>
-                )
-              )}
+                ) : (
+                  activeCategories.map(
+                    renderCategory
+                  )
+                )}
+              </div>
+            </div>
+
+            <div className="taxonomy-state-section deactivated">
+              <div className="taxonomy-section-heading">
+                <strong>
+                  Deactivated categories
+                </strong>
+
+                <span>
+                  {inactiveCategories.length}
+                </span>
+              </div>
+
+              <div className="taxonomy-item-list">
+                {inactiveCategories.length ===
+                  0 ? (
+                  <div className="taxonomy-section-empty">
+                    No deactivated categories.
+                  </div>
+                ) : (
+                  inactiveCategories.map(
+                    renderCategory
+                  )
+                )}
+              </div>
             </div>
           </section>
 
@@ -454,7 +870,10 @@ export default function TaxonomyManager() {
               </div>
 
               <span>
-                {tags.length}
+                {activeTags.length}
+                {" active · "}
+                {inactiveTags.length}
+                {" deactivated"}
               </span>
             </div>
 
@@ -468,8 +887,7 @@ export default function TaxonomyManager() {
                     event
                   ) => {
                     setNewTag(
-                      event.target
-                        .value
+                      event.target.value
                     );
                   }
                 }
@@ -493,109 +911,59 @@ export default function TaxonomyManager() {
                 <Plus
                   size={13}
                 />
+
                 Add
               </button>
             </div>
 
-            <div className="taxonomy-item-list">
-              {tags.map(
-                (
-                  tag,
-                  index
-                ) => (
-                  <div
-                    className={
-                      tag.active
-                        ? "taxonomy-item"
-                        : "taxonomy-item inactive"
-                    }
-                    key={
-                      tag.id
-                    }
-                  >
-                    <input
-                      value={
-                        tag.name
-                      }
-                      maxLength={48}
-                      onChange={
-                        (
-                          event
-                        ) => {
-                          setTags(
-                            (
-                              current
-                            ) =>
-                              current.map(
-                                (
-                                  item,
-                                  itemIndex
-                                ) =>
-                                  itemIndex ===
-                                    index
-                                    ? {
-                                        ...item,
-                                        name:
-                                          event.target
-                                            .value,
-                                      }
-                                    : item
-                              )
-                          );
-                        }
-                      }
-                    />
+            <div className="taxonomy-state-section">
+              <div className="taxonomy-section-heading">
+                <strong>
+                  Active article tags
+                </strong>
 
-                    <button
-                      className="taxonomy-status"
-                      type="button"
-                      onClick={() => {
-                        setTags(
-                          (
-                            current
-                          ) =>
-                            current.map(
-                              (
-                                item,
-                                itemIndex
-                              ) =>
-                                itemIndex ===
-                                  index
-                                  ? {
-                                      ...item,
-                                      active:
-                                        !item.active,
-                                    }
-                                  : item
-                            )
-                        );
-                      }}
-                    >
-                      {tag.active
-                        ? "Active"
-                        : "Disabled"}
-                    </button>
+                <span>
+                  {activeTags.length}
+                </span>
+              </div>
 
-                    <button
-                      className="taxonomy-save"
-                      type="button"
-                      disabled={
-                        working ===
-                        tag.id
-                      }
-                      onClick={() => {
-                        void saveTag(
-                          tag
-                        );
-                      }}
-                    >
-                      <Check
-                        size={13}
-                      />
-                    </button>
+              <div className="taxonomy-item-list">
+                {activeTags.length ===
+                  0 ? (
+                  <div className="taxonomy-section-empty">
+                    No active article tags.
                   </div>
-                )
-              )}
+                ) : (
+                  activeTags.map(
+                    renderTag
+                  )
+                )}
+              </div>
+            </div>
+
+            <div className="taxonomy-state-section deactivated">
+              <div className="taxonomy-section-heading">
+                <strong>
+                  Deactivated article tags
+                </strong>
+
+                <span>
+                  {inactiveTags.length}
+                </span>
+              </div>
+
+              <div className="taxonomy-item-list">
+                {inactiveTags.length ===
+                  0 ? (
+                  <div className="taxonomy-section-empty">
+                    No deactivated article tags.
+                  </div>
+                ) : (
+                  inactiveTags.map(
+                    renderTag
+                  )
+                )}
+              </div>
             </div>
           </section>
         </div>

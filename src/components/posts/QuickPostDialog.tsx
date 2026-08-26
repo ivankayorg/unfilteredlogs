@@ -6,6 +6,7 @@ import {
 
 import {
   CheckCircle2,
+  ChevronDown,
   Image as ImageIcon,
   Images,
   Send,
@@ -49,7 +50,7 @@ import "./QuickPostDialog.css";
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    QUICK POST DIALOG
    YouTube + Text + Image + Optional GIPHY Attachment
    ========================================================== */
@@ -76,7 +77,7 @@ export default function QuickPostDialog({
     setPostType,
   ] =
     useState<QuickPostType>(
-      "youtube"
+      "text"
     );
 
   const [
@@ -390,7 +391,7 @@ export default function QuickPostDialog({
                 }
 
                 console.warn(
-                  "ROFFLE YOUTUBE TITLE ERROR:",
+                  "UNFILTERED LOGS YOUTUBE TITLE ERROR:",
                   nextError
                 );
 
@@ -496,7 +497,7 @@ export default function QuickPostDialog({
 
   const resetForm = () => {
     setPostType(
-      "youtube"
+      "text"
     );
 
     setDisplaySize(
@@ -767,12 +768,12 @@ export default function QuickPostDialog({
         nextError
       ) {
         console.error(
-          "ROFFLE POST CREATE ERROR:",
+          "UNFILTERED LOGS POST CREATE ERROR:",
           nextError
         );
 
         let message =
-          "ROFFLE could not create the post.";
+          "UNFILTERED LOGS could not create the post.";
 
         if (
           nextError
@@ -817,7 +818,7 @@ export default function QuickPostDialog({
             parts.join(
               " — "
             ) ||
-            "ROFFLE could not create the post.";
+            "UNFILTERED LOGS could not create the post.";
         }
 
         setError(
@@ -867,6 +868,60 @@ export default function QuickPostDialog({
     );
 
 
+  const primaryTags =
+    availableTags.slice(
+      0,
+      8
+    );
+
+
+  const additionalTags =
+    availableTags
+      .slice(
+        8
+      )
+      .filter(
+        (
+          tag
+        ) =>
+          !selectedTagIds.includes(
+            tag.id
+          )
+      );
+
+
+  const addTagFromMore =
+    (
+      tagId:
+        string,
+    ) => {
+      if (
+        !tagId ||
+        selectedTagIds.length >=
+          5
+      ) {
+        return;
+      }
+
+      if (
+        selectedTagIds.includes(
+          tagId
+        )
+      ) {
+        return;
+      }
+
+      setSelectedTagIds(
+        (
+          current
+        ) => [
+          ...current,
+          tagId,
+        ]
+      );
+    };
+
+
   return (
     <div
       className="quick-post-backdrop"
@@ -897,7 +952,7 @@ export default function QuickPostDialog({
             </span>
 
             <h2 id="quick-post-title">
-              Throw something on ROFFLE
+              New post
             </h2>
           </div>
 
@@ -909,29 +964,14 @@ export default function QuickPostDialog({
             }
             aria-label="Close"
           >
-            <X size={18} />
+            <X size={15} />
           </button>
         </header>
 
-        <div className="quick-post-tabs">
-          <button
-            type="button"
-            className={
-              postType ===
-              "youtube"
-                ? "active"
-                : ""
-            }
-            onClick={() => {
-              changePostType(
-                "youtube"
-              );
-            }}
-          >
-            <Video size={16} />
-            YouTube
-          </button>
-
+        <nav
+          className="quick-post-tabs"
+          aria-label="Post type"
+        >
           <button
             type="button"
             className={
@@ -946,8 +986,26 @@ export default function QuickPostDialog({
               );
             }}
           >
-            <Type size={16} />
+            <Type size={13} />
             Text
+          </button>
+
+          <button
+            type="button"
+            className={
+              postType ===
+              "youtube"
+                ? "active"
+                : ""
+            }
+            onClick={() => {
+              changePostType(
+                "youtube"
+              );
+            }}
+          >
+            <Video size={13} />
+            YouTube
           </button>
 
           <button
@@ -964,572 +1022,623 @@ export default function QuickPostDialog({
               );
             }}
           >
-            <ImageIcon size={16} />
-            Image
+            <ImageIcon size={13} />
+            Image / GIF
           </button>
-        </div>
+        </nav>
 
         <div className="quick-post-body">
-          {postType ===
-            "youtube" && (
-            <>
-              <label className="quick-post-field">
-                <span>
-                  YouTube URL
-                </span>
-
-                <input
-                  type="url"
-                  value={
-                    youtubeUrl
-                  }
-                  onChange={
-                    (
-                      event
-                    ) => {
-                      setYoutubeUrl(
-                        event
-                          .target
-                          .value
-                      );
-
-                      if (
-                        youtubeTitleMode ===
-                        "auto"
-                      ) {
-                        setTitle("");
-                      }
-
-                      setYoutubeTitleError(
-                        null
-                      );
-                    }
-                  }
-                  placeholder="https://youtube.com/shorts/..."
-                  autoFocus
-                />
-              </label>
-
-              <label className="quick-post-field">
-                <span>
-                  Title
-
-                  <small>
-                    {youtubeTitleLoading
-                      ? "fetching from YouTube..."
-                      : youtubeTitleMode ===
-                          "auto" &&
-                        title
-                        ? `from YouTube · ${title.length}/180`
-                        : `editable · ${title.length}/180`}
-                  </small>
-                </span>
-
-                <input
-                  type="text"
-                  value={
-                    title
-                  }
-                  maxLength={180}
-                  onChange={
-                    (
-                      event
-                    ) => {
-                      setTitle(
-                        event
-                          .target
-                          .value
-                      );
-
-                      setYoutubeTitleMode(
-                        "user"
-                      );
-                    }
-                  }
-                  placeholder={
-                    youtubeTitleLoading
-                      ? "Getting the YouTube title..."
-                      : "YouTube title appears here automatically."
-                  }
-                />
-
-                <div className="quick-post-youtube-title-tools">
-                  {youtubeTitleMode ===
-                    "user" &&
-                    parsedYouTube && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setYoutubeTitleMode(
-                          "auto"
-                        );
-
-                        setTitle("");
-                      }}
-                    >
-                      Use YouTube title
-                    </button>
-                  )}
-
-                  {youtubeTitleError && (
-                    <span>
-                      {youtubeTitleError}
-                    </span>
-                  )}
-                </div>
-              </label>
-
-              <label className="quick-post-field">
-                <span>
-                  Commentary
-                  <small>
-                    optional · {body.length}/500
-                  </small>
-                </span>
-
-                <textarea
-                  value={body}
-                  maxLength={500}
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setBody(
-                        event
-                          .target
-                          .value
-                      )
-                  }
-                  placeholder="Add context, a one-liner, or explain why we're watching this."
-                />
-              </label>
-
-              {youtubeUrl &&
-                !parsedYouTube && (
-                  <div className="quick-post-inline-error">
-                    That URL does not look like a YouTube video or Short.
-                  </div>
-                )}
-
-              {parsedYouTube && (
-                <div className="quick-post-youtube-preview">
-                  <iframe
-                    src={
-                      parsedYouTube
-                        .embedUrl
-                    }
-                    title="YouTube preview"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
-
-                  <div>
-                    <strong>
-                      {parsedYouTube
-                        .videoType ===
-                      "short"
-                        ? "YouTube Short"
-                        : "YouTube video"}
-                    </strong>
-
-                    <span>
-                      Ready to post.
-                    </span>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {postType ===
-            "text" && (
-            <>
-              <label className="quick-post-field">
-                <span>
-                  Title
-                  <small>
-                    {title.length}/180
-                  </small>
-                </span>
-
-                <input
-                  type="text"
-                  value={title}
-                  maxLength={180}
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setTitle(
-                        event
-                          .target
-                          .value
-                      )
-                  }
-                  placeholder="Headline the nonsense..."
-                  autoFocus
-                />
-              </label>
-
-              <label className="quick-post-field">
-                <span>
-                  Main content
-                  <small>
-                    {body.length}/500
-                  </small>
-                </span>
-
-                <textarea
-                  value={body}
-                  maxLength={500}
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setBody(
-                        event
-                          .target
-                          .value
-                      )
-                  }
-                  placeholder="Now explain yourself..."
-                />
-              </label>
-
-              <div className="quick-post-text-note">
-                Happening on ROFFLE uses the title over the post's background image.
-              </div>
-            </>
-          )}
-
-          {postType ===
-            "image" && (
-            <>
-              <label className="quick-post-upload">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  onChange={
-                    (
-                      event
-                    ) => {
-                      selectImage(
-                        event
-                          .target
-                          .files?.[0] ??
-                          null
-                      );
-                    }
-                  }
-                />
-
-                {imagePreview ? (
-                  <img
-                    src={
-                      imagePreview
-                    }
-                    alt="Selected upload preview"
-                  />
-                ) : (
-                  <div>
-                    <UploadCloud size={27} />
-
-                    <strong>
-                      Pick an image
-                    </strong>
-
-                    <span>
-                      JPG, PNG, WEBP, or GIF · 10 MB max
-                    </span>
-
-                    <small className="quick-post-image-giphy-hint">
-                      Or skip the upload and choose a GIPHY below.
-                    </small>
-                  </div>
-                )}
-              </label>
-
-              <label className="quick-post-field">
-                <span>
-                  Title
-                  <small>
-                    optional · {title.length}/180
-                  </small>
-                </span>
-
-                <input
-                  type="text"
-                  value={
-                    title
-                  }
-                  maxLength={180}
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setTitle(
-                        event
-                          .target
-                          .value
-                      )
-                  }
-                  placeholder="What are we looking at?"
-                />
-              </label>
-
-              <label className="quick-post-field">
-                <span>
-                  Caption / commentary
-                  <small>
-                    optional · {body.length}/500
-                  </small>
-                </span>
-
-                <textarea
-                  value={body}
-                  maxLength={500}
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setBody(
-                        event
-                          .target
-                          .value
-                      )
-                  }
-                  placeholder="Context, if this deserves any."
-                />
-              </label>
-            </>
-          )}
-
-          <section className="quick-post-layout-section">
-            <div className="quick-post-section-heading">
+          <section className="quick-post-section quick-post-content">
+            <div className="quick-post-section-title">
               <strong>
-                Post size
+                Content
               </strong>
 
               <span>
-                Controls card width, not media size.
+                {postType ===
+                  "text"
+                  ? "Write something worth reading."
+                  : postType ===
+                      "youtube"
+                    ? "Share a video and add context."
+                    : "Upload an image or use a GIF."}
               </span>
             </div>
 
-            <div className="quick-post-layout-options">
-              {(
-                [
-                  {
-                    value:
-                      "small",
-                    label:
-                      "Small",
-                    description:
-                      "Compact box",
-                  },
-                  {
-                    value:
-                      "large",
-                    label:
-                      "Large",
-                    description:
-                      "Standard card",
-                  },
-                  {
-                    value:
-                      "wide",
-                    label:
-                      "Wide",
-                    description:
-                      "Full row",
-                  },
-                ] as Array<{
-                  value:
-                    PostDisplaySize;
-                  label:
-                    string;
-                  description:
-                    string;
-                }>
-              ).map(
-                (
-                  option
-                ) => (
-                  <button
-                    type="button"
-                    key={
-                      option.value
-                    }
-                    className={
-                      displaySize ===
-                        option.value
-                        ? "selected"
-                        : ""
-                    }
-                    onClick={() => {
-                      setDisplaySize(
-                        option.value
-                      );
-                    }}
-                  >
-                    <strong>
-                      {option.label}
-                    </strong>
-
-                    <span>
-                      {option.description}
-                    </span>
-                  </button>
-                )
-              )}
-            </div>
-          </section>
-
-          <section className="quick-post-taxonomy-section">
-            <div className="quick-post-section-heading">
-              <strong>
-                Category & tags
-              </strong>
-
-              <span>
-                One category. Up to five tags.
-              </span>
-            </div>
-
-            {taxonomyLoading ? (
-              <div className="quick-post-taxonomy-message">
-                Loading categories and tags...
-              </div>
-            ) : taxonomyError ? (
-              <div className="quick-post-inline-error">
-                {taxonomyError}
-              </div>
-            ) : (
-              <>
-                <label className="quick-post-field quick-post-category-field">
+            {postType ===
+              "text" && (
+              <div className="quick-post-content-fields text-layout">
+                <label className="quick-post-field">
                   <span>
-                    Category
+                    Title
+
                     <small>
-                      required
+                      {title.length}/180
                     </small>
                   </span>
 
-                  <select
+                  <input
+                    type="text"
                     value={
-                      selectedCategoryId
+                      title
+                    }
+                    maxLength={180}
+                    onChange={
+                      (
+                        event
+                      ) => {
+                        setTitle(
+                          event.target.value
+                        );
+                      }
+                    }
+                    placeholder="Post title"
+                    autoFocus
+                  />
+                </label>
+
+                <label className="quick-post-field">
+                  <span>
+                    Post
+
+                    <small>
+                      {body.length}/500
+                    </small>
+                  </span>
+
+                  <textarea
+                    className="quick-post-main-textarea"
+                    value={
+                      body
+                    }
+                    maxLength={500}
+                    onChange={
+                      (
+                        event
+                      ) => {
+                        setBody(
+                          event.target.value
+                        );
+                      }
+                    }
+                    placeholder="Write the post..."
+                  />
+                </label>
+              </div>
+            )}
+
+            {postType ===
+              "youtube" && (
+              <div className="quick-post-content-fields youtube-layout">
+                <label className="quick-post-field youtube-url-field">
+                  <span>
+                    YouTube URL
+                  </span>
+
+                  <input
+                    type="url"
+                    value={
+                      youtubeUrl
                     }
                     onChange={
                       (
                         event
                       ) => {
-                        setSelectedCategoryId(
-                          event.target
-                            .value
+                        setYoutubeUrl(
+                          event.target.value
+                        );
+
+                        if (
+                          youtubeTitleMode ===
+                          "auto"
+                        ) {
+                          setTitle(
+                            ""
+                          );
+                        }
+
+                        setYoutubeTitleError(
+                          null
                         );
                       }
                     }
-                  >
-                    {categories.map(
-                      (
-                        category
-                      ) => (
-                        <option
-                          key={
-                            category.id
-                          }
-                          value={
-                            category.id
-                          }
-                        >
-                          {category.name}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    placeholder="Paste a YouTube video or Shorts URL"
+                    autoFocus
+                  />
                 </label>
 
-                <div className="quick-post-tags-field">
-                  <div className="quick-post-tags-heading">
-                    <strong>
-                      Article tags
-                    </strong>
+                <label className="quick-post-field youtube-title-field">
+                  <span>
+                    Title
 
-                    <span>
-                      {selectedTagIds.length}/5 selected
-                    </span>
-                  </div>
+                    <small>
+                      {youtubeTitleLoading
+                        ? "fetching..."
+                        : `${title.length}/180`}
+                    </small>
+                  </span>
 
-                  <div className="quick-post-tag-options">
-                    {availableTags.map(
+                  <input
+                    type="text"
+                    value={
+                      title
+                    }
+                    maxLength={180}
+                    onChange={
                       (
-                        tag
+                        event
                       ) => {
-                        const selected =
-                          selectedTagIds.includes(
-                            tag.id
-                          );
+                        setTitle(
+                          event.target.value
+                        );
 
-                        const unavailable =
-                          !selected &&
-                          selectedTagIds.length >=
-                            5;
-
-                        return (
-                          <button
-                            key={
-                              tag.id
-                            }
-                            type="button"
-                            className={
-                              selected
-                                ? "selected"
-                                : ""
-                            }
-                            disabled={
-                              unavailable
-                            }
-                            onClick={() => {
-                              toggleTag(
-                                tag.id
-                              );
-                            }}
-                          >
-                            #
-                            {tag.name}
-                          </button>
+                        setYoutubeTitleMode(
+                          "user"
                         );
                       }
+                    }
+                    placeholder={
+                      youtubeTitleLoading
+                        ? "Getting title from YouTube..."
+                        : "Video title"
+                    }
+                  />
+
+                  <div className="quick-post-youtube-title-tools">
+                    {youtubeTitleMode ===
+                      "user" &&
+                      parsedYouTube && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setYoutubeTitleMode(
+                            "auto"
+                          );
+
+                          setTitle(
+                            ""
+                          );
+                        }}
+                      >
+                        Use YouTube title
+                      </button>
+                    )}
+
+                    {youtubeTitleError && (
+                      <span>
+                        {youtubeTitleError}
+                      </span>
                     )}
                   </div>
+                </label>
+
+                <label className="quick-post-field youtube-commentary-field">
+                  <span>
+                    Commentary
+
+                    <small>
+                      optional · {body.length}/500
+                    </small>
+                  </span>
+
+                  <textarea
+                    value={
+                      body
+                    }
+                    maxLength={500}
+                    onChange={
+                      (
+                        event
+                      ) => {
+                        setBody(
+                          event.target.value
+                        );
+                      }
+                    }
+                    placeholder="Why is this worth watching?"
+                  />
+                </label>
+
+                <div className="quick-post-youtube-preview-slot">
+                  {youtubeUrl &&
+                    !parsedYouTube && (
+                    <div className="quick-post-inline-error">
+                      That does not look like a valid YouTube URL.
+                    </div>
+                  )}
+
+                  {parsedYouTube && (
+                    <div className="quick-post-youtube-preview">
+                      <iframe
+                        src={
+                          parsedYouTube.embedUrl
+                        }
+                        title="YouTube preview"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+
+                      <div>
+                        <strong>
+                          {parsedYouTube.videoType ===
+                          "short"
+                            ? "YouTube Short"
+                            : "YouTube video"}
+                        </strong>
+
+                        <span>
+                          Ready to post.
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </>
+              </div>
+            )}
+
+            {postType ===
+              "image" && (
+              <div className="quick-post-content-fields image-layout">
+                <label className="quick-post-upload">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={
+                      (
+                        event
+                      ) => {
+                        selectImage(
+                          event.target.files?.[0] ??
+                          null
+                        );
+                      }
+                    }
+                  />
+
+                  {imagePreview ? (
+                    <img
+                      src={
+                        imagePreview
+                      }
+                      alt="Selected upload preview"
+                    />
+                  ) : (
+                    <div>
+                      <UploadCloud size={22} />
+
+                      <strong>
+                        Choose image
+                      </strong>
+
+                      <span>
+                        JPG, PNG, WEBP, or GIF · 10 MB max
+                      </span>
+                    </div>
+                  )}
+                </label>
+
+                <div className="image-copy-fields">
+                  <label className="quick-post-field">
+                    <span>
+                      Title
+
+                      <small>
+                        optional · {title.length}/180
+                      </small>
+                    </span>
+
+                    <input
+                      type="text"
+                      value={
+                        title
+                      }
+                      maxLength={180}
+                      onChange={
+                        (
+                          event
+                        ) => {
+                          setTitle(
+                            event.target.value
+                          );
+                        }
+                      }
+                      placeholder="What are we looking at?"
+                    />
+                  </label>
+
+                  <label className="quick-post-field">
+                    <span>
+                      Caption
+
+                      <small>
+                        optional · {body.length}/500
+                      </small>
+                    </span>
+
+                    <textarea
+                      value={
+                        body
+                      }
+                      maxLength={500}
+                      onChange={
+                        (
+                          event
+                        ) => {
+                          setBody(
+                            event.target.value
+                          );
+                        }
+                      }
+                      placeholder="Add some context."
+                    />
+                  </label>
+                </div>
+              </div>
             )}
           </section>
 
-          <section className="quick-post-gif-section">
-            <div className="quick-post-gif-heading">
-              <div>
-                <Images size={16} />
+          <section className="quick-post-section quick-post-details">
+            <div className="quick-post-section-title">
+              <strong>
+                Post details
+              </strong>
 
-                <div>
-                  <strong>
-                    {postType ===
-                      "image" &&
-                    !image
-                      ? "USE GIPHY AS THE MAIN POST"
-                      : "SEARCH GIPHY because you need help"}
-                  </strong>
+              <span>
+                Organize how the post appears in the feed.
+              </span>
+            </div>
 
-                  <span>
-                    {postType ===
-                      "image" &&
-                    !image
-                      ? "Pick one and it becomes the actual image post."
-                      : "I mean, it's optional. You choose to do this."}
-                  </span>
+            <div className="quick-post-details-grid">
+              <label className="quick-post-meta-field category-field">
+                <span>
+                  Category
+                </span>
+
+                {taxonomyLoading ? (
+                  <div className="quick-post-taxonomy-message">
+                    Loading...
+                  </div>
+                ) : taxonomyError ? (
+                  <div className="quick-post-inline-error">
+                    {taxonomyError}
+                  </div>
+                ) : (
+                  <div className="quick-post-select-wrap">
+                    <select
+                      value={
+                        selectedCategoryId
+                      }
+                      onChange={
+                        (
+                          event
+                        ) => {
+                          setSelectedCategoryId(
+                            event.target.value
+                          );
+                        }
+                      }
+                    >
+                      {categories.map(
+                        (
+                          category
+                        ) => (
+                          <option
+                            key={
+                              category.id
+                            }
+                            value={
+                              category.id
+                            }
+                          >
+                            {category.name}
+                          </option>
+                        )
+                      )}
+                    </select>
+
+                    <ChevronDown
+                      size={13}
+                    />
+                  </div>
+                )}
+              </label>
+
+              <div className="quick-post-meta-field size-field">
+                <span>
+                  Post size
+                </span>
+
+                <div className="quick-post-size-options">
+                  {(
+                    [
+                      {
+                        value:
+                          "small",
+                        label:
+                          "Small",
+                      },
+                      {
+                        value:
+                          "large",
+                        label:
+                          "Large",
+                      },
+                      {
+                        value:
+                          "wide",
+                        label:
+                          "Wide",
+                      },
+                    ] as Array<{
+                      value:
+                        PostDisplaySize;
+                      label:
+                        string;
+                    }>
+                  ).map(
+                    (
+                      option
+                    ) => (
+                      <button
+                        type="button"
+                        key={
+                          option.value
+                        }
+                        className={
+                          displaySize ===
+                            option.value
+                            ? "selected"
+                            : ""
+                        }
+                        onClick={() => {
+                          setDisplaySize(
+                            option.value
+                          );
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    )
+                  )}
                 </div>
+
+                <small className="quick-post-size-help">
+                  Changes only the width of the post container in the main feed.
+                  It does not resize, crop, or alter the actual text, image, GIF, or video.
+                </small>
+              </div>
+            </div>
+          </section>
+
+          <section className="quick-post-section quick-post-tags-section">
+            <div className="quick-post-section-title compact">
+              <div>
+                <strong>
+                  Article tags
+                </strong>
+
+                <span>
+                  Optional · choose up to five
+                </span>
+              </div>
+
+              <em>
+                {selectedTagIds.length}/5 selected
+              </em>
+            </div>
+
+            {!taxonomyLoading &&
+              !taxonomyError && (
+              <div className="quick-post-tags-row">
+                {primaryTags.map(
+                  (
+                    tag
+                  ) => {
+                    const selected =
+                      selectedTagIds.includes(
+                        tag.id
+                      );
+
+                    return (
+                      <button
+                        key={
+                          tag.id
+                        }
+                        type="button"
+                        className={
+                          selected
+                            ? "selected"
+                            : ""
+                        }
+                        disabled={
+                          !selected &&
+                          selectedTagIds.length >=
+                            5
+                        }
+                        onClick={() => {
+                          toggleTag(
+                            tag.id
+                          );
+                        }}
+                      >
+                        #
+                        {tag.name}
+                      </button>
+                    );
+                  }
+                )}
+
+                {availableTags.length >
+                  8 && (
+                  <div className="quick-post-more-tags-select">
+                    <select
+                      aria-label="More article tags"
+                      value=""
+                      disabled={
+                        selectedTagIds.length >=
+                        5 ||
+                        additionalTags.length ===
+                        0
+                      }
+                      onChange={
+                        (
+                          event
+                        ) => {
+                          addTagFromMore(
+                            event.target.value
+                          );
+                        }
+                      }
+                    >
+                      <option value="">
+                        MORE &gt;&gt;
+                      </option>
+
+                      {additionalTags.map(
+                        (
+                          tag
+                        ) => (
+                          <option
+                            key={
+                              tag.id
+                            }
+                            value={
+                              tag.id
+                            }
+                          >
+                            #{tag.name}
+                          </option>
+                        )
+                      )}
+                    </select>
+
+                    <ChevronDown
+                      size={12}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          <section className="quick-post-section quick-post-attachments">
+            <div className="quick-post-attachment-bar">
+              <div>
+                <Images
+                  size={13}
+                />
+
+                <span>
+                  GIF attachment
+                </span>
+
+                <small>
+                  optional
+                </small>
               </div>
 
               <button
+                className="quick-post-gif-toggle"
                 type="button"
                 onClick={() => {
                   setGifOpen(
@@ -1541,10 +1650,10 @@ export default function QuickPostDialog({
                 }}
               >
                 {gifOpen
-                  ? "Close search"
+                  ? "Close GIPHY"
                   : selectedGif
                     ? "Change GIF"
-                    : "Add GIF"}
+                    : "Choose GIF"}
               </button>
             </div>
 
@@ -1567,35 +1676,33 @@ export default function QuickPostDialog({
                     );
                   }}
                 >
-                  <X size={14} />
-                  {postType ===
-                    "image" &&
-                  !image
-                    ? "Remove main GIF"
-                    : "Remove GIF"}
+                  <X size={11} />
+                  Remove
                 </button>
               </div>
             )}
 
             {gifOpen && (
-              <GiphyPicker
-                selected={
-                  selectedGif
-                }
-                onSelect={
-                  (
-                    gif
-                  ) => {
-                    setSelectedGif(
-                      gif
-                    );
-
-                    setGifOpen(
-                      false
-                    );
+              <div className="quick-post-giphy-drawer">
+                <GiphyPicker
+                  selected={
+                    selectedGif
                   }
-                }
-              />
+                  onSelect={
+                    (
+                      gif
+                    ) => {
+                      setSelectedGif(
+                        gif
+                      );
+
+                      setGifOpen(
+                        false
+                      );
+                    }
+                  }
+                />
+              </div>
             )}
           </section>
 
@@ -1607,43 +1714,49 @@ export default function QuickPostDialog({
 
           {postedMessage && (
             <div className="quick-post-success">
-              <CheckCircle2 size={16} />
+              <CheckCircle2 size={13} />
               {postedMessage}
             </div>
           )}
         </div>
 
         <footer className="quick-post-footer">
-          <button
-            className="quick-post-cancel"
-            type="button"
-            onClick={
-              closeDialog
-            }
-            disabled={
-              saving
-            }
-          >
-            Cancel
-          </button>
+          <span>
+            One category · up to five article tags
+          </span>
 
-          <button
-            className="quick-post-submit"
-            type="button"
-            onClick={() => {
-              void submit();
-            }}
-            disabled={
-              saving ||
-              !canSubmit
-            }
-          >
-            <Send size={15} />
+          <div>
+            <button
+              className="quick-post-cancel"
+              type="button"
+              onClick={
+                closeDialog
+              }
+              disabled={
+                saving
+              }
+            >
+              Cancel
+            </button>
 
-            {saving
-              ? "Posting..."
-              : "Post to ROFFLE"}
-          </button>
+            <button
+              className="quick-post-submit"
+              type="button"
+              onClick={() => {
+                void submit();
+              }}
+              disabled={
+                saving ||
+                !canSubmit
+              }
+            >
+              <Send size={12} />
+
+              {saving
+                ? "Posting..."
+                : "Post"}
+            </button>
+          </div>
         </footer>
       </section>
     </div>

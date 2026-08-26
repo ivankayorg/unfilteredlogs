@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -11,6 +12,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
+  CalendarDays,
   Clock3,
 } from "lucide-react";
 
@@ -19,6 +21,7 @@ import {
 } from "../../lib/supabase";
 
 import SiteHeader from "../../components/layout/SiteHeader";
+import SiteFooter from "../../components/layout/SiteFooter";
 import QuickPostDialog from "../../components/posts/QuickPostDialog";
 
 import {
@@ -73,8 +76,203 @@ function formatBlogDate(
 }
 
 
+function formatBlogDateShort(
+  value:
+    string | null,
+) {
+  if (!value) {
+    return "Draft";
+  }
+
+  return new Date(
+    value
+  ).toLocaleDateString(
+    undefined,
+    {
+      month:
+        "short",
+
+      day:
+        "numeric",
+
+      year:
+        "numeric",
+    }
+  );
+}
+
+
+function archiveLabel(
+  value:
+    string | null,
+) {
+  if (!value) {
+    return "Unpublished";
+  }
+
+  return new Date(
+    value
+  ).toLocaleDateString(
+    undefined,
+    {
+      month:
+        "long",
+
+      year:
+        "numeric",
+    }
+  );
+}
+
+
 /* ==========================================================
    BLOG 002
+   INDEX SIDEBAR
+   ========================================================== */
+
+
+function EditorialSidebar({
+  posts,
+}: {
+  posts:
+    BlogPost[];
+}) {
+  const archives =
+    useMemo(
+      () => {
+        const counts =
+          new Map<
+            string,
+            number
+          >();
+
+        for (
+          const post
+          of posts
+        ) {
+          const label =
+            archiveLabel(
+              post.published_at
+            );
+
+          counts.set(
+            label,
+            (
+              counts.get(
+                label
+              ) ??
+              0
+            ) +
+            1
+          );
+        }
+
+        return Array.from(
+          counts.entries()
+        );
+      },
+      [
+        posts,
+      ]
+    );
+
+
+  return (
+    <aside className="editorial-sidebar">
+      <section className="editorial-side-box">
+        <header>
+          ABOUT EDITORIAL
+        </header>
+
+        <div className="editorial-side-copy">
+          <p>
+            Longer-form writing from
+            UNFILTERED LOGS.
+          </p>
+
+          <p>
+            Product notes, internet
+            culture, site updates,
+            opinions, and whatever
+            needed more room than a
+            regular post.
+          </p>
+        </div>
+      </section>
+
+      <section className="editorial-side-box">
+        <header>
+          RECENT ARTICLES
+        </header>
+
+        <div className="editorial-recent-list">
+          {posts
+            .slice(
+              0,
+              6
+            )
+            .map(
+              (
+                post
+              ) => (
+                <a
+                  href={`/blog/${post.slug}`}
+                  key={
+                    post.id
+                  }
+                >
+                  <strong>
+                    {post.title}
+                  </strong>
+
+                  <span>
+                    {formatBlogDateShort(
+                      post.published_at
+                    )}
+                  </span>
+                </a>
+              )
+            )}
+        </div>
+      </section>
+
+      <section className="editorial-side-box">
+        <header>
+          ARCHIVES
+        </header>
+
+        <div className="editorial-archive-list">
+          {archives.map(
+            (
+              [
+                label,
+                count,
+              ]
+            ) => (
+              <div
+                key={
+                  label
+                }
+              >
+                <span>
+                  {label}
+                </span>
+
+                <strong>
+                  {count}
+                </strong>
+              </div>
+            )
+          )}
+        </div>
+      </section>
+    </aside>
+  );
+}
+
+
+/* ==========================================================
+   BLOG 003
    BLOG INDEX
    ========================================================== */
 
@@ -127,7 +325,7 @@ function BlogIndex() {
               nextError
                 instanceof Error
                 ? nextError.message
-                : "ROFFLE Blog could not load."
+                : "UNFILTERED LOGS Editorial could not load."
             );
           }
         }
@@ -153,20 +351,23 @@ function BlogIndex() {
       <section className="blog-page-heading">
         <div>
           <span>
-            ROFFLE EDITORIAL
+            UNFILTERED LOGS
           </span>
 
           <h1>
-            Blog
+            Editorial
           </h1>
 
           <p>
-            Longer thoughts from the people running this thing.
+            Longer posts, site notes,
+            opinions, and other things
+            that needed more than a
+            few lines.
           </p>
         </div>
 
         <BookOpen
-          size={28}
+          size={22}
         />
       </section>
 
@@ -178,7 +379,7 @@ function BlogIndex() {
 
       {loading ? (
         <div className="blog-loading">
-          Loading the blog...
+          Loading Editorial...
         </div>
       ) : posts.length ===
         0 ? (
@@ -186,75 +387,110 @@ function BlogIndex() {
           Nothing published yet.
         </div>
       ) : (
-        <section className="blog-index-grid">
-          {posts.map(
-            (
-              post,
-              index
-            ) => (
-              <a
-                className={`blog-index-card ${
-                  index === 0
-                    ? "lead"
-                    : ""
-                }`}
-                href={`/blog/${post.slug}`}
-                key={
-                  post.id
-                }
-              >
-                {post.hero_image_url ? (
-                  <div className="blog-index-image">
-                    <img
-                      src={
-                        post.hero_image_url
-                      }
-                      alt=""
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className={`blog-index-placeholder blog-${post.accent_style}`}
-                  >
-                    BLOG
-                  </div>
-                )}
+        <div className="editorial-layout">
+          <main className="editorial-stream">
+            {posts.map(
+              (
+                post
+              ) => (
+                <article
+                  className={
+                    post.is_highlighted
+                      ? "editorial-post featured"
+                      : "editorial-post"
+                  }
+                  key={
+                    post.id
+                  }
+                >
+                  <header className="editorial-post-header">
+                    <div>
+                      <span className="editorial-post-label">
+                        {post.is_highlighted
+                          ? "FEATURED EDITORIAL"
+                          : "EDITORIAL"}
+                      </span>
 
-                <div className="blog-index-copy">
-                  <span className="blog-index-kicker">
-                    {post.is_highlighted
-                      ? "Highlighted"
-                      : "ROFFLE Blog"}
-                  </span>
+                      <h2>
+                        <a
+                          href={`/blog/${post.slug}`}
+                        >
+                          {post.title}
+                        </a>
+                      </h2>
+                    </div>
 
-                  <h2>
-                    {post.title}
-                  </h2>
+                    <time>
+                      {formatBlogDateShort(
+                        post.published_at
+                      )}
+                    </time>
+                  </header>
 
-                  {post.excerpt && (
-                    <p>
-                      {post.excerpt}
-                    </p>
+                  {post.hero_image_url && (
+                    <a
+                      className="editorial-post-image"
+                      href={`/blog/${post.slug}`}
+                    >
+                      <img
+                        src={
+                          post.hero_image_url
+                        }
+                        alt=""
+                      />
+                    </a>
                   )}
 
-                  <div className="blog-index-meta">
-                    <Clock3
-                      size={12}
-                    />
-
-                    {formatBlogDate(
-                      post.published_at
+                  <div className="editorial-post-copy">
+                    {post.excerpt ? (
+                      <p>
+                        {post.excerpt}
+                      </p>
+                    ) : (
+                      <p>
+                        {post.body.slice(
+                          0,
+                          360
+                        )}
+                        {post.body.length >
+                          360
+                          ? "..."
+                          : ""}
+                      </p>
                     )}
-
-                    <ArrowRight
-                      size={13}
-                    />
                   </div>
-                </div>
-              </a>
-            )
-          )}
-        </section>
+
+                  <footer className="editorial-post-footer">
+                    <span>
+                      <Clock3
+                        size={10}
+                      />
+
+                      {formatBlogDate(
+                        post.published_at
+                      )}
+                    </span>
+
+                    <a
+                      href={`/blog/${post.slug}`}
+                    >
+                      Read full article
+                      <ArrowRight
+                        size={10}
+                      />
+                    </a>
+                  </footer>
+                </article>
+              )
+            )}
+          </main>
+
+          <EditorialSidebar
+            posts={
+              posts
+            }
+          />
+        </div>
       )}
     </>
   );
@@ -262,7 +498,7 @@ function BlogIndex() {
 
 
 /* ==========================================================
-   BLOG 003
+   BLOG 004
    ARTICLE
    ========================================================== */
 
@@ -278,6 +514,14 @@ function BlogArticle({
   ] =
     useState<BlogPost | null>(
       null
+    );
+
+  const [
+    recentPosts,
+    setRecentPosts,
+  ] =
+    useState<BlogPost[]>(
+      []
     );
 
   const [
@@ -298,18 +542,31 @@ function BlogArticle({
   useEffect(() => {
     let mounted = true;
 
-    void getBlogPostBySlug(
-      slug
-    )
+    void Promise.all([
+      getBlogPostBySlug(
+        slug
+      ),
+
+      getPublishedBlogPosts(),
+    ])
       .then(
         (
-          nextPost
+          [
+            nextPost,
+            nextPosts,
+          ]
         ) => {
-          if (mounted) {
-            setPost(
-              nextPost
-            );
+          if (!mounted) {
+            return;
           }
+
+          setPost(
+            nextPost
+          );
+
+          setRecentPosts(
+            nextPosts
+          );
         }
       )
       .catch(
@@ -321,7 +578,7 @@ function BlogArticle({
               nextError
                 instanceof Error
                 ? nextError.message
-                : "Could not load the blog post."
+                : "Could not load the Editorial article."
             );
           }
         }
@@ -357,11 +614,11 @@ function BlogArticle({
     return (
       <div className="blog-empty">
         <strong>
-          Blog post not found.
+          Article not found.
         </strong>
 
         <a href="/blog">
-          Back to Blog
+          Back to Editorial
         </a>
       </div>
     );
@@ -369,71 +626,89 @@ function BlogArticle({
 
 
   return (
-    <article className="blog-article">
-      <a
-        className="blog-back"
-        href="/blog"
-      >
-        <ArrowLeft
-          size={13}
-        />
-
-        Back to Blog
-      </a>
-
-      <header
-        className={`blog-article-hero blog-${post.accent_style}`}
-      >
-        <div>
-          <span>
-            {post.is_highlighted
-              ? "HIGHLIGHTED POST"
-              : "ROFFLE BLOG"}
-          </span>
-
-          <h1>
-            {post.title}
-          </h1>
-
-          {post.excerpt && (
-            <p>
-              {post.excerpt}
-            </p>
-          )}
-
-          <time>
-            {formatBlogDate(
-              post.published_at
-            )}
-          </time>
-        </div>
-
-        {post.hero_image_url && (
-          <img
-            src={
-              post.hero_image_url
-            }
-            alt=""
+    <>
+      <div className="blog-article-tools">
+        <a
+          className="blog-back"
+          href="/blog"
+        >
+          <ArrowLeft
+            size={11}
           />
-        )}
-      </header>
 
-      {error && (
-        <div className="blog-error">
-          {error}
-        </div>
-      )}
-
-      <div className="blog-article-body">
-        {post.body}
+          Back to Editorial
+        </a>
       </div>
-    </article>
+
+      <div className="editorial-layout article-layout">
+        <main className="blog-article">
+          <article className="blog-article-card">
+            <header className="blog-article-header">
+              <span>
+                {post.is_highlighted
+                  ? "FEATURED EDITORIAL"
+                  : "UNFILTERED LOGS EDITORIAL"}
+              </span>
+
+              <h1>
+                {post.title}
+              </h1>
+
+              <div className="blog-article-meta">
+                <CalendarDays
+                  size={11}
+                />
+
+                <time>
+                  {formatBlogDate(
+                    post.published_at
+                  )}
+                </time>
+              </div>
+            </header>
+
+            {post.hero_image_url && (
+              <div className="blog-article-image">
+                <img
+                  src={
+                    post.hero_image_url
+                  }
+                  alt=""
+                />
+              </div>
+            )}
+
+            {post.excerpt && (
+              <div className="blog-article-deck">
+                {post.excerpt}
+              </div>
+            )}
+
+            {error && (
+              <div className="blog-error">
+                {error}
+              </div>
+            )}
+
+            <div className="blog-article-body">
+              {post.body}
+            </div>
+          </article>
+        </main>
+
+        <EditorialSidebar
+          posts={
+            recentPosts
+          }
+        />
+      </div>
+    </>
   );
 }
 
 
 /* ==========================================================
-   BLOG 004
+   BLOG 005
    PAGE / AUTH / SHARED HEADER
    ========================================================== */
 
@@ -571,7 +846,9 @@ export default function Blog() {
     () => {
       if (!session) {
         window.location.assign(
-          "/login"
+          `/login?returnTo=${encodeURIComponent(
+            window.location.pathname
+          )}`
         );
 
         return;
@@ -604,7 +881,7 @@ export default function Blog() {
 
 
   return (
-    <div className="blog-page">
+    <div className="classic-site blog-page">
       <SiteHeader
         session={
           session
@@ -624,7 +901,7 @@ export default function Blog() {
         }}
       />
 
-      <main className="blog-shell">
+      <main className="site-width blog-shell">
         {articleMatch ? (
           <BlogArticle
             slug={
@@ -653,6 +930,8 @@ export default function Blog() {
           );
         }}
       />
+
+      <SiteFooter />
     </div>
   );
 }

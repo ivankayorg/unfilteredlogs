@@ -21,7 +21,7 @@ import "./PasswordAuthForm.css";
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    EMAIL / PASSWORD AUTH
    ========================================================== */
 
@@ -29,6 +29,29 @@ import "./PasswordAuthForm.css";
 type Mode =
   | "signin"
   | "create";
+
+
+function getPasswordAuthReturnTo() {
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const requested =
+    params.get(
+      "returnTo"
+    );
+
+  if (
+    !requested ||
+    !requested.startsWith("/") ||
+    requested.startsWith("//")
+  ) {
+    return "/";
+  }
+
+  return requested;
+}
 
 
 export default function PasswordAuthForm() {
@@ -145,7 +168,7 @@ export default function PasswordAuthForm() {
           );
 
           window.location.assign(
-            "/"
+            getPasswordAuthReturnTo()
           );
 
           return;
@@ -184,7 +207,7 @@ export default function PasswordAuthForm() {
           result.session
         ) {
           window.location.assign(
-            "/"
+            getPasswordAuthReturnTo()
           );
 
           return;
@@ -204,7 +227,7 @@ export default function PasswordAuthForm() {
           nextError
             instanceof Error
             ? nextError.message
-            : "ROFFLE could not complete the request.";
+            : "UNFILTERED LOGS could not complete the request.";
 
         setError(
           message

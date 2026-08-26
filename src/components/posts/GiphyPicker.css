@@ -1,5 +1,5 @@
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    GIPHY PICKER
    ========================================================== */
 
@@ -127,7 +127,7 @@
 .giphy-grid button:hover,
 .giphy-grid button.selected {
   border-color:
-    #ff5a1f;
+    #3b5ccc;
 }
 
 
@@ -160,7 +160,7 @@
     0 4px;
 
   color:
-    #ff5a1f;
+    #3b5ccc;
 
   font-family:
     ui-monospace,

@@ -21,7 +21,7 @@ import type {
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    MODERATION QUEUE
    ========================================================== */
 
@@ -214,7 +214,7 @@ export default function ModerationQueue({
                   ?.username ??
                 post.profiles
                   ?.display_name ??
-                "ROFFLE User";
+                "UNFILTERED LOGS User";
 
               return (
                 <article

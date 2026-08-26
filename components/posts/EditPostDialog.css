@@ -1,0 +1,85 @@
+/* ==========================================================
+   UNFILTERED LOGS
+   EDIT POST DIALOG
+   ========================================================== */
+
+
+.edit-post-dialog {
+  max-width: 720px;
+}
+
+
+.edit-post-type {
+  padding:
+    9px 18px;
+
+  border-bottom:
+    1px solid
+    var(--border);
+
+  background:
+    #fafaf8;
+
+  color:
+    var(--accent);
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing:
+    0.08em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.edit-post-title-tools {
+  min-height: 20px;
+
+  margin-top: 5px;
+}
+
+
+.edit-post-title-tools button {
+  padding: 0;
+
+  border: 0;
+
+  background:
+    transparent;
+
+  color:
+    var(--accent);
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+
+.edit-post-current-image {
+  width: 100%;
+
+  margin-bottom: 10px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  background: #111;
+}
+
+
+.edit-post-current-image img {
+  width: 100%;
+  max-height: 380px;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+
+.edit-post-replace-image {
+  min-height: 90px;
+}

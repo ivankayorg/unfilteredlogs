@@ -21,7 +21,7 @@ import type {
 
 
 /* ==========================================================
-   ROFFLE ADMIN
+   UNFILTERED LOGS ADMIN
    REJECTED POSTS
    ========================================================== */
 
@@ -237,7 +237,7 @@ export default function RejectedPosts() {
                   ? `@${post.profiles.username}`
                   : post.profiles
                       ?.display_name ??
-                    "ROFFLE User";
+                    "UNFILTERED LOGS User";
 
               return (
                 <article

@@ -36,7 +36,7 @@ import "./PostComments.css";
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    INLINE POST COMMENTS
    Text + Optional GIF
    ========================================================== */
@@ -357,7 +357,7 @@ export default function PostComments({
                   ?.username ??
                 comment.profile
                   ?.display_name ??
-                "ROFFLE User";
+                "UNFILTERED LOGS User";
 
               const avatar =
                 author

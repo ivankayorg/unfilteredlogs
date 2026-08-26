@@ -6,7 +6,7 @@ import type {
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    POST ENGAGEMENT
    Likes + Comments + YouTube Gems
    ========================================================== */
@@ -111,7 +111,7 @@ export async function attachPostEngagement(
       commentsResult.error;
 
     console.warn(
-      "ROFFLE ENGAGEMENT TABLES NOT READY:",
+      "UNFILTERED LOGS ENGAGEMENT TABLES NOT READY:",
       issue
     );
 
@@ -306,7 +306,7 @@ export async function getYouTubeGems(
 
   if (error) {
     console.warn(
-      "ROFFLE YOUTUBE GEMS ERROR:",
+      "UNFILTERED LOGS YOUTUBE GEMS ERROR:",
       error
     );
 

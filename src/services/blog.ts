@@ -221,3 +221,34 @@ export async function deleteBlogPost(
     throw error;
   }
 }
+
+
+
+/* ==========================================================
+   BLOG 003
+   HOMEPAGE FEATURE
+   ========================================================== */
+
+
+export async function setBlogPostHighlighted(
+  blogPostId: string,
+  highlighted: boolean,
+) {
+  const {
+    error,
+  } =
+    await supabase.rpc(
+      "admin_set_blog_highlight",
+      {
+        target_post:
+          blogPostId,
+
+        new_highlighted:
+          highlighted,
+      }
+    );
+
+  if (error) {
+    throw error;
+  }
+}

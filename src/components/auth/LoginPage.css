@@ -1,0 +1,730 @@
+/* ==========================================================
+   UNFILTERED LOGS
+   LOGIN PAGE - PRODUCTION PASS 18
+   ========================================================== */
+
+
+.roffle-auth-page {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #e5ebf3 0,
+      #d7dfe9 170px,
+      #cdd6e2 100%
+    );
+
+  color: #303944;
+
+  font-family:
+    Verdana,
+    Tahoma,
+    Arial,
+    sans-serif;
+}
+
+
+/* ==========================================================
+   HEADER
+   ========================================================== */
+
+
+.roffle-auth-header {
+  flex: 0 0 auto;
+
+  border-bottom: 1px solid #182d49;
+
+  background:
+    linear-gradient(
+      #345477,
+      #263f60
+    );
+}
+
+
+.roffle-auth-header-shell {
+  width:
+    min(
+      1080px,
+      calc(
+        100% - 24px
+      )
+    );
+
+  min-height: 47px;
+
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+
+.roffle-auth-header
+.roffle-logo {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: #fff;
+
+  text-decoration: none;
+}
+
+
+.roffle-auth-header
+.logo-mark {
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid #16345d;
+
+  background:
+    linear-gradient(
+      #628bc8,
+      #3d67a2
+    );
+
+  color: #fff;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: -.06em;
+
+  text-shadow:
+    0 1px 1px
+    rgba(
+      0,
+      0,
+      0,
+      .35
+    );
+}
+
+
+.roffle-auth-header
+.logo-word {
+  color: #fff;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  letter-spacing: -.02em;
+}
+
+
+.roffle-auth-browse {
+  color: #d5dfeb;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+
+.roffle-auth-browse:hover {
+  color: #fff;
+
+  text-decoration: underline;
+}
+
+
+/* ==========================================================
+   MAIN
+   ========================================================== */
+
+
+.roffle-auth-main {
+  width:
+    min(
+      960px,
+      calc(
+        100% - 24px
+      )
+    );
+
+  flex: 1 0 auto;
+
+  margin: 0 auto;
+
+  padding:
+    18px 0
+    26px;
+}
+
+
+/* ==========================================================
+   WELCOME
+   ========================================================== */
+
+
+.roffle-auth-welcome {
+  margin-bottom: 10px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(
+      0,
+      1fr
+    )
+    250px;
+
+  border:
+    1px solid
+    #91a0b3;
+
+  background: #fff;
+
+  box-shadow:
+    0 1px 2px
+    rgba(
+      37,
+      53,
+      74,
+      .08
+    );
+}
+
+
+.roffle-auth-welcome-copy {
+  padding:
+    16px 18px;
+}
+
+
+.roffle-auth-kicker {
+  margin-bottom: 5px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 5px;
+
+  color: #4a6993;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing: .07em;
+}
+
+
+.roffle-auth-welcome h1 {
+  margin: 0;
+
+  color: #283d5b;
+
+  font-size: 24px;
+  font-weight: 900;
+
+  line-height: 1.05;
+
+  letter-spacing: -.035em;
+}
+
+
+.roffle-auth-welcome-copy p {
+  max-width: 590px;
+
+  margin:
+    8px 0
+    0;
+
+  color: #5f6b7a;
+
+  font-size: 9px;
+
+  line-height: 1.55;
+}
+
+
+.roffle-auth-welcome-note {
+  padding:
+    13px 14px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 5px;
+
+  border-left:
+    1px solid
+    #b8c3d0;
+
+  background:
+    linear-gradient(
+      #edf2f7,
+      #dfe7f0
+    );
+}
+
+
+.roffle-auth-welcome-note strong {
+  color: #3e5676;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing: .06em;
+}
+
+
+.roffle-auth-welcome-note span {
+  color: #596779;
+
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+
+.roffle-auth-welcome-note em {
+  color: #8b5d64;
+
+  font-size: 7px;
+  font-style: normal;
+}
+
+
+/* ==========================================================
+   LOGIN LAYOUT
+   ========================================================== */
+
+
+.roffle-auth-layout {
+  display: grid;
+
+  grid-template-columns:
+    minmax(
+      0,
+      1fr
+    )
+    310px;
+
+  gap: 10px;
+
+  align-items: start;
+}
+
+
+.roffle-auth-side {
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+
+.roffle-auth-panel {
+  overflow: hidden;
+
+  border:
+    1px solid
+    #9ca9b9;
+
+  background: #fff;
+}
+
+
+.roffle-auth-panel-heading {
+  min-height: 38px;
+
+  padding:
+    6px 9px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  border-bottom:
+    1px solid
+    #b7c1cc;
+
+  background:
+    linear-gradient(
+      #edf2f7,
+      #dbe4ee
+    );
+}
+
+
+.roffle-auth-panel-heading > div {
+  min-width: 0;
+}
+
+
+.roffle-auth-panel-heading span {
+  display: block;
+
+  margin-bottom: 2px;
+
+  color: #718096;
+
+  font-size: 6px;
+  font-weight: 900;
+
+  letter-spacing: .07em;
+}
+
+
+.roffle-auth-panel-heading h2 {
+  margin: 0;
+
+  color: #344b6a;
+
+  font-size: 10px;
+  font-weight: 900;
+}
+
+
+.roffle-auth-panel-heading svg {
+  flex: 0 0 auto;
+
+  color: #5a718e;
+}
+
+
+.roffle-auth-panel-body {
+  padding: 10px;
+}
+
+
+.roffle-auth-panel-intro,
+.roffle-auth-lurk-panel p {
+  margin:
+    0 0
+    9px;
+
+  color: #77818e;
+
+  font-size: 7px;
+
+  line-height: 1.45;
+}
+
+
+/* ==========================================================
+   PROVIDERS
+   ========================================================== */
+
+
+.roffle-google-button,
+.roffle-discord-button,
+.roffle-continue-button {
+  width: 100%;
+
+  min-height: 36px;
+
+  padding:
+    0 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  gap: 8px;
+
+  border-radius: 0;
+
+  font-family:
+    Verdana,
+    Tahoma,
+    Arial,
+    sans-serif;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+.roffle-google-button {
+  border:
+    1px solid
+    #c5c9ce;
+
+  background: #fff;
+
+  color: #33383d;
+}
+
+
+.roffle-google-button:hover {
+  background: #f6f7f8;
+}
+
+
+.roffle-discord-button {
+  margin-top: 5px;
+
+  border:
+    1px solid
+    #6874d0;
+
+  background: #5865f2;
+
+  color: #fff;
+}
+
+
+.roffle-discord-button:hover {
+  background: #4e5bd9;
+}
+
+
+.roffle-continue-button {
+  margin-bottom: 7px;
+
+  justify-content: space-between;
+
+  border:
+    1px solid
+    #608064;
+
+  background: #eff7ef;
+
+  color: #3e6844;
+}
+
+
+.roffle-google-button:disabled,
+.roffle-discord-button:disabled {
+  opacity: .55;
+
+  cursor: wait;
+}
+
+
+.auth-provider-logo {
+  width: 16px;
+  height: 16px;
+
+  flex: 0 0 auto;
+
+  display: block;
+}
+
+
+.discord-logo {
+  width: 17px;
+  height: 17px;
+}
+
+
+/* ==========================================================
+   GUEST + ERROR + FOOTNOTE
+   ========================================================== */
+
+
+.roffle-auth-guest {
+  min-height: 34px;
+
+  padding:
+    0 9px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+
+  border:
+    1px solid
+    #c5c9ce;
+
+  background: #f6f7f8;
+
+  color: #3d4650;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  text-decoration: none;
+}
+
+
+.roffle-auth-guest:hover {
+  background: #fff;
+
+  color: #315f9c;
+}
+
+
+.roffle-auth-error {
+  margin-top: 7px;
+
+  padding: 7px 8px;
+
+  border:
+    1px solid
+    #d1afb7;
+
+  background: #fff2f4;
+
+  color: #8c4050;
+
+  font-size: 7px;
+
+  line-height: 1.4;
+}
+
+
+.roffle-auth-footnote {
+  padding: 2px 3px;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 5px;
+
+  color: #737f8e;
+
+  font-size: 7px;
+
+  line-height: 1.45;
+}
+
+
+.roffle-auth-footnote svg {
+  flex: 0 0 auto;
+
+  margin-top: 1px;
+
+  color: #61748e;
+}
+
+
+/* ==========================================================
+   LOADING
+   ========================================================== */
+
+
+.roffle-auth-loading {
+  min-height: 100vh;
+
+  display: grid;
+  place-items: center;
+
+  background: #243c5b;
+
+  color: #d7e1ec;
+
+  font-size: 9px;
+
+  font-family:
+    Verdana,
+    Tahoma,
+    Arial,
+    sans-serif;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+
+@media (max-width: 720px) {
+  .roffle-auth-welcome {
+    grid-template-columns: 1fr;
+  }
+
+
+  .roffle-auth-welcome-note {
+    border-left: 0;
+
+    border-top:
+      1px solid
+      #b8c3d0;
+  }
+
+
+  .roffle-auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+
+  .roffle-auth-side {
+    display: grid;
+
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+
+  .roffle-auth-footnote {
+    grid-column:
+      1 / -1;
+  }
+}
+
+
+@media (max-width: 520px) {
+  .roffle-auth-header-shell,
+  .roffle-auth-main {
+    width:
+      min(
+        100% - 16px,
+        960px
+      );
+  }
+
+
+  .roffle-auth-main {
+    padding-top: 9px;
+  }
+
+
+  .roffle-auth-header
+  .logo-word {
+    font-size: 9px;
+  }
+
+
+  .roffle-auth-browse {
+    font-size: 7px;
+  }
+
+
+  .roffle-auth-welcome-copy {
+    padding: 13px 12px;
+  }
+
+
+  .roffle-auth-welcome h1 {
+    font-size: 20px;
+  }
+
+
+  .roffle-auth-side {
+    grid-template-columns: 1fr;
+  }
+
+
+  .roffle-auth-footnote {
+    grid-column: auto;
+  }
+}

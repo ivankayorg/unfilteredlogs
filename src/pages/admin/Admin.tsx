@@ -3,14 +3,18 @@ import {
   useState,
 } from "react";
 
+import type {
+  Session,
+} from "@supabase/supabase-js";
+
 import {
   ArchiveX,
-  ArrowLeft,
   BookOpen,
   FileClock,
   ShieldCheck,
   Tag,
   Users,
+  PanelRight,
 } from "lucide-react";
 
 import AdminUsers from "../../components/admin/AdminUsers";
@@ -19,6 +23,13 @@ import FlaggedComments from "../../components/admin/FlaggedComments";
 import ModerationQueue from "../../components/admin/ModerationQueue";
 import RejectedPosts from "../../components/admin/RejectedPosts";
 import TaxonomyManager from "../../components/admin/TaxonomyManager";
+import SidebarManager from "../../components/admin/SidebarManager";
+import QuickPostDialog from "../../components/posts/QuickPostDialog";
+import SiteHeader from "../../components/layout/SiteHeader";
+
+import {
+  supabase,
+} from "../../lib/supabase";
 
 import {
   getAdminStats,
@@ -34,7 +45,7 @@ import "./Admin.css";
 
 
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    ADMIN
    ========================================================== */
 
@@ -45,10 +56,31 @@ type Tab =
   | "rejected"
   | "taxonomy"
   | "blog"
+  | "sidebar"
   | "users";
 
 
 export default function Admin() {
+  const [
+    session,
+    setSession,
+  ] =
+    useState<Session | null>(
+      null
+    );
+
+  const [
+    authReady,
+    setAuthReady,
+  ] =
+    useState(false);
+
+  const [
+    postDialogOpen,
+    setPostDialogOpen,
+  ] =
+    useState(false);
+
   const [
     access,
     setAccess,
@@ -110,6 +142,35 @@ export default function Admin() {
   useEffect(() => {
     let mounted = true;
 
+    void supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!mounted) return;
+        setSession(data.session);
+        setAuthReady(true);
+      });
+
+    const {
+      data: { subscription },
+    } = supabase.auth
+      .onAuthStateChange(
+        (_event, nextSession) => {
+          if (!mounted) return;
+          setSession(nextSession);
+          setAuthReady(true);
+        }
+      );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+
+  useEffect(() => {
+    let mounted = true;
+
     const load =
       async () => {
         try {
@@ -153,7 +214,7 @@ export default function Admin() {
             nextError
               instanceof Error
               ? nextError.message
-              : "ROFFLE admin could not load."
+              : "UNFILTERED LOGS admin could not load."
           );
         } finally {
           if (mounted) {
@@ -172,11 +233,28 @@ export default function Admin() {
   }, []);
 
 
+  const signOut =
+    async () => {
+      await supabase.auth.signOut();
+      window.location.assign("/");
+    };
+
+
   if (loading) {
     return (
-      <main className="admin-gate">
-        Loading ROFFLE admin...
-      </main>
+      <div className="admin-page classic-site">
+        <SiteHeader
+          session={session}
+          authReady={authReady}
+          accessRole={access?.role ?? null}
+          activeSection="home"
+          onPost={() => setPostDialogOpen(true)}
+          onSignOut={() => void signOut()}
+        />
+        <main className="admin-gate site-width">
+          Loading UNFILTERED LOGS admin...
+        </main>
+      </div>
     );
   }
 
@@ -195,7 +273,22 @@ export default function Admin() {
 
   if (!allowed) {
     return (
-      <main className="admin-gate">
+      <div className="admin-page classic-site">
+        <SiteHeader
+          session={session}
+          authReady={authReady}
+          accessRole={access?.role ?? null}
+          activeSection="home"
+          onPost={() => {
+            if (!session) {
+              window.location.assign("/login?returnTo=%2Fadmin");
+              return;
+            }
+            setPostDialogOpen(true);
+          }}
+          onSignOut={() => void signOut()}
+        />
+        <main className="admin-gate site-width">
         <ShieldCheck
           size={28}
         />
@@ -205,46 +298,28 @@ export default function Admin() {
         </h1>
 
         <p>
-          This part of ROFFLE is for moderators and admins.
+          This part of UNFILTERED LOGS is for moderators and admins.
         </p>
 
         <a href="/">
-          Back to the nonsense
+          Back to Posts
         </a>
-      </main>
+        </main>
+      </div>
     );
   }
 
 
   return (
     <div className="admin-page">
-      <header className="admin-topbar">
-        <div className="admin-topbar-inner">
-          <a
-            className="admin-brand"
-            href="/admin"
-          >
-            <span>
-              R
-            </span>
-
-            <strong>
-              ROFFLE ADMIN
-            </strong>
-          </a>
-
-          <a
-            className="admin-back-link"
-            href="/"
-          >
-            <ArrowLeft
-              size={14}
-            />
-
-            Back to ROFFLE
-          </a>
-        </div>
-      </header>
+      <SiteHeader
+        session={session}
+        authReady={authReady}
+        accessRole={access.role}
+        activeSection="home"
+        onPost={() => setPostDialogOpen(true)}
+        onSignOut={() => void signOut()}
+      />
 
       <div className="admin-shell">
         <aside className="admin-nav">
@@ -372,6 +447,29 @@ export default function Admin() {
             <button
               className={
                 tab ===
+                  "sidebar"
+                  ? "active"
+                  : ""
+              }
+              onClick={() => {
+                setTab(
+                  "sidebar"
+                );
+              }}
+            >
+              <PanelRight
+                size={16}
+              />
+
+              Right Sidebar
+            </button>
+          )}
+
+          {access.role ===
+            "admin" && (
+            <button
+              className={
+                tab ===
                   "users"
                   ? "active"
                   : ""
@@ -403,7 +501,7 @@ export default function Admin() {
             <>
               <div className="admin-page-title">
                 <span className="admin-eyebrow">
-                  ROFFLE CONTROL ROOM
+                  UNFILTERED LOGS CONTROL ROOM
                 </span>
 
                 <h1>
@@ -506,6 +604,13 @@ export default function Admin() {
           )}
 
           {tab ===
+            "sidebar" &&
+            access.role ===
+              "admin" && (
+            <SidebarManager />
+          )}
+
+          {tab ===
             "users" &&
             access.role ===
               "admin" && (
@@ -513,6 +618,12 @@ export default function Admin() {
           )}
         </main>
       </div>
+
+      <QuickPostDialog
+        open={postDialogOpen}
+        onClose={() => setPostDialogOpen(false)}
+        onPosted={() => setPostDialogOpen(false)}
+      />
     </div>
   );
 }

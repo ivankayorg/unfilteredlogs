@@ -1,5 +1,5 @@
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    MODERN MEDIA EDITORIAL PROTOTYPE
    ========================================================== */
 
@@ -21,8 +21,8 @@
   --border: #e4e4df;
   --border-dark: #2a2a2a;
 
-  --accent: #ff5a1f;
-  --accent-soft: #fff0e9;
+  --accent: #3b5ccc;
+  --accent-soft: #eef2ff;
 
   --header-height: 72px;
 
@@ -87,7 +87,7 @@ img {
   background:
     radial-gradient(
       circle at top right,
-      rgba(255, 90, 31, 0.045),
+      rgba(59, 92, 204, 0.045),
       transparent 36rem
     ),
     var(--bg);
@@ -633,7 +633,7 @@ img {
 
   box-shadow:
     0 8px 22px
-    rgba(255,90,31,0.19);
+    rgba(59,92,204,0.19);
 }
 
 
@@ -722,12 +722,12 @@ img {
 
 .filter-trigger.open {
   border-color:
-    rgba(255,90,31,0.4);
+    rgba(59,92,204,0.4);
 
   background:
     var(--accent-soft);
 
-  color: #d9420d;
+  color: #2947b5;
 }
 
 
@@ -931,7 +931,7 @@ img {
     var(--accent-soft);
 
   color:
-    #d94612;
+    #2947b5;
 
   font-size: 9px;
   font-weight: 900;
@@ -1775,12 +1775,12 @@ img {
 
 .tag-list a:hover {
   border-color:
-    rgba(255,90,31,.3);
+    rgba(59,92,204,.3);
 
   background:
     var(--accent-soft);
 
-  color: #d94411;
+  color: #2947b5;
 }
 
 
@@ -2325,4 +2325,12 @@ img {
     gap: 8px;
   }
 
+}
+/* ==========================================================
+   UNFILTERED LOGS BRAND MARK OVERRIDE
+   Keeps original ROFFLE logo geometry while fitting "UL".
+   ========================================================== */
+.logo-mark {
+  font-size: 13px;
+  letter-spacing: -0.04em;
 }

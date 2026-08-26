@@ -1,5 +1,5 @@
 /* ==========================================================
-   ROFFLE
+   UNFILTERED LOGS
    GIPHY SEARCH SERVICE
    ========================================================== */
 
@@ -155,6 +155,10 @@ export async function searchGiphy(
         const full =
           firstUrl(
             item.images
+              ?.original
+              ?.url,
+
+            item.images
               ?.downsized_medium
               ?.url,
 
@@ -164,10 +168,6 @@ export async function searchGiphy(
 
             item.images
               ?.fixed_width
-              ?.url,
-
-            item.images
-              ?.original
               ?.url
           );
 
