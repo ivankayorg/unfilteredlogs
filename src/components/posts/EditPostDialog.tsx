@@ -583,7 +583,7 @@ export default function EditPostDialog({
             ""
           ).slice(
             0,
-            500
+            1500
           )
         );
       } catch (
@@ -711,7 +711,7 @@ export default function EditPostDialog({
     tagIds.length <=
       5 &&
     body.trim().length <=
-      500 &&
+      1500 &&
     title.trim().length <=
       180 &&
     (
@@ -879,7 +879,7 @@ export default function EditPostDialog({
                   <span>
                     POST
                     <small>
-                      {body.length}/500
+                      {body.length}/1500
                     </small>
                   </span>
 
@@ -887,7 +887,7 @@ export default function EditPostDialog({
                     value={
                       body
                     }
-                    maxLength={500}
+                    maxLength={1500}
                     onChange={
                       (
                         event
@@ -994,7 +994,7 @@ export default function EditPostDialog({
                       <span>
                         DESCRIPTION / COMMENTARY
                         <small>
-                          {body.length}/500
+                          {body.length}/1500
                         </small>
                       </span>
 
@@ -1002,7 +1002,7 @@ export default function EditPostDialog({
                         value={
                           body
                         }
-                        maxLength={500}
+                        maxLength={1500}
                         onChange={
                           (
                             event
@@ -1087,7 +1087,7 @@ export default function EditPostDialog({
                     <span>
                       CAPTION / COMMENTARY
                       <small>
-                        {body.length}/500
+                        {body.length}/1500
                       </small>
                     </span>
 
@@ -1095,7 +1095,7 @@ export default function EditPostDialog({
                       value={
                         body
                       }
-                      maxLength={500}
+                      maxLength={1500}
                       onChange={
                         (
                           event

@@ -3203,3 +3203,19 @@ span:not(.featured-video-teaser-play) {
 .featured-video-teaser-play {
   background: rgba(28, 49, 79, .96);
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 35
+   FRONT PAGE POST LINE BREAKS
+
+   Preserve user-entered newlines and blank lines in post body
+   text instead of collapsing everything into one paragraph.
+   ========================================================== */
+
+
+.blog-post .post-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}

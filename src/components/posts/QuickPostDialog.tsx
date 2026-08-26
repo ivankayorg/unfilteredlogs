@@ -398,7 +398,7 @@ export default function QuickPostDialog({
                       ""
                     ).slice(
                       0,
-                      500
+                      1500
                     )
                   );
                 }
@@ -872,7 +872,7 @@ export default function QuickPostDialog({
           ) &&
           body.trim()
             .length <=
-            500
+            1500
         : postType ===
             "text"
           ? Boolean(
@@ -886,14 +886,14 @@ export default function QuickPostDialog({
             ) &&
             body.trim()
               .length <=
-              500
+              1500
           : Boolean(
               image ||
               selectedGif
             ) &&
             body.trim()
               .length <=
-              500
+              1500
     );
 
 
@@ -1088,7 +1088,7 @@ export default function QuickPostDialog({
                   <span>
                     POST
                     <small>
-                      {body.length}/500
+                      {body.length}/1500
                     </small>
                   </span>
 
@@ -1096,7 +1096,7 @@ export default function QuickPostDialog({
                     value={
                       body
                     }
-                    maxLength={500}
+                    maxLength={1500}
                     onChange={
                       (
                         event
@@ -1252,7 +1252,7 @@ export default function QuickPostDialog({
                       <span>
                         DESCRIPTION / COMMENTARY
                         <small>
-                          YouTube auto-fill · editable · {body.length}/500
+                          YouTube auto-fill · editable · {body.length}/1500
                         </small>
                       </span>
 
@@ -1260,7 +1260,7 @@ export default function QuickPostDialog({
                         value={
                           body
                         }
-                        maxLength={500}
+                        maxLength={1500}
                         onChange={
                           (
                             event
@@ -1358,7 +1358,7 @@ export default function QuickPostDialog({
                       CAPTION
 
                       <small>
-                        optional · {body.length}/500
+                        optional · {body.length}/1500
                       </small>
                     </span>
 
@@ -1366,7 +1366,7 @@ export default function QuickPostDialog({
                       value={
                         body
                       }
-                      maxLength={500}
+                      maxLength={1500}
                       onChange={
                         (
                           event
