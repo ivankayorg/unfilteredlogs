@@ -10,7 +10,9 @@ import type {
 import {
   Copy,
   Edit3,
+  FolderOpen,
   Link,
+  MessageCircle,
   MessageSquare,
   Send,
   Trash2,
@@ -33,6 +35,7 @@ import {
 import {
   createProfileShoutboxMessage,
   deleteProfileShoutboxMessage,
+  getProfileForumActivity,
   getProfileMicrologPost,
   getProfileMicrologPosts,
   getProfileShoutboxMessages,
@@ -44,6 +47,7 @@ import type {
 } from "../../types/admin";
 
 import type {
+  ProfileForumActivity,
   ProfileMicrologPost,
   ProfileShoutboxAuthor,
   ProfileShoutboxMessage,
@@ -180,6 +184,16 @@ export default function ProfilePage() {
   ] =
     useState<
       ProfileMicrologPost[]
+    >(
+      []
+    );
+
+  const [
+    forumActivity,
+    setForumActivity,
+  ] =
+    useState<
+      ProfileForumActivity[]
     >(
       []
     );
@@ -419,6 +433,7 @@ export default function ProfilePage() {
             const [
               nextPosts,
               nextShoutboxMessages,
+              nextForumActivity,
             ] =
               await Promise.all([
                 getProfileMicrologPosts(
@@ -426,6 +441,10 @@ export default function ProfilePage() {
                 ),
 
                 getProfileShoutboxMessages(
+                  nextProfile.id
+                ),
+
+                getProfileForumActivity(
                   nextProfile.id
                 ),
               ]);
@@ -439,6 +458,10 @@ export default function ProfilePage() {
 
               setShoutboxMessages(
                 nextShoutboxMessages
+              );
+
+              setForumActivity(
+                nextForumActivity
               );
             }
           }
@@ -744,7 +767,7 @@ export default function ProfilePage() {
 
                     <div>
                       <strong>
-                        @{profile.username}
+                        @{profile.username.toUpperCase()}
                       </strong>
 
                       <span>
@@ -824,7 +847,7 @@ export default function ProfilePage() {
                 </span>
 
                 <h1>
-                  @{profile.username}
+                  @{profile.username.toUpperCase()}
                 </h1>
 
                 <p>
@@ -878,7 +901,7 @@ export default function ProfilePage() {
               <section className="public-microlog">
                 <header className="public-microlog-heading">
                   <strong>
-                    @{profile.username}'S THOUGHT SLOP
+                    @{profile.username.toUpperCase()}'S THOUGHT SLOP
                   </strong>
 
                   <span>
@@ -924,7 +947,7 @@ export default function ProfilePage() {
                         <div>
                           <div className="public-microlog-row-head">
                             <strong>
-                              @{profile.username}
+                              @{profile.username.toUpperCase()}
                             </strong>
 
                             <span>
@@ -964,7 +987,7 @@ export default function ProfilePage() {
                     />
 
                     <strong>
-                      @{profile.username}'S SHOUTBOX
+                      @{profile.username.toUpperCase()}'S SHOUTBOX
                     </strong>
                   </div>
 
@@ -1159,6 +1182,95 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </footer>
+              </section>
+
+              <section className="profile-forum-activity">
+                <header className="profile-forum-activity-heading">
+                  <div>
+                    <MessageCircle
+                      size={15}
+                    />
+
+                    <strong>
+                      @{profile.username.toUpperCase()}'S FORUM ACTIVITY
+                    </strong>
+                  </div>
+
+                  <a href="/forum">
+                    Open forums »
+                  </a>
+                </header>
+
+                <div className="profile-forum-activity-list">
+                  {forumActivity.length ===
+                    0 && (
+                    <div className="profile-forum-activity-empty">
+                      No forum trail yet.
+                    </div>
+                  )}
+
+                  {forumActivity.map(
+                    (
+                      activity
+                    ) => (
+                      <article
+                        className="profile-forum-activity-row"
+                        key={`${activity.kind}-${activity.id}`}
+                      >
+                        <div className="profile-forum-activity-icon">
+                          {activity.kind ===
+                            "thread"
+                            ? (
+                              <FolderOpen
+                                size={14}
+                              />
+                            )
+                            : (
+                              <MessageCircle
+                                size={14}
+                              />
+                            )}
+                        </div>
+
+                        <div className="profile-forum-activity-copy">
+                          <span className="profile-forum-activity-type">
+                            {activity.kind ===
+                              "thread"
+                              ? "STARTED A THREAD"
+                              : "REPLIED IN"}
+                          </span>
+
+                          <a
+                            className="profile-forum-activity-title"
+                            href={`/forum/t/${activity.thread_id}`}
+                          >
+                            {activity.thread_title}
+                          </a>
+
+                          {activity.body_preview && (
+                            <p>
+                              {activity.body_preview}
+                            </p>
+                          )}
+
+                          <footer>
+                            {activity.category_name && (
+                              <span>
+                                {activity.category_name}
+                              </span>
+                            )}
+
+                            <time>
+                              {formatDate(
+                                activity.created_at
+                              )}
+                            </time>
+                          </footer>
+                        </div>
+                      </article>
+                    )
+                  )}
+                </div>
               </section>
             </div>
           </div>

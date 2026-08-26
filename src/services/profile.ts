@@ -8,6 +8,7 @@ import {
 } from "./auth";
 
 import type {
+  ProfileForumActivity,
   ProfileMicrologPost,
   ProfileShoutboxAuthor,
   ProfileShoutboxMessage,
@@ -900,4 +901,406 @@ export async function deleteProfileShoutboxMessage(
   if (error) {
     throw error;
   }
+}
+
+
+/* ==========================================================
+   PROFILE FORUM ACTIVITY
+   ========================================================== */
+
+
+function forumPreview(
+  value:
+    unknown,
+) {
+  const cleaned =
+    String(
+      value ??
+      ""
+    )
+      .replace(
+        /\s+/g,
+        " "
+      )
+      .trim();
+
+  if (!cleaned) {
+    return null;
+  }
+
+  return cleaned.length >
+    180
+    ? `${cleaned.slice(
+        0,
+        179
+      )}…`
+    : cleaned;
+}
+
+
+export async function getProfileForumActivity(
+  userId:
+    string,
+
+  limit =
+    20,
+):
+Promise<
+  ProfileForumActivity[]
+> {
+  const [
+    threadsResult,
+    repliesResult,
+  ] =
+    await Promise.all([
+      supabase
+        .from(
+          "forum_threads"
+        )
+        .select(
+          "id, category_id, title, body, created_at"
+        )
+        .eq(
+          "user_id",
+          userId
+        )
+        .order(
+          "created_at",
+          {
+            ascending:
+              false,
+          }
+        )
+        .limit(
+          limit
+        ),
+
+      supabase
+        .from(
+          "forum_replies"
+        )
+        .select(
+          "id, thread_id, body, created_at"
+        )
+        .eq(
+          "user_id",
+          userId
+        )
+        .order(
+          "created_at",
+          {
+            ascending:
+              false,
+          }
+        )
+        .limit(
+          limit
+        ),
+    ]);
+
+  if (
+    threadsResult.error
+  ) {
+    throw threadsResult.error;
+  }
+
+  if (
+    repliesResult.error
+  ) {
+    throw repliesResult.error;
+  }
+
+  const ownThreads =
+    threadsResult.data ??
+    [];
+
+  const replies =
+    repliesResult.data ??
+    [];
+
+  const threadIds =
+    Array.from(
+      new Set(
+        [
+          ...ownThreads.map(
+            (
+              row
+            ) =>
+              row.id
+          ),
+          ...replies.map(
+            (
+              row
+            ) =>
+              row.thread_id
+          ),
+        ]
+      )
+    );
+
+  const threadMap =
+    new Map<
+      string,
+      {
+        id:
+          string;
+
+        category_id:
+          string;
+
+        title:
+          string;
+      }
+    >();
+
+  for (
+    const thread of
+    ownThreads
+  ) {
+    threadMap.set(
+      thread.id,
+      {
+        id:
+          thread.id,
+
+        category_id:
+          thread.category_id,
+
+        title:
+          thread.title,
+      }
+    );
+  }
+
+  const missingThreadIds =
+    threadIds.filter(
+      (
+        threadId
+      ) =>
+        !threadMap.has(
+          threadId
+        )
+    );
+
+  if (
+    missingThreadIds.length >
+    0
+  ) {
+    const {
+      data,
+      error,
+    } =
+      await supabase
+        .from(
+          "forum_threads"
+        )
+        .select(
+          "id, category_id, title"
+        )
+        .in(
+          "id",
+          missingThreadIds
+        );
+
+    if (error) {
+      throw error;
+    }
+
+    for (
+      const thread of
+      data ?? []
+    ) {
+      threadMap.set(
+        thread.id,
+        {
+          id:
+            thread.id,
+
+          category_id:
+            thread.category_id,
+
+          title:
+            thread.title,
+        }
+      );
+    }
+  }
+
+  const categoryIds =
+    Array.from(
+      new Set(
+        Array.from(
+          threadMap.values()
+        ).map(
+          (
+            thread
+          ) =>
+            thread.category_id
+        )
+      )
+    );
+
+  const categoryMap =
+    new Map<
+      string,
+      {
+        name:
+          string;
+
+        slug:
+          string;
+      }
+    >();
+
+  if (
+    categoryIds.length >
+    0
+  ) {
+    const {
+      data,
+      error,
+    } =
+      await supabase
+        .from(
+          "forum_categories"
+        )
+        .select(
+          "id, name, slug"
+        )
+        .in(
+          "id",
+          categoryIds
+        );
+
+    if (error) {
+      throw error;
+    }
+
+    for (
+      const category of
+      data ?? []
+    ) {
+      categoryMap.set(
+        category.id,
+        {
+          name:
+            category.name,
+
+          slug:
+            category.slug,
+        }
+      );
+    }
+  }
+
+  const activity:
+    ProfileForumActivity[] =
+      [];
+
+  for (
+    const thread of
+    ownThreads
+  ) {
+    const category =
+      categoryMap.get(
+        thread.category_id
+      );
+
+    activity.push({
+      id:
+        thread.id,
+
+      kind:
+        "thread",
+
+      thread_id:
+        thread.id,
+
+      thread_title:
+        thread.title,
+
+      category_name:
+        category?.name ??
+        null,
+
+      category_slug:
+        category?.slug ??
+        null,
+
+      body_preview:
+        forumPreview(
+          thread.body
+        ),
+
+      created_at:
+        thread.created_at,
+    });
+  }
+
+  for (
+    const reply of
+    replies
+  ) {
+    const thread =
+      threadMap.get(
+        reply.thread_id
+      );
+
+    if (!thread) {
+      continue;
+    }
+
+    const category =
+      categoryMap.get(
+        thread.category_id
+      );
+
+    activity.push({
+      id:
+        reply.id,
+
+      kind:
+        "reply",
+
+      thread_id:
+        reply.thread_id,
+
+      thread_title:
+        thread.title,
+
+      category_name:
+        category?.name ??
+        null,
+
+      category_slug:
+        category?.slug ??
+        null,
+
+      body_preview:
+        forumPreview(
+          reply.body
+        ),
+
+      created_at:
+        reply.created_at,
+    });
+  }
+
+  return activity
+    .sort(
+      (
+        a,
+        b
+      ) =>
+        new Date(
+          b.created_at
+        ).getTime() -
+        new Date(
+          a.created_at
+        ).getTime()
+    )
+    .slice(
+      0,
+      limit
+    );
 }

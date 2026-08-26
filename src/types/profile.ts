@@ -49,6 +49,33 @@ export type ProfileShoutboxMessage = {
 };
 
 
+export type ProfileForumActivity = {
+  id: string;
+
+  kind:
+    | "thread"
+    | "reply";
+
+  thread_id:
+    string;
+
+  thread_title:
+    string;
+
+  category_name:
+    string | null;
+
+  category_slug:
+    string | null;
+
+  body_preview:
+    string | null;
+
+  created_at:
+    string;
+};
+
+
 export type ProfileMicrologPost = {
   id: string;
 

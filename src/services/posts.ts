@@ -1044,6 +1044,93 @@ export async function getFeedPosts() {
 
 
 /* ==========================================================
+   READ ONE POST
+   Used by /posts/:id
+   ========================================================== */
+
+
+export async function getPostById(
+  postId:
+    string,
+):
+Promise<
+  PostRecord | null
+> {
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from(
+        "posts"
+      )
+      .select(
+        "*"
+      )
+      .eq(
+        "id",
+        postId
+      )
+      .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data) {
+    return null;
+  }
+
+
+  const profiledRecords =
+    await attachProfiles([
+      data as
+        Record<
+          string,
+          any
+        >,
+    ]);
+
+
+  const attachedRecords =
+    await attachTaxonomy(
+      profiledRecords
+    );
+
+
+  const visibleRecords =
+    attachedRecords.filter(
+      (
+        post
+      ) =>
+        post.moderation_status !==
+          "rejected"
+    );
+
+
+  if (
+    visibleRecords.length ===
+    0
+  ) {
+    return null;
+  }
+
+
+  const engaged =
+    await attachPostEngagement(
+      visibleRecords
+    );
+
+
+  return (
+    engaged[0] ??
+    null
+  );
+}
+
+
+
+/* ==========================================================
    EDIT POST
    ========================================================== */
 
