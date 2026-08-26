@@ -3177,11 +3177,19 @@ function App() {
                     shoutboxMessages.map((message) => (
                       <p key={message.id}>
                         <span className="shout-line">
-                          <strong>
-                            {message.profile?.username ??
-                              message.profile?.display_name ??
-                              "member"}:
-                          </strong>
+                          {message.profile?.username ? (
+                            <a
+                              className="shout-user-link"
+                              href={`/u/${encodeURIComponent(message.profile.username)}`}
+                            >
+                              {message.profile.username}:
+                            </a>
+                          ) : (
+                            <strong>
+                              {message.profile?.display_name ??
+                                "member"}:
+                            </strong>
+                          )}
 
                           <span className="shout-time">
                             {new Date(message.created_at).toLocaleTimeString(

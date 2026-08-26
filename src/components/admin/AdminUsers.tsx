@@ -366,9 +366,21 @@ export default function AdminUsers() {
                     }
                   >
                     <td>
-                      <strong>
-                        {user.display_name}
-                      </strong>
+                      {user.username ? (
+                        <a
+                          className="admin-user-profile-link"
+                          href={`/u/${encodeURIComponent(user.username)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Open @${user.username}'s public page`}
+                        >
+                          {user.display_name}
+                        </a>
+                      ) : (
+                        <strong>
+                          {user.display_name}
+                        </strong>
+                      )}
                     </td>
 
                     <td className="admin-username-cell">
@@ -446,9 +458,21 @@ export default function AdminUsers() {
                         </button>
                       </div>
 
-                      <small>
-                        Admin override · resets user cooldown
-                      </small>
+                      <div className="admin-username-help-row">
+                        <small>
+                          Admin override · resets user cooldown
+                        </small>
+
+                        {user.username && (
+                          <a
+                            href={`/u/${encodeURIComponent(user.username)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            View @{user.username}'s page »
+                          </a>
+                        )}
+                      </div>
                     </td>
 
                     <td>

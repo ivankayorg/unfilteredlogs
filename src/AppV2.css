@@ -4902,3 +4902,32 @@ a.latest-member-profile-link:focus-visible {
   outline-offset:
     2px;
 }
+
+
+/* ==========================================================
+   PRODUCTION PASS 46
+   HOMEPAGE SHOUTBOX PROFILE LINKS
+   ========================================================== */
+
+
+.production-shoutbox
+.shout-user-link {
+  color:
+    #315f9c;
+
+  font-weight:
+    900;
+
+  text-decoration:
+    none;
+}
+
+
+.production-shoutbox
+.shout-user-link:hover {
+  color:
+    #234f88;
+
+  text-decoration:
+    underline;
+}
