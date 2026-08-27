@@ -943,6 +943,12 @@ export default function SiteHeader({
               }
               href="/"
             >
+              Home
+            </a>
+
+            <a
+              href="/#posts"
+            >
               Posts
             </a>
 

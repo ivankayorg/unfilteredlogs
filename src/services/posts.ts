@@ -895,6 +895,22 @@ export async function createQuickPost(
         ]);
     }
 
+    if (
+      error.code ===
+        "23514" &&
+      /posts_content_check/i.test(
+        error.message ??
+        ""
+      )
+    ) {
+      throw new Error(
+        input.postType ===
+          "text"
+          ? "That text post does not match the site's content rules. Make sure it has a body and stays within the allowed text length."
+          : "That post is missing content required for its post type."
+      );
+    }
+
     throw error;
   }
 

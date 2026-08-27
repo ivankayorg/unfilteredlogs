@@ -1304,3 +1304,89 @@ Promise<
       limit
     );
 }
+
+
+/* ==========================================================
+   REPORT USER
+   ========================================================== */
+
+
+export async function reportUser(
+  userId:
+    string,
+
+  reason:
+    string,
+
+  details:
+    string,
+) {
+  const {
+    data: {
+      user,
+    },
+    error:
+      userError,
+  } =
+    await supabase.auth
+      .getUser();
+
+  if (userError) {
+    throw userError;
+  }
+
+  if (!user) {
+    throw new Error(
+      "Sign in to report a user."
+    );
+  }
+
+  if (
+    user.id ===
+    userId
+  ) {
+    throw new Error(
+      "You cannot report your own account."
+    );
+  }
+
+  const cleanedDetails =
+    details.trim();
+
+  if (
+    cleanedDetails.length >
+    1000
+  ) {
+    throw new Error(
+      "Report details are limited to 1000 characters."
+    );
+  }
+
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "report_user",
+      {
+        target_user:
+          userId,
+
+        report_reason:
+          reason,
+
+        report_details:
+          cleanedDetails ||
+          null,
+      }
+    );
+
+  if (error) {
+    throw error;
+  }
+
+  return String(
+    data ??
+    ""
+  );
+}

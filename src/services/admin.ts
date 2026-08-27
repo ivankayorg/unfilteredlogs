@@ -9,6 +9,7 @@ import type {
   UserRole,
   FlaggedComment,
   RejectedPost,
+  UserReportDetail,
 } from "../types/admin";
 
 
@@ -155,13 +156,117 @@ export async function moderatePost(
 }
 
 
-export async function getAdminUsers() {
+type AdminUserSearchOptions = {
+  query?: string;
+  page?: number;
+  pageSize?: number;
+  reportedOnly?: boolean;
+};
+
+
+export async function searchAdminUsers({
+  query = "",
+  page = 1,
+  pageSize = 25,
+  reportedOnly = false,
+}: AdminUserSearchOptions = {}) {
+  const safePage =
+    Math.max(
+      1,
+      Math.trunc(page)
+    );
+
+  const safePageSize =
+    Math.min(
+      100,
+      Math.max(
+        1,
+        Math.trunc(pageSize)
+      )
+    );
+
   const {
     data,
     error,
   } =
     await supabase.rpc(
-      "admin_list_users"
+      "admin_search_users_v2",
+      {
+        search_text:
+          query.trim() ||
+          null,
+
+        result_limit:
+          safePageSize,
+
+        result_offset:
+          (
+            safePage -
+            1
+          ) *
+          safePageSize,
+
+        reported_only:
+          reportedOnly,
+      }
+    );
+
+  if (error) {
+    throw error;
+  }
+
+  const rows =
+    (
+      data ??
+      []
+    ) as Array<
+      AdminUser & {
+        total_count?:
+          number |
+          string;
+      }
+    >;
+
+  return {
+    users:
+      rows.map(
+        (row) => ({
+          ...row,
+          report_count:
+            Number(
+              row.report_count ??
+              0
+            ),
+        })
+      ) as AdminUser[],
+
+    total:
+      rows.length >
+        0
+        ? Number(
+            rows[0]
+              .total_count ??
+            rows.length
+          )
+        : 0,
+  };
+}
+
+
+export async function getAdminUserReports(
+  userId:
+    string,
+) {
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "admin_user_report_details",
+      {
+        target_user:
+          userId,
+      }
     );
 
   if (error) {
@@ -171,7 +276,40 @@ export async function getAdminUsers() {
   return (
     data ??
     []
-  ) as AdminUser[];
+  ) as UserReportDetail[];
+}
+
+
+export async function resolveAdminUserReports(
+  userId:
+    string,
+
+  resolution:
+    | "reviewed"
+    | "dismissed",
+) {
+  const {
+    data,
+    error,
+  } =
+    await supabase.rpc(
+      "admin_resolve_user_reports",
+      {
+        target_user:
+          userId,
+
+        resolution,
+      }
+    );
+
+  if (error) {
+    throw error;
+  }
+
+  return Number(
+    data ??
+    0
+  );
 }
 
 

@@ -10,6 +10,7 @@ import type {
 import {
   Copy,
   Edit3,
+  Flag,
   FolderOpen,
   Link,
   MessageCircle,
@@ -40,6 +41,7 @@ import {
   getProfileMicrologPosts,
   getProfileShoutboxMessages,
   getPublicProfile,
+  reportUser,
 } from "../../services/profile";
 
 import type {
@@ -232,6 +234,54 @@ export default function ProfilePage() {
     setQuickPostOpen,
   ] =
     useState(false);
+
+  const [
+    reportOpen,
+    setReportOpen,
+  ] =
+    useState(false);
+
+  const [
+    reportReason,
+    setReportReason,
+  ] =
+    useState(
+      "spam"
+    );
+
+  const [
+    reportDetails,
+    setReportDetails,
+  ] =
+    useState(
+      ""
+    );
+
+  const [
+    reportSubmitting,
+    setReportSubmitting,
+  ] =
+    useState(false);
+
+  const [
+    reportMessage,
+    setReportMessage,
+  ] =
+    useState<
+      string | null
+    >(
+      null
+    );
+
+  const [
+    reportError,
+    setReportError,
+  ] =
+    useState<
+      string | null
+    >(
+      null
+    );
 
   const username =
     profileUsernameFromPath();
@@ -643,6 +693,72 @@ export default function ProfilePage() {
     };
 
 
+  const submitUserReport =
+    async () => {
+      if (
+        !session
+      ) {
+        window.location.assign(
+          `/login?returnTo=${encodeURIComponent(window.location.pathname)}`
+        );
+
+        return;
+      }
+
+      if (
+        !profile ||
+        isOwner
+      ) {
+        return;
+      }
+
+      setReportSubmitting(
+        true
+      );
+
+      setReportError(
+        null
+      );
+
+      setReportMessage(
+        null
+      );
+
+      try {
+        await reportUser(
+          profile.id,
+          reportReason,
+          reportDetails
+        );
+
+        setReportMessage(
+          "Report sent to the moderation team."
+        );
+
+        setReportDetails(
+          ""
+        );
+
+        setReportOpen(
+          false
+        );
+      } catch (
+        nextError
+      ) {
+        setReportError(
+          nextError instanceof
+            Error
+            ? nextError.message
+            : "Could not report this user."
+        );
+      } finally {
+        setReportSubmitting(
+          false
+        );
+      }
+    };
+
+
   return (
     <div
       className={
@@ -915,6 +1031,136 @@ export default function ProfilePage() {
                     ? "Copied"
                     : "Copy page"}
                 </button>
+
+                {!isOwner && (
+                  <button
+                    className="public-profile-report-button"
+                    type="button"
+                    onClick={() => {
+                      if (
+                        !session
+                      ) {
+                        window.location.assign(
+                          `/login?returnTo=${encodeURIComponent(window.location.pathname)}`
+                        );
+
+                        return;
+                      }
+
+                      setReportError(
+                        null
+                      );
+
+                      setReportMessage(
+                        null
+                      );
+
+                      setReportOpen(
+                        (
+                          current
+                        ) =>
+                          !current
+                      );
+                    }}
+                  >
+                    <Flag
+                      size={13}
+                    />
+
+                    Report user
+                  </button>
+                )}
+
+                {reportMessage && (
+                  <div className="public-profile-report-message">
+                    {reportMessage}
+                  </div>
+                )}
+
+                {reportOpen &&
+                  !isOwner && (
+                  <div className="public-profile-report-form">
+                    <strong>
+                      Report @{profile.username}
+                    </strong>
+
+                    <label>
+                      Reason
+
+                      <select
+                        value={
+                          reportReason
+                        }
+                        onChange={
+                          (
+                            event
+                          ) => {
+                            setReportReason(
+                              event.target.value
+                            );
+                          }
+                        }
+                      >
+                        <option value="spam">Spam</option>
+                        <option value="harassment">Harassment</option>
+                        <option value="hate_or_abuse">Hate / abuse</option>
+                        <option value="impersonation">Impersonation</option>
+                        <option value="threats_or_safety">Threats / safety</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </label>
+
+                    <label>
+                      Details
+
+                      <textarea
+                        value={
+                          reportDetails
+                        }
+                        maxLength={1000}
+                        placeholder="What happened? Add enough context for a moderator to review it."
+                        onChange={
+                          (
+                            event
+                          ) => {
+                            setReportDetails(
+                              event.target.value
+                            );
+                          }
+                        }
+                      />
+                    </label>
+
+                    <small>
+                      {reportDetails.length}/1000
+                    </small>
+
+                    {reportError && (
+                      <div className="public-profile-report-error">
+                        {reportError}
+                      </div>
+                    )}
+
+                    <button
+                      className="public-profile-report-submit"
+                      type="button"
+                      disabled={
+                        reportSubmitting
+                      }
+                      onClick={() => {
+                        void submitUserReport();
+                      }}
+                    >
+                      <Flag
+                        size={12}
+                      />
+
+                      {reportSubmitting
+                        ? "Sending..."
+                        : "Send report"}
+                    </button>
+                  </div>
+                )}
               </div>
             </section>
 

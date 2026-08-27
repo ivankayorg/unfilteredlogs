@@ -2701,3 +2701,14 @@ img.ul-avatar-fallback-image {
   padding:
     3px;
 }
+
+
+/* ==========================================================
+   USER REPORTING
+   ========================================================== */
+
+.public-profile-report-button{color:#864955!important}
+.public-profile-report-form{padding:9px;display:grid;gap:7px;border:1px solid #c9aeb4;background:#fffafa;color:#4c5665}
+.public-profile-report-form>strong{color:#804651;font-size:9px}.public-profile-report-form label{display:grid;gap:4px;color:#6f7886;font-size:7px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.public-profile-report-form select,.public-profile-report-form textarea{width:100%;box-sizing:border-box;border:1px solid #aeb9c7;border-radius:0;background:#fff;color:#3d4858;font:9px Verdana,Tahoma,Arial,sans-serif;text-transform:none;letter-spacing:normal}.public-profile-report-form select{height:29px}.public-profile-report-form textarea{min-height:78px;padding:7px;resize:vertical;line-height:1.45}
+.public-profile-report-form small{color:#8a94a2;font-size:7px;text-align:right}.public-profile-report-error{padding:6px;border:1px solid #d6b4bb;background:#fff1f3;color:#8b4652;font-size:8px;line-height:1.4}.public-profile-report-message{padding:6px;border:1px solid #afc4b3;background:#f3fbf4;color:#477153;font-size:8px;line-height:1.4}.public-profile-report-submit{background:#fff1f3!important;color:#864955!important;border-color:#c9aeb4!important}

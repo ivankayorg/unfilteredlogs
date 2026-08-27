@@ -50,6 +50,31 @@ export type AdminUser = {
   role: UserRole;
   account_status:
     AccountStatus;
+  report_count: number;
+  latest_report_at:
+    string | null;
+};
+
+
+export type UserReportStatus =
+  | "open"
+  | "reviewed"
+  | "dismissed";
+
+
+export type UserReportDetail = {
+  report_id: string;
+  reporter_user_id: string;
+  reporter_username:
+    string | null;
+  reporter_display_name:
+    string;
+  reason: string;
+  details:
+    string | null;
+  status:
+    UserReportStatus;
+  created_at: string;
 };
 
 

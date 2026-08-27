@@ -2832,7 +2832,7 @@ function App() {
         )}
 
         <div className="layout-columns">
-          <section className="main-column feed-column">
+          <section id="posts" className="main-column feed-column">
             <div className="feed-heading">
               <div>
                 <h1>Recent Logs</h1>
