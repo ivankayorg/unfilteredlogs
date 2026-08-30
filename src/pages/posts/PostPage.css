@@ -39,3 +39,17 @@
 .post-page-titlebar .type-image {
   background: #477973;
 }
+
+.post-page-image-gallery {
+  background: #eef2f6;
+}
+
+.post-page-image-gallery .post-image-gallery-main img {
+  max-height: 680px;
+  object-fit: contain;
+}
+
+.post-page-image-gallery .post-image-gallery-thumbs img {
+  height: 100%;
+  object-fit: cover;
+}

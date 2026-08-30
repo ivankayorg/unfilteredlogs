@@ -23,6 +23,26 @@ export type GifAttachment = {
   previewUrl: string;
 };
 
+export type PostImageRecord = {
+  id: string;
+  post_id: string;
+  image_url: string;
+  storage_path: string | null;
+  position: number;
+};
+
+export type EditablePostImage =
+  | {
+      kind: "existing";
+      id: string;
+      imageUrl: string;
+      storagePath: string | null;
+    }
+  | {
+      kind: "new";
+      file: File;
+    };
+
 
 import type {
   PostCategoryReference,
@@ -53,6 +73,8 @@ export type PostRecord = {
   video_type: YouTubeVideoType | null;
 
   image_url: string | null;
+
+  images?: PostImageRecord[];
 
   category_id:
     string | null;
@@ -143,6 +165,8 @@ export type CreateImagePostInput = {
   title?: string;
   body?: string;
 
+  images?: File[];
+
   image?:
     File | null;
 
@@ -185,6 +209,8 @@ export type EditPostInput = {
 
   replacementImage?:
     File | null;
+
+  images?: EditablePostImage[];
 
   categoryId: string;
   tagIds: string[];

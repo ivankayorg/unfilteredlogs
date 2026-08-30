@@ -1,14 +1,19 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
 import {
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  GripVertical,
   Images,
   Save,
+  Trash2,
   UploadCloud,
   X,
 } from "lucide-react";
@@ -31,6 +36,7 @@ import type {
 } from "../../services/giphy";
 
 import type {
+  EditablePostImage,
   PostDisplaySize,
   PostRecord,
 } from "../../types/post";
@@ -66,6 +72,23 @@ type Props = {
         PostRecord
     ) => void;
 };
+
+
+type EditGalleryItem =
+  | {
+      key: string;
+      kind: "existing";
+      id: string;
+      imageUrl: string;
+      storagePath: string | null;
+      previewUrl: string;
+    }
+  | {
+      key: string;
+      kind: "new";
+      file: File;
+      previewUrl: string;
+    };
 
 
 function getInitialGif(
@@ -122,19 +145,16 @@ export default function EditPostDialog({
     useState("");
 
   const [
-    replacementImage,
-    setReplacementImage,
+    galleryImages,
+    setGalleryImages,
   ] =
-    useState<File | null>(
-      null
+    useState<EditGalleryItem[]>(
+      []
     );
 
-  const [
-    replacementPreview,
-    setReplacementPreview,
-  ] =
-    useState<string | null>(
-      null
+  const galleryPreviewUrlsRef =
+    useRef<Set<string>>(
+      new Set()
     );
 
   const [
@@ -283,12 +303,39 @@ export default function EditPostDialog({
       )
     );
 
-    setReplacementImage(
-      null
-    );
+    for (
+      const previewUrl
+      of galleryPreviewUrlsRef.current
+    ) {
+      URL.revokeObjectURL(
+        previewUrl
+      );
+    }
 
-    setReplacementPreview(
-      null
+    galleryPreviewUrlsRef.current.clear();
+
+    const initialImages =
+      post.images?.length
+        ? post.images
+        : post.image_url
+          ? [{
+              id: `legacy-${post.id}`,
+              post_id: post.id,
+              image_url: post.image_url,
+              storage_path: null,
+              position: 0,
+            }]
+          : [];
+
+    setGalleryImages(
+      initialImages.map((image) => ({
+        key: image.id,
+        kind: "existing" as const,
+        id: image.id,
+        imageUrl: image.image_url,
+        storagePath: image.storage_path,
+        previewUrl: image.image_url,
+      }))
     );
 
     setGifOpen(
@@ -462,17 +509,18 @@ export default function EditPostDialog({
 
   useEffect(() => {
     return () => {
-      if (
-        replacementPreview
+      for (
+        const previewUrl
+        of galleryPreviewUrlsRef.current
       ) {
         URL.revokeObjectURL(
-          replacementPreview
+          previewUrl
         );
       }
+
+      galleryPreviewUrlsRef.current.clear();
     };
-  }, [
-    replacementPreview,
-  ]);
+  }, []);
 
 
   if (
@@ -483,30 +531,93 @@ export default function EditPostDialog({
   }
 
 
-  const chooseReplacementImage =
-    (
-      file:
-        File | null
-    ) => {
-      if (
-        replacementPreview
-      ) {
-        URL.revokeObjectURL(
-          replacementPreview
-        );
+  const addGalleryImages =
+    (files: File[]) => {
+      if (files.length === 0) {
+        return;
       }
 
-      setReplacementImage(
-        file
-      );
+      setGalleryImages((current) => {
+        const available =
+          Math.max(0, 10 - current.length);
 
-      setReplacementPreview(
-        file
-          ? URL.createObjectURL(
-              file
-            )
-          : null
-      );
+        if (available === 0) {
+          setError(
+            "Image posts are limited to 10 images."
+          );
+          return current;
+        }
+
+        const accepted = files.slice(0, available);
+
+        if (files.length > available) {
+          setError(
+            "Only the first 10 images were added."
+          );
+        } else {
+          setError(null);
+        }
+
+        const added = accepted.map((file) => {
+          const previewUrl =
+            URL.createObjectURL(file);
+
+          galleryPreviewUrlsRef.current.add(
+            previewUrl
+          );
+
+          return {
+            key: crypto.randomUUID(),
+            kind: "new" as const,
+            file,
+            previewUrl,
+          };
+        });
+
+        return [...current, ...added];
+      });
+    };
+
+
+  const removeGalleryImage =
+    (index: number) => {
+      setGalleryImages((current) => {
+        const target = current[index];
+
+        if (target?.kind === "new") {
+          URL.revokeObjectURL(
+            target.previewUrl
+          );
+          galleryPreviewUrlsRef.current.delete(
+            target.previewUrl
+          );
+        }
+
+        return current.filter(
+          (_, imageIndex) => imageIndex !== index
+        );
+      });
+    };
+
+
+  const moveGalleryImage =
+    (fromIndex: number, toIndex: number) => {
+      setGalleryImages((current) => {
+        if (
+          fromIndex < 0 ||
+          fromIndex >= current.length ||
+          toIndex < 0 ||
+          toIndex >= current.length ||
+          fromIndex === toIndex
+        ) {
+          return current;
+        }
+
+        const next = [...current];
+        const [moved] = next.splice(fromIndex, 1);
+        next.splice(toIndex, 0, moved);
+        return next;
+      });
     };
 
 
@@ -614,6 +725,22 @@ export default function EditPostDialog({
       );
 
       try {
+        const submittedImages:
+          EditablePostImage[] =
+          galleryImages.map((image) =>
+            image.kind === "existing"
+              ? {
+                  kind: "existing",
+                  id: image.id,
+                  imageUrl: image.imageUrl,
+                  storagePath: image.storagePath,
+                }
+              : {
+                  kind: "new",
+                  file: image.file,
+                }
+          );
+
         const updated =
           await updatePost(
             {
@@ -632,7 +759,8 @@ export default function EditPostDialog({
               currentImageUrl:
                 post.image_url,
 
-              replacementImage,
+              images:
+                submittedImages,
 
               categoryId,
 
@@ -728,10 +856,7 @@ export default function EditPostDialog({
             Boolean(
               body.trim()
             )
-          : Boolean(
-              replacementImage ||
-              post.image_url
-            )
+          : galleryImages.length > 0
     );
 
 
@@ -1021,94 +1146,189 @@ export default function EditPostDialog({
 
             {post.post_type ===
               "image" && (
-              <div className="edit-compose-image-row">
-                <div className="edit-compose-current-image">
-                  <img
-                    src={
-                      replacementPreview ??
-                      post.image_url ??
-                      ""
-                    }
-                    alt=""
-                  />
+              <>
+                <div className="edit-compose-image-row">
+                  <div
+                    className="edit-compose-current-image"
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "copy";
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      addGalleryImages(
+                        Array.from(event.dataTransfer.files)
+                      );
+                    }}
+                  >
+                    {galleryImages.length > 0 ? (
+                      <img
+                        src={galleryImages[0].previewUrl}
+                        alt="Primary post image"
+                      />
+                    ) : (
+                      <div className="edit-compose-image-empty">
+                        <UploadCloud size={22} />
+                        <strong>ADD AT LEAST ONE IMAGE</strong>
+                      </div>
+                    )}
 
-                  <label>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      onChange={
-                        (
-                          event
-                        ) => {
-                          chooseReplacementImage(
-                            event.target.files?.[0] ??
-                            null
+                    <label>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={(event) => {
+                          addGalleryImages(
+                            Array.from(
+                              event.target.files ?? []
+                            )
                           );
-                        }
-                      }
-                    />
+                          event.target.value = "";
+                        }}
+                      />
 
-                    <UploadCloud size={12} />
+                      <UploadCloud size={12} />
+                      ADD PHOTOS ({galleryImages.length}/10)
+                    </label>
+                  </div>
 
-                    {replacementImage
-                      ? "CHANGE REPLACEMENT"
-                      : "REPLACE IMAGE"}
-                  </label>
-                </div>
+                  <div className="edit-compose-image-copy">
+                    <label className="edit-compose-line-field">
+                      <span>
+                        TITLE
+                        <small>
+                          {title.length}/180
+                        </small>
+                      </span>
 
-                <div className="edit-compose-image-copy">
-                  <label className="edit-compose-line-field">
-                    <span>
-                      TITLE
-                      <small>
-                        {title.length}/180
-                      </small>
-                    </span>
-
-                    <input
-                      type="text"
-                      value={
-                        title
-                      }
-                      maxLength={180}
-                      onChange={
-                        (
-                          event
-                        ) => {
+                      <input
+                        type="text"
+                        value={title}
+                        maxLength={180}
+                        onChange={(event) => {
                           setTitle(
                             event.target.value
                           );
-                        }
-                      }
-                    />
-                  </label>
+                        }}
+                      />
+                    </label>
 
-                  <label className="edit-compose-commentary-field">
-                    <span>
-                      CAPTION / COMMENTARY
-                      <small>
-                        {body.length}/1500
-                      </small>
-                    </span>
+                    <label className="edit-compose-commentary-field">
+                      <span>
+                        CAPTION / COMMENTARY
+                        <small>
+                          {body.length}/1500
+                        </small>
+                      </span>
 
-                    <textarea
-                      value={
-                        body
-                      }
-                      maxLength={1500}
-                      onChange={
-                        (
-                          event
-                        ) => {
+                      <textarea
+                        value={body}
+                        maxLength={1500}
+                        onChange={(event) => {
                           setBody(
                             event.target.value
                           );
-                        }
-                      }
-                    />
-                  </label>
+                        }}
+                      />
+                    </label>
+                  </div>
                 </div>
-              </div>
+
+                {galleryImages.length > 0 && (
+                  <div className="edit-compose-gallery-editor">
+                    <div className="edit-compose-gallery-heading">
+                      <strong>PHOTO ORDER</strong>
+                      <span>
+                        Drag to reorder. Image 1 is the primary feed image.
+                      </span>
+                    </div>
+
+                    <div className="edit-compose-gallery-list">
+                      {galleryImages.map((item, index) => (
+                        <div
+                          key={item.key}
+                          className={
+                            index === 0
+                              ? "edit-compose-gallery-item primary"
+                              : "edit-compose-gallery-item"
+                          }
+                          draggable
+                          onDragStart={(event) => {
+                            event.dataTransfer.setData(
+                              "text/plain",
+                              String(index)
+                            );
+                            event.dataTransfer.effectAllowed = "move";
+                          }}
+                          onDragOver={(event) => {
+                            event.preventDefault();
+                            event.dataTransfer.dropEffect = "move";
+                          }}
+                          onDrop={(event) => {
+                            event.preventDefault();
+                            const fromIndex = Number(
+                              event.dataTransfer.getData("text/plain")
+                            );
+                            if (Number.isInteger(fromIndex)) {
+                              moveGalleryImage(fromIndex, index);
+                            }
+                          }}
+                        >
+                          <div className="edit-compose-gallery-thumb">
+                            <img
+                              src={item.previewUrl}
+                              alt={`Image ${index + 1}`}
+                            />
+                            <span>
+                              {index === 0
+                                ? "PRIMARY"
+                                : `#${index + 1}`}
+                            </span>
+                          </div>
+
+                          <div className="edit-compose-gallery-controls">
+                            <GripVertical size={12} />
+
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() =>
+                                moveGalleryImage(index, index - 1)
+                              }
+                              aria-label="Move image left"
+                            >
+                              <ChevronLeft size={11} />
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={index === galleryImages.length - 1}
+                              onClick={() =>
+                                moveGalleryImage(index, index + 1)
+                              }
+                              aria-label="Move image right"
+                            >
+                              <ChevronRight size={11} />
+                            </button>
+
+                            <button
+                              type="button"
+                              className="danger"
+                              onClick={() =>
+                                removeGalleryImage(index)
+                              }
+                              aria-label="Remove image"
+                            >
+                              <Trash2 size={11} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </main>
 

@@ -4931,3 +4931,48 @@ a.latest-member-profile-link:focus-visible {
   text-decoration:
     underline;
 }
+
+/* ==========================================================
+   POST IMAGE GALLERIES
+   ========================================================== */
+
+.featured-preview > .post-image-gallery.compact {
+  height: 112px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.featured-preview > .post-image-gallery.compact .post-image-gallery-main {
+  min-height: 0;
+  height: 100%;
+}
+
+.featured-preview > .post-image-gallery.compact .post-image-gallery-main img {
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
+}
+
+.blog-post .photo-stage .post-image-gallery {
+  width: 100%;
+  max-width: 100%;
+}
+
+.blog-post .photo-stage .post-image-gallery-main img {
+  max-height: 480px;
+}
+
+/* Existing production media rules target every image inside .photo-stage.
+   Gallery thumbnails need their own fixed crop height. */
+.blog-post .photo-stage .post-image-gallery-thumbs img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.blog-post .photo-stage .post-image-gallery-main img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}

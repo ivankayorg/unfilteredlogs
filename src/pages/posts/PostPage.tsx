@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import SiteHeader from "../../components/layout/SiteHeader";
 import PostComments from "../../components/posts/PostComments";
+import PostImageGallery from "../../components/posts/PostImageGallery";
 import { supabase } from "../../lib/supabase";
 import { getMyAccess } from "../../services/admin";
 import { togglePostLike } from "../../services/engagement";
@@ -189,8 +190,21 @@ export default function PostPage() {
               )}
 
               {post.post_type === "image" && post.image_url && (
-                <div className="post-page-media">
-                  <img src={post.image_url} alt="" />
+                <div className="post-page-media post-page-image-gallery">
+                  <PostImageGallery
+                    images={
+                      post.images?.length
+                        ? post.images
+                        : [{
+                            id: `legacy-${post.id}`,
+                            post_id: post.id,
+                            image_url: post.image_url,
+                            storage_path: null,
+                            position: 0,
+                          }]
+                    }
+                    title={post.title ?? "Image post"}
+                  />
                 </div>
               )}
 

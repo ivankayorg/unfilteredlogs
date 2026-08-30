@@ -8,9 +8,13 @@ import {
 import {
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  GripVertical,
   Image as ImageIcon,
   Images,
   Send,
+  Trash2,
   Type,
   UploadCloud,
   Video,
@@ -68,6 +72,13 @@ type Props = {
 };
 
 
+type PendingPostImage = {
+  id: string;
+  file: File;
+  previewUrl: string;
+};
+
+
 export default function QuickPostDialog({
   open,
   onClose,
@@ -108,19 +119,16 @@ export default function QuickPostDialog({
     useState("");
 
   const [
-    image,
-    setImage,
+    images,
+    setImages,
   ] =
-    useState<File | null>(
-      null
+    useState<PendingPostImage[]>(
+      []
     );
 
-  const [
-    imagePreview,
-    setImagePreview,
-  ] =
-    useState<string | null>(
-      null
+  const imagePreviewUrlsRef =
+    useRef<Set<string>>(
+      new Set()
     );
 
   const [
@@ -506,13 +514,18 @@ export default function QuickPostDialog({
 
   useEffect(() => {
     return () => {
-      if (imagePreview) {
+      for (
+        const previewUrl
+        of imagePreviewUrlsRef.current
+      ) {
         URL.revokeObjectURL(
-          imagePreview
+          previewUrl
         );
       }
+
+      imagePreviewUrlsRef.current.clear();
     };
-  }, [imagePreview]);
+  }, []);
 
 
   if (!open) {
@@ -565,14 +578,17 @@ export default function QuickPostDialog({
       []
     );
 
-    if (imagePreview) {
+    for (
+      const previewUrl
+      of imagePreviewUrlsRef.current
+    ) {
       URL.revokeObjectURL(
-        imagePreview
+        previewUrl
       );
     }
 
-    setImage(null);
-    setImagePreview(null);
+    imagePreviewUrlsRef.current.clear();
+    setImages([]);
 
     setGifOpen(false);
     setSelectedGif(null);
@@ -603,26 +619,99 @@ export default function QuickPostDialog({
     };
 
 
-  const selectImage =
-    (
-      file:
-        File | null
-    ) => {
-      if (imagePreview) {
-        URL.revokeObjectURL(
-          imagePreview
-        );
+  const addImages =
+    (files: File[]) => {
+      if (files.length === 0) {
+        return;
       }
 
-      setImage(file);
+      setImages((current) => {
+        const available =
+          Math.max(0, 10 - current.length);
 
-      setImagePreview(
-        file
-          ? URL.createObjectURL(
-              file
-            )
-          : null
-      );
+        if (available === 0) {
+          setError(
+            "Image posts are limited to 10 images."
+          );
+          return current;
+        }
+
+        const accepted =
+          files.slice(0, available);
+
+        if (files.length > available) {
+          setError(
+            "Only the first 10 images were added."
+          );
+        } else {
+          setError(null);
+        }
+
+        const nextImages =
+          accepted.map((file) => {
+            const previewUrl =
+              URL.createObjectURL(file);
+
+            imagePreviewUrlsRef.current.add(
+              previewUrl
+            );
+
+            return {
+              id: crypto.randomUUID(),
+              file,
+              previewUrl,
+            };
+          });
+
+        return [
+          ...current,
+          ...nextImages,
+        ];
+      });
+    };
+
+
+  const removeImage =
+    (index: number) => {
+      setImages((current) => {
+        const target = current[index];
+
+        if (target) {
+          URL.revokeObjectURL(
+            target.previewUrl
+          );
+
+          imagePreviewUrlsRef.current.delete(
+            target.previewUrl
+          );
+        }
+
+        return current.filter(
+          (_, imageIndex) =>
+            imageIndex !== index
+        );
+      });
+    };
+
+
+  const moveImage =
+    (fromIndex: number, toIndex: number) => {
+      setImages((current) => {
+        if (
+          fromIndex < 0 ||
+          fromIndex >= current.length ||
+          toIndex < 0 ||
+          toIndex >= current.length ||
+          fromIndex === toIndex
+        ) {
+          return current;
+        }
+
+        const next = [...current];
+        const [moved] = next.splice(fromIndex, 1);
+        next.splice(toIndex, 0, moved);
+        return next;
+      });
     };
 
 
@@ -729,7 +818,7 @@ export default function QuickPostDialog({
             );
         } else {
           if (
-            !image &&
+            images.length === 0 &&
             !selectedGif
           ) {
             throw new Error(
@@ -738,7 +827,7 @@ export default function QuickPostDialog({
           }
 
           const usingGifAsMain =
-            !image &&
+            images.length === 0 &&
             Boolean(
               selectedGif
             );
@@ -753,7 +842,10 @@ export default function QuickPostDialog({
 
                 body,
 
-                image,
+                images:
+                  images.map(
+                    (item) => item.file
+                  ),
 
                 mainGif:
                   usingGifAsMain
@@ -888,7 +980,7 @@ export default function QuickPostDialog({
               .length <=
               1500
           : Boolean(
-              image ||
+              images.length > 0 ||
               selectedGif
             ) &&
             body.trim()
@@ -1287,100 +1379,202 @@ export default function QuickPostDialog({
 
             {postType ===
               "image" && (
-              <div className="quick-compose-image-row">
-                <label className="quick-compose-image-stage">
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    onChange={
-                      (
-                        event
-                      ) => {
-                        selectImage(
-                          event.target.files?.[0] ??
-                          null
-                        );
-                      }
-                    }
-                  />
+              <>
+                <div className="quick-compose-image-row">
+                  <div
+                    className="quick-compose-image-stage"
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "copy";
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      addImages(
+                        Array.from(event.dataTransfer.files)
+                      );
+                    }}
+                  >
+                    {images.length > 0 ? (
+                      <img
+                        src={images[0].previewUrl}
+                        alt="Primary upload preview"
+                      />
+                    ) : (
+                      <div>
+                        <UploadCloud size={24} />
+                        <strong>
+                          DROP / CHOOSE IMAGES
+                        </strong>
+                        <span>
+                          JPG · PNG · WEBP · GIF · UP TO 10
+                        </span>
+                      </div>
+                    )}
 
-                  {imagePreview ? (
-                    <img
-                      src={
-                        imagePreview
-                      }
-                      alt="Selected upload preview"
-                    />
-                  ) : (
-                    <div>
-                      <UploadCloud size={24} />
-                      <strong>
-                        DROP / CHOOSE IMAGE
-                      </strong>
+                    <label className="quick-compose-image-picker">
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={(event) => {
+                          addImages(
+                            Array.from(
+                              event.target.files ?? []
+                            )
+                          );
+                          event.target.value = "";
+                        }}
+                      />
+
+                      <UploadCloud size={11} />
+                      {images.length > 0
+                        ? `ADD PHOTOS (${images.length}/10)`
+                        : "CHOOSE PHOTOS"}
+                    </label>
+                  </div>
+
+                  <div className="quick-compose-image-copy">
+                    <label className="quick-compose-line-field">
                       <span>
-                        JPG · PNG · WEBP · GIF
+                        TITLE
+
+                        <small>
+                          optional · {title.length}/180
+                        </small>
                       </span>
-                    </div>
-                  )}
-                </label>
 
-                <div className="quick-compose-image-copy">
-                  <label className="quick-compose-line-field">
-                    <span>
-                      TITLE
-
-                      <small>
-                        optional · {title.length}/180
-                      </small>
-                    </span>
-
-                    <input
-                      type="text"
-                      value={
-                        title
-                      }
-                      maxLength={180}
-                      onChange={
-                        (
-                          event
-                        ) => {
+                      <input
+                        type="text"
+                        value={title}
+                        maxLength={180}
+                        onChange={(event) => {
                           setTitle(
                             event.target.value
                           );
-                        }
-                      }
-                      placeholder="What are we looking at?"
-                    />
-                  </label>
+                        }}
+                        placeholder="What are we looking at?"
+                      />
+                    </label>
 
-                  <label className="quick-compose-commentary-field">
-                    <span>
-                      CAPTION
+                    <label className="quick-compose-commentary-field">
+                      <span>
+                        CAPTION
 
-                      <small>
-                        optional · {body.length}/1500
-                      </small>
-                    </span>
+                        <small>
+                          optional · {body.length}/1500
+                        </small>
+                      </span>
 
-                    <textarea
-                      value={
-                        body
-                      }
-                      maxLength={1500}
-                      onChange={
-                        (
-                          event
-                        ) => {
+                      <textarea
+                        value={body}
+                        maxLength={1500}
+                        onChange={(event) => {
                           setBody(
                             event.target.value
                           );
-                        }
-                      }
-                      placeholder="Context, explanation, nonsense..."
-                    />
-                  </label>
+                        }}
+                        placeholder="Context, explanation, nonsense..."
+                      />
+                    </label>
+                  </div>
                 </div>
-              </div>
+
+                {images.length > 0 && (
+                  <div className="quick-compose-gallery-editor">
+                    <div className="quick-compose-gallery-heading">
+                      <strong>PHOTO ORDER</strong>
+                      <span>
+                        Drag to reorder. Image 1 is the primary feed image.
+                      </span>
+                    </div>
+
+                    <div className="quick-compose-gallery-list">
+                      {images.map((item, index) => (
+                        <div
+                          className={
+                            index === 0
+                              ? "quick-compose-gallery-item primary"
+                              : "quick-compose-gallery-item"
+                          }
+                          key={item.id}
+                          draggable
+                          onDragStart={(event) => {
+                            event.dataTransfer.setData(
+                              "text/plain",
+                              String(index)
+                            );
+                            event.dataTransfer.effectAllowed = "move";
+                          }}
+                          onDragOver={(event) => {
+                            event.preventDefault();
+                            event.dataTransfer.dropEffect = "move";
+                          }}
+                          onDrop={(event) => {
+                            event.preventDefault();
+                            const fromIndex = Number(
+                              event.dataTransfer.getData("text/plain")
+                            );
+                            if (Number.isInteger(fromIndex)) {
+                              moveImage(fromIndex, index);
+                            }
+                          }}
+                        >
+                          <div className="quick-compose-gallery-thumb">
+                            <img
+                              src={item.previewUrl}
+                              alt={`Upload ${index + 1}`}
+                            />
+
+                            <span>
+                              {index === 0
+                                ? "PRIMARY"
+                                : `#${index + 1}`}
+                            </span>
+                          </div>
+
+                          <div className="quick-compose-gallery-controls">
+                            <GripVertical
+                              size={12}
+                              aria-hidden="true"
+                            />
+
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() =>
+                                moveImage(index, index - 1)
+                              }
+                              aria-label="Move image left"
+                            >
+                              <ChevronLeft size={11} />
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={index === images.length - 1}
+                              onClick={() =>
+                                moveImage(index, index + 1)
+                              }
+                              aria-label="Move image right"
+                            >
+                              <ChevronRight size={11} />
+                            </button>
+
+                            <button
+                              type="button"
+                              className="danger"
+                              onClick={() => removeImage(index)}
+                              aria-label="Remove image"
+                            >
+                              <Trash2 size={11} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </main>
 
@@ -1655,7 +1849,7 @@ export default function QuickPostDialog({
             <span className="quick-compose-utility-note">
               {postType ===
                 "image" &&
-              !image
+              images.length === 0
                 ? "No upload? A chosen GIF can be the main image."
                 : "Optional attachment."}
             </span>

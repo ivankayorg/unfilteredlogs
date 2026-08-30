@@ -12,6 +12,7 @@ import type {
   CreateQuickPostInput,
   EditPostInput,
   GifAttachment,
+  PostImageRecord,
   PostRecord,
 } from "../types/post";
 
@@ -188,6 +189,134 @@ async function uploadPostImage(
     storagePath:
       path,
   };
+}
+
+
+/* ==========================================================
+   IMAGE GALLERY HYDRATION
+   ========================================================== */
+
+
+function legacyImageForPost(
+  post: PostRecord,
+): PostImageRecord[] {
+  if (
+    post.post_type !== "image" ||
+    !post.image_url
+  ) {
+    return [];
+  }
+
+  return [{
+    id: `legacy-${post.id}`,
+    post_id: post.id,
+    image_url: post.image_url,
+    storage_path: null,
+    position: 0,
+  }];
+}
+
+
+async function attachPostImages(
+  rows: PostRecord[],
+): Promise<PostRecord[]> {
+  if (rows.length === 0) {
+    return [];
+  }
+
+  const postIds = rows.map((row) => row.id);
+
+  const {
+    data,
+    error,
+  } = await supabase
+    .from("post_images")
+    .select("id, post_id, image_url, storage_path, position")
+    .in("post_id", postIds)
+    .order("position", { ascending: true });
+
+  if (error) {
+    console.warn(
+      "UNFILTERED LOGS IMAGE GALLERY LOAD ERROR; USING LEGACY IMAGE_URL:",
+      error
+    );
+
+    return rows.map((row) => ({
+      ...row,
+      images: legacyImageForPost(row),
+    }));
+  }
+
+  const imagesByPost = new Map<string, PostImageRecord[]>();
+
+  for (const raw of data ?? []) {
+    const image = raw as PostImageRecord;
+    const existing = imagesByPost.get(image.post_id) ?? [];
+    existing.push(image);
+    imagesByPost.set(image.post_id, existing);
+  }
+
+  return rows.map((row) => {
+    const gallery = imagesByPost.get(row.id) ?? [];
+
+    return {
+      ...row,
+      images:
+        gallery.length > 0
+          ? gallery
+          : legacyImageForPost(row),
+    };
+  });
+}
+
+
+async function setPostImages(
+  postId: string,
+  images: Array<{
+    imageUrl: string;
+    storagePath: string | null;
+  }>,
+) {
+  const { error } = await supabase.rpc(
+    "set_post_images",
+    {
+      target_post: postId,
+      image_rows: images.map((image) => ({
+        image_url: image.imageUrl,
+        storage_path: image.storagePath,
+      })),
+    }
+  );
+
+  if (error) {
+    throw new Error(
+      `Could not save the image gallery. Apply migrations/20260830000100_post_image_galleries.sql first if the gallery migration has not been installed. ${error.message}`
+    );
+  }
+}
+
+
+async function removeStoredImages(
+  storagePaths: string[],
+) {
+  const uniquePaths = Array.from(
+    new Set(storagePaths.filter(Boolean))
+  );
+
+  if (uniquePaths.length === 0) {
+    return;
+  }
+
+  const { error } = await supabase.storage
+    .from(POST_IMAGE_BUCKET)
+    .remove(uniquePaths);
+
+  if (error) {
+    console.warn(
+      "UNFILTERED LOGS IMAGE CLEANUP ERROR:",
+      error
+    );
+  }
 }
 
 
@@ -644,46 +773,34 @@ export async function createQuickPost(
   const user =
     await getCurrentUser();
 
-  if (
-    !input.categoryId
-  ) {
+  if (!input.categoryId) {
     throw new Error(
       "Choose a category."
     );
   }
 
-  if (
-    input.tagIds.length >
-    5
-  ) {
+  if (input.tagIds.length > 5) {
     throw new Error(
       "Choose no more than five tags."
     );
   }
 
-  let storagePath:
-    string | null = null;
-
   let payload:
     Record<string, unknown>;
 
+  const uploadedImages: Array<{
+    imageUrl: string;
+    storagePath: string | null;
+  }> = [];
 
   const optionalGif =
     input.gif
-      ? getGifFields(
-          input.gif
-        )
+      ? getGifFields(input.gif)
       : {};
 
-
-  if (
-    input.postType ===
-    "youtube"
-  ) {
+  if (input.postType === "youtube") {
     const parsed =
-      parseYouTubeUrl(
-        input.youtubeUrl
-      );
+      parseYouTubeUrl(input.youtubeUrl);
 
     if (!parsed) {
       throw new Error(
@@ -692,54 +809,22 @@ export async function createQuickPost(
     }
 
     payload = {
-      user_id:
-        user.id,
-
-      post_type:
-        "youtube",
-
-      category_id:
-        input.categoryId,
-
-      display_size:
-        input.displaySize,
-
-      title:
-        cleanOptionalText(
-          input.title
-        ),
-
-      body:
-        cleanOptionalText(
-          input.body
-        ),
-
-      youtube_url:
-        parsed.canonicalUrl,
-
-      youtube_id:
-        parsed.youtubeId,
-
-      video_type:
-        parsed.videoType,
-
-      image_url:
-        null,
-
+      user_id: user.id,
+      post_type: "youtube",
+      category_id: input.categoryId,
+      display_size: input.displaySize,
+      title: cleanOptionalText(input.title),
+      body: cleanOptionalText(input.body),
+      youtube_url: parsed.canonicalUrl,
+      youtube_id: parsed.youtubeId,
+      video_type: parsed.videoType,
+      image_url: null,
       ...optionalGif,
-
-      published:
-        true,
+      published: true,
     };
-  } else if (
-    input.postType ===
-    "text"
-  ) {
-    const title =
-      input.title.trim();
-
-    const body =
-      input.body.trim();
+  } else if (input.postType === "text") {
+    const title = input.title.trim();
+    const body = input.body.trim();
 
     if (!title) {
       throw new Error(
@@ -747,9 +832,7 @@ export async function createQuickPost(
       );
     }
 
-    if (
-      title.length > 180
-    ) {
+    if (title.length > 180) {
       throw new Error(
         "Titles are limited to 180 characters."
       );
@@ -761,151 +844,112 @@ export async function createQuickPost(
       );
     }
 
-    if (
-      body.length > 1500
-    ) {
+    if (body.length > 1500) {
       throw new Error(
         "Posts are limited to 1500 characters."
       );
     }
 
     payload = {
-      user_id:
-        user.id,
-
-      post_type:
-        "text",
-
-      category_id:
-        input.categoryId,
-
-      display_size:
-        input.displaySize,
-
+      user_id: user.id,
+      post_type: "text",
+      category_id: input.categoryId,
+      display_size: input.displaySize,
       title,
-
       body,
-
-      youtube_url:
-        null,
-
-      youtube_id:
-        null,
-
-      video_type:
-        null,
-
-      image_url:
-        null,
-
+      youtube_url: null,
+      youtube_id: null,
+      video_type: null,
+      image_url: null,
       ...optionalGif,
-
-      published:
-        true,
+      published: true,
     };
   } else {
-    let primaryImageUrl:
-      string;
+    const files =
+      input.images?.length
+        ? input.images
+        : input.image
+          ? [input.image]
+          : [];
 
-    if (input.image) {
-      const uploaded =
-        await uploadPostImage(
-          user.id,
-          input.image
+    if (files.length > 10) {
+      throw new Error(
+        "Image posts are limited to 10 images."
+      );
+    }
+
+    try {
+      for (const file of files) {
+        uploadedImages.push(
+          await uploadPostImage(
+            user.id,
+            file
+          )
         );
+      }
+    } catch (uploadError) {
+      await removeStoredImages(
+        uploadedImages
+          .map((image) => image.storagePath)
+          .filter((path): path is string => Boolean(path))
+      );
+      throw uploadError;
+    }
 
-      storagePath =
-        uploaded.storagePath;
-
-      primaryImageUrl =
-        uploaded.imageUrl;
-    } else if (
+    if (
+      uploadedImages.length === 0 &&
       input.mainGif
     ) {
-      primaryImageUrl =
-        input.mainGif.url;
-    } else {
+      uploadedImages.push({
+        imageUrl: input.mainGif.url,
+        storagePath: null,
+      });
+    }
+
+    if (uploadedImages.length === 0) {
       throw new Error(
-        "Pick an image or choose a GIF from GIPHY."
+        "Pick at least one image or choose a GIF from GIPHY."
       );
     }
 
     payload = {
-      user_id:
-        user.id,
-
-      post_type:
-        "image",
-
-      category_id:
-        input.categoryId,
-
-      display_size:
-        input.displaySize,
-
-      title:
-        cleanOptionalText(
-          input.title
-        ),
-
-      body:
-        cleanOptionalText(
-          input.body
-        ),
-
-      youtube_url:
-        null,
-
-      youtube_id:
-        null,
-
-      video_type:
-        null,
-
-      image_url:
-        primaryImageUrl,
-
+      user_id: user.id,
+      post_type: "image",
+      category_id: input.categoryId,
+      display_size: input.displaySize,
+      title: cleanOptionalText(input.title),
+      body: cleanOptionalText(input.body),
+      youtube_url: null,
+      youtube_id: null,
+      video_type: null,
+      image_url: uploadedImages[0].imageUrl,
       ...optionalGif,
-
-      published:
-        true,
+      published: true,
     };
   }
 
-
-  const {
-    data,
-    error,
-  } =
+  const { data, error } =
     await supabase
       .from("posts")
       .insert(payload)
       .select("*")
       .single();
 
-
   if (error) {
-    if (storagePath) {
-      await supabase.storage
-        .from(
-          POST_IMAGE_BUCKET
-        )
-        .remove([
-          storagePath,
-        ]);
-    }
+    await removeStoredImages(
+      uploadedImages
+        .map((image) => image.storagePath)
+        .filter((path): path is string => Boolean(path))
+    );
 
     if (
-      error.code ===
-        "23514" &&
+      error.code === "23514" &&
       /posts_content_check/i.test(
-        error.message ??
-        ""
+        error.message ?? ""
       )
     ) {
       throw new Error(
-        input.postType ===
-          "text"
+        input.postType === "text"
           ? "That text post does not match the site's content rules. Make sure it has a body and stays within the allowed text length."
           : "That post is missing content required for its post type."
       );
@@ -914,67 +958,55 @@ export async function createQuickPost(
     throw error;
   }
 
-
-  const {
-    error:
-      taxonomyError,
-  } =
-    await supabase.rpc(
-      "set_post_tags",
-      {
-        target_post:
-          data.id,
-
-        tag_ids:
-          input.tagIds,
-      }
-    );
-
-
-  if (taxonomyError) {
-    await supabase
-      .from(
-        "posts"
-      )
-      .delete()
-      .eq(
-        "id",
-        data.id
-      )
-      .eq(
-        "user_id",
-        user.id
+  try {
+    if (input.postType === "image") {
+      await setPostImages(
+        data.id,
+        uploadedImages
       );
-
-    if (storagePath) {
-      await supabase.storage
-        .from(
-          POST_IMAGE_BUCKET
-        )
-        .remove([
-          storagePath,
-        ]);
     }
 
-    throw taxonomyError;
-  }
+    const { error: taxonomyError } =
+      await supabase.rpc(
+        "set_post_tags",
+        {
+          target_post: data.id,
+          tag_ids: input.tagIds,
+        }
+      );
 
+    if (taxonomyError) {
+      throw taxonomyError;
+    }
+  } catch (postSetupError) {
+    await supabase
+      .from("posts")
+      .delete()
+      .eq("id", data.id)
+      .eq("user_id", user.id);
+
+    await removeStoredImages(
+      uploadedImages
+        .map((image) => image.storagePath)
+        .filter((path): path is string => Boolean(path))
+    );
+
+    throw postSetupError;
+  }
 
   const profiled =
     await attachProfiles([
-      data as
-        Record<string, any>,
+      data as Record<string, any>,
     ]);
 
-  const attached =
-    await attachTaxonomy(
-      profiled
-    );
+  const withImages =
+    await attachPostImages(profiled);
 
+  const attached =
+    await attachTaxonomy(withImages);
 
   return {
     ...attached[0],
-
     like_count: 0,
     comment_count: 0,
     liked_by_me: false,
@@ -1038,9 +1070,14 @@ export async function getFeedPosts() {
         >
     );
 
+  const withImages =
+    await attachPostImages(
+      profiledRecords
+    );
+
   const records =
     await attachTaxonomy(
-      profiledRecords
+      withImages
     );
 
   const mainFeedRecords =
@@ -1108,9 +1145,14 @@ Promise<
     ]);
 
 
+  const withImages =
+    await attachPostImages(
+      profiledRecords
+    );
+
   const attachedRecords =
     await attachTaxonomy(
-      profiledRecords
+      withImages
     );
 
 
@@ -1158,266 +1200,222 @@ export async function updatePost(
   const user =
     await getCurrentUser();
 
-  if (
-    !input.categoryId
-  ) {
+  if (!input.categoryId) {
     throw new Error(
       "Choose a category."
     );
   }
 
-  if (
-    input.tagIds.length >
-      5
-  ) {
+  if (input.tagIds.length > 5) {
     throw new Error(
       "Choose no more than five tags."
     );
   }
 
+  let youtubeUrl: string | null = null;
+  let youtubeId: string | null = null;
+  let videoType: string | null = null;
+  let imageUrl = input.currentImageUrl ?? null;
 
-  let newStoragePath:
-    string | null =
-      null;
+  const newlyUploaded: Array<{
+    imageUrl: string;
+    storagePath: string | null;
+  }> = [];
 
-  let imageUrl =
-    input.currentImageUrl ??
-    null;
+  let finalImages: Array<{
+    imageUrl: string;
+    storagePath: string | null;
+  }> = [];
 
+  let previousStoredPaths: string[] = [];
 
-  if (
-    input.postType ===
-      "image" &&
-    input.replacementImage
-  ) {
-    const uploaded =
-      await uploadPostImage(
-        user.id,
-        input.replacementImage
-      );
-
-    imageUrl =
-      uploaded.imageUrl;
-
-    newStoragePath =
-      uploaded.storagePath;
-  }
-
-
-  let youtubeUrl:
-    string | null =
-      null;
-
-  let youtubeId:
-    string | null =
-      null;
-
-  let videoType:
-    string | null =
-      null;
-
-
-  if (
-    input.postType ===
-      "youtube"
-  ) {
+  if (input.postType === "youtube") {
     const parsed =
-      parseYouTubeUrl(
-        input.youtubeUrl ??
-        ""
-      );
+      parseYouTubeUrl(input.youtubeUrl ?? "");
 
     if (!parsed) {
-      if (newStoragePath) {
-        await supabase.storage
-          .from(
-            POST_IMAGE_BUCKET
-          )
-          .remove([
-            newStoragePath,
-          ]);
-      }
-
       throw new Error(
         "That does not look like a valid YouTube URL."
       );
     }
 
-    youtubeUrl =
-      parsed.canonicalUrl;
-
-    youtubeId =
-      parsed.youtubeId;
-
-    videoType =
-      parsed.videoType;
+    youtubeUrl = parsed.canonicalUrl;
+    youtubeId = parsed.youtubeId;
+    videoType = parsed.videoType;
   }
 
-
-  if (
-    input.postType ===
-      "text"
-  ) {
-    if (
-      !input.title?.trim()
-    ) {
+  if (input.postType === "text") {
+    if (!input.title?.trim()) {
       throw new Error(
         "Give the post a title."
       );
     }
 
-    if (
-      !input.body?.trim()
-    ) {
+    if (!input.body?.trim()) {
       throw new Error(
         "Write something first."
       );
     }
 
-    if (
-      input.body.trim().length >
-      1500
-    ) {
+    if (input.body.trim().length > 1500) {
       throw new Error(
         "Posts are limited to 1500 characters."
       );
     }
   }
 
+  if (input.postType === "image") {
+    const submittedImages =
+      input.images ??
+      (input.replacementImage
+        ? [{ kind: "new" as const, file: input.replacementImage }]
+        : input.currentImageUrl
+          ? [{
+              kind: "existing" as const,
+              id: `legacy-${input.postId}`,
+              imageUrl: input.currentImageUrl,
+              storagePath: null,
+            }]
+          : []);
 
-  if (
-    input.postType ===
-      "image" &&
-    !imageUrl
-  ) {
-    throw new Error(
-      "The image post needs an image."
-    );
+    if (submittedImages.length < 1) {
+      throw new Error(
+        "The image post needs at least one image."
+      );
+    }
+
+    if (submittedImages.length > 10) {
+      throw new Error(
+        "Image posts are limited to 10 images."
+      );
+    }
+
+    const {
+      data: previousImages,
+      error: previousImagesError,
+    } = await supabase
+      .from("post_images")
+      .select("storage_path")
+      .eq("post_id", input.postId);
+
+    if (!previousImagesError) {
+      previousStoredPaths =
+        (previousImages ?? [])
+          .map((row) => row.storage_path as string | null)
+          .filter((path): path is string => Boolean(path));
+    }
+
+    try {
+      for (const image of submittedImages) {
+        if (image.kind === "existing") {
+          finalImages.push({
+            imageUrl: image.imageUrl,
+            storagePath: image.storagePath,
+          });
+        } else {
+          const uploaded =
+            await uploadPostImage(
+              user.id,
+              image.file
+            );
+
+          newlyUploaded.push(uploaded);
+          finalImages.push(uploaded);
+        }
+      }
+
+      imageUrl = finalImages[0]?.imageUrl ?? null;
+
+      if (!imageUrl) {
+        throw new Error(
+          "The image post needs at least one image."
+        );
+      }
+
+      await setPostImages(
+        input.postId,
+        finalImages
+      );
+    } catch (galleryError) {
+      await removeStoredImages(
+        newlyUploaded
+          .map((image) => image.storagePath)
+          .filter((path): path is string => Boolean(path))
+      );
+
+      throw galleryError;
+    }
   }
-
 
   const gifFields =
     input.gif
-      ? getGifFields(
-          input.gif
-        )
+      ? getGifFields(input.gif)
       : {
-          gif_id:
-            null,
-
-          gif_url:
-            null,
-
-          gif_preview_url:
-            null,
+          gif_id: null,
+          gif_url: null,
+          gif_preview_url: null,
         };
 
-
-  const {
-    error,
-  } =
+  const { error } =
     await supabase.rpc(
       "edit_post",
       {
-        target_post:
-          input.postId,
-
-        new_title:
-          cleanOptionalText(
-            input.title
-          ),
-
-        new_body:
-          cleanOptionalText(
-            input.body
-          ),
-
-        new_youtube_url:
-          youtubeUrl,
-
-        new_youtube_id:
-          youtubeId,
-
-        new_video_type:
-          videoType,
-
-        new_image_url:
-          imageUrl,
-
-        new_category_id:
-          input.categoryId,
-
-        new_tag_ids:
-          input.tagIds,
-
-        new_gif_id:
-          gifFields.gif_id,
-
-        new_gif_url:
-          gifFields.gif_url,
-
-        new_gif_preview_url:
-          gifFields
-            .gif_preview_url,
+        target_post: input.postId,
+        new_title: cleanOptionalText(input.title),
+        new_body: cleanOptionalText(input.body),
+        new_youtube_url: youtubeUrl,
+        new_youtube_id: youtubeId,
+        new_video_type: videoType,
+        new_image_url: imageUrl,
+        new_category_id: input.categoryId,
+        new_tag_ids: input.tagIds,
+        new_gif_id: gifFields.gif_id,
+        new_gif_url: gifFields.gif_url,
+        new_gif_preview_url: gifFields.gif_preview_url,
       }
     );
 
-
   if (error) {
-    if (newStoragePath) {
-      await supabase.storage
-        .from(
-          POST_IMAGE_BUCKET
-        )
-        .remove([
-          newStoragePath,
-        ]);
-    }
-
     throw error;
   }
 
-
-  const {
-    error:
-      displaySizeError,
-  } =
+  const { error: displaySizeError } =
     await supabase.rpc(
       "set_post_display_size",
       {
-        target_post:
-          input.postId,
-
-        new_display_size:
-          input.displaySize,
+        target_post: input.postId,
+        new_display_size: input.displaySize,
       }
     );
-
 
   if (displaySizeError) {
     throw displaySizeError;
   }
 
-
-  const refreshed =
-    await getFeedPosts();
-
-  const updated =
-    refreshed.find(
-      (
-        post
-      ) =>
-        post.id ===
-        input.postId
+  if (input.postType === "image") {
+    const keptPaths = new Set(
+      finalImages
+        .map((image) => image.storagePath)
+        .filter((path): path is string => Boolean(path))
     );
 
+    await removeStoredImages(
+      previousStoredPaths.filter(
+        (path) => !keptPaths.has(path)
+      )
+    );
+  }
+
+  const updated =
+    await getPostById(
+      input.postId
+    );
 
   if (!updated) {
     throw new Error(
       "The post was updated, but UNFILTERED LOGS could not reload it."
     );
   }
-
 
   return updated;
 }
@@ -1431,20 +1429,29 @@ export async function updatePost(
 export async function deletePost(
   postId: string,
 ) {
-  const {
-    error,
-  } =
+  const { data: imageRows } =
+    await supabase
+      .from("post_images")
+      .select("storage_path")
+      .eq("post_id", postId);
+
+  const { error } =
     await supabase.rpc(
       "delete_post",
       {
-        target_post:
-          postId,
+        target_post: postId,
       }
     );
 
   if (error) {
     throw error;
   }
+
+  await removeStoredImages(
+    (imageRows ?? [])
+      .map((row) => row.storage_path as string | null)
+      .filter((path): path is string => Boolean(path))
+  );
 }
 
 

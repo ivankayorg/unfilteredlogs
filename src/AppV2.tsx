@@ -24,6 +24,7 @@ import SiteFooter from "./components/layout/SiteFooter";
 import QuickPostDialog from "./components/posts/QuickPostDialog";
 import EditPostDialog from "./components/posts/EditPostDialog";
 import PostComments from "./components/posts/PostComments";
+import PostImageGallery from "./components/posts/PostImageGallery";
 
 import {
   deletePost,
@@ -146,6 +147,7 @@ type Post = {
   type: PostType;
   description?: string;
   image?: string;
+  images?: PostRecord["images"];
   youtubeId?: string;
   gifUrl?: string;
   source?: string;
@@ -430,6 +432,10 @@ function mapPostRecord(
       image:
         post.image_url ??
         undefined,
+
+      images:
+        post.images ??
+        [],
     };
   }
 
@@ -569,9 +575,25 @@ function MediaStage({ post }: { post: Post }) {
   }
 
   if (post.type === "image" || post.type === "gallery") {
+    const galleryImages =
+      post.images?.length
+        ? post.images
+        : post.image
+          ? [{
+              id: `legacy-${post.id}`,
+              post_id: String(post.id),
+              image_url: post.image,
+              storage_path: null,
+              position: 0,
+            }]
+          : [];
+
     return (
       <div className="photo-stage">
-        {post.image ? <img src={post.image} alt={post.title} /> : null}
+        <PostImageGallery
+          images={galleryImages}
+          title={post.title}
+        />
       </div>
     );
   }
@@ -633,6 +655,22 @@ function FrontPageCard({
   const canDelete = Boolean(isOwner || isStaff);
   const isVideo = post.type === "video" || post.type === "short";
   const mediaUrl = post.gifUrl ?? (post.type === "text" ? undefined : post.image);
+
+  const featuredGalleryImages =
+    post.type === "image" || post.type === "gallery"
+      ? post.images?.length
+        ? post.images
+        : post.image
+          ? [{
+              id: `legacy-${post.id}`,
+              post_id: String(post.id),
+              image_url: post.image,
+              storage_path: null,
+              position: 0,
+            }]
+          : []
+      : [];
+
   const pinnedYouTube =
     isVideo &&
     Boolean(post.youtubeId);
@@ -679,6 +717,12 @@ function FrontPageCard({
               />
             </span>
           </a>
+        ) : featuredGalleryImages.length > 0 ? (
+          <PostImageGallery
+            images={featuredGalleryImages}
+            title={post.title}
+            compact
+          />
         ) : mediaUrl ? (
           <img src={mediaUrl} alt={post.title} />
         ) : (
