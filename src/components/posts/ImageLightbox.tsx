@@ -6,9 +6,6 @@ import {
 import {
   ChevronLeft,
   ChevronRight,
-  Maximize2,
-  Minimize2,
-  X,
 } from "lucide-react";
 
 import type {
@@ -38,9 +35,6 @@ export default function ImageLightbox({
       Math.max(images.length - 1, 0)
     )
   );
-
-  const [fitToWindow, setFitToWindow] =
-    useState(false);
 
 
   useEffect(() => {
@@ -111,35 +105,11 @@ export default function ImageLightbox({
         }
       }}
     >
-      <div className="image-lightbox-toolbar">
-        <span>
+      {images.length > 1 && (
+        <div className="image-lightbox-count">
           {index + 1} / {images.length}
-        </span>
-
-        <button
-          type="button"
-          onClick={() =>
-            setFitToWindow((currentValue) => !currentValue)
-          }
-          title={fitToWindow ? "Show actual size" : "Fit to window"}
-        >
-          {fitToWindow ? (
-            <Maximize2 size={15} />
-          ) : (
-            <Minimize2 size={15} />
-          )}
-          {fitToWindow ? "ACTUAL SIZE" : "FIT TO WINDOW"}
-        </button>
-
-        <button
-          className="image-lightbox-close"
-          type="button"
-          onClick={onClose}
-          aria-label="Close image viewer"
-        >
-          <X size={18} />
-        </button>
-      </div>
+        </div>
+      )}
 
       {images.length > 1 && (
         <>
@@ -173,11 +143,7 @@ export default function ImageLightbox({
       )}
 
       <div
-        className={
-          fitToWindow
-            ? "image-lightbox-canvas fit"
-            : "image-lightbox-canvas actual"
-        }
+        className="image-lightbox-canvas"
         onMouseDown={(event) => {
           if (event.target === event.currentTarget) {
             onClose();
@@ -188,7 +154,8 @@ export default function ImageLightbox({
           src={current.image_url}
           alt={title ?? ""}
           draggable={false}
-          onMouseDown={(event) => event.stopPropagation()}
+          title="Click to return to post"
+          onClick={onClose}
         />
       </div>
 
